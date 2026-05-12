@@ -74,6 +74,10 @@ The skill is assigned to `orchestrator`. The orchestrator may ask `@librarian`
 to identify important dependencies and resolve official repository URLs/tags,
 then asks for approval before running the bundled sync script.
 
+After syncing, the orchestrator also adds or updates a concise
+`## Cloned Dependency Source` section in root `AGENTS.md`, pointing future agents
+to `.slim/clonedeps.json` and `.slim/clonedeps/repos/`.
+
 Safety defaults:
 
 - direct, important dependencies only;

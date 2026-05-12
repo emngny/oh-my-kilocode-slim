@@ -19,6 +19,7 @@ const {
   safePackagePathName,
   scanProject,
   saveState,
+  syncWithOperations,
   updateIgnoreFiles,
   validatePlan,
   ValidationError,
@@ -177,6 +178,68 @@ describe('state and ignore file management', () => {
     expect(readFileSync(path.join(root, '.gitignore'), 'utf8')).not.toContain(
       'oh-my-opencode-slim clonedeps',
     );
+  });
+
+  test('sync saves partial state when a later clone fails', () => {
+    const root = createTempDir();
+    const plan = {
+      version: '1.0.0',
+      dependencies: [
+        validPlan().dependencies[0],
+        {
+          ...validPlan({ name: 'zod' }).dependencies[0],
+          resolvedVersion: '4.0.0',
+          repoUrl: 'https://github.com/colinhacks/zod.git',
+          ref: 'v4.0.0',
+        },
+      ],
+    };
+    let clones = 0;
+
+    expect(() =>
+      syncWithOperations(root, plan, {
+        cloneDependency: (_root, dependency) => {
+          clones += 1;
+          if (clones === 2) throw new Error('clone failed');
+          const clonePath = clonePathForDependency(root, dependency);
+          mkdirSync(clonePath, { recursive: true });
+          return { path: clonePath, status: 'cloned' };
+        },
+        saveState,
+        updateIgnoreFiles,
+        verifyRemoteRef: () => 'exact',
+      }),
+    ).toThrow('clone failed');
+
+    expect(loadState(root)?.dependencies).toHaveLength(1);
+    expect(readFileSync(path.join(root, '.gitignore'), 'utf8')).toContain(
+      '.slim/clonedeps/repos/',
+    );
+  });
+
+  test('sync preserves existing state when first clone fails', () => {
+    const root = createTempDir();
+    const dependency = validatePlan(validPlan()).dependencies[0];
+    saveState(root, [
+      {
+        ...dependency,
+        path: '.slim/clonedeps/repos/npm/@opencode-ai__sdk/1.3.17',
+        status: 'cloned',
+      },
+    ]);
+
+    expect(() =>
+      syncWithOperations(root, validPlan(), {
+        cloneDependency: () => {
+          throw new Error('first clone failed');
+        },
+        saveState,
+        updateIgnoreFiles,
+        verifyRemoteRef: () => 'exact',
+      }),
+    ).toThrow('first clone failed');
+
+    expect(loadState(root)?.dependencies).toHaveLength(1);
   });
 });
 

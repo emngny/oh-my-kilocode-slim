@@ -18,3 +18,6 @@ node ~/.config/opencode/skills/clonedeps/scripts/clonedeps.mjs clean --root .
 ```
 
 Cloned repositories live under `.slim/clonedeps/repos/` and are ignored by git.
+After syncing, the orchestrator should add or update a concise
+`## Cloned Dependency Source` section in the repo root `AGENTS.md` pointing
+future agents to `.slim/clonedeps.json` and `.slim/clonedeps/repos/`.

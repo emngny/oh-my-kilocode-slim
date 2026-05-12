@@ -25,7 +25,10 @@ updates ignore marker blocks, and shallow-clones selected repositories.
 3. User approves the plan.
 4. Orchestrator runs `sync --plan`, which validates input, updates ignore files,
    verifies refs where possible, clones to temp directories, then writes state.
-5. `status` reports current state; `clean` removes managed clones/state and
+5. Orchestrator updates root `AGENTS.md` with a concise
+   `## Cloned Dependency Source` pointer to `.slim/clonedeps.json` and the clone
+   directory.
+6. `status` reports current state; `clean` removes managed clones/state and
    marker blocks.
 
 ## Integration

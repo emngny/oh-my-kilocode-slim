@@ -357,26 +357,50 @@ export function cloneDependency(root, dependency) {
 }
 
 export function sync(root, plan) {
-  const validated = validatePlan(plan);
-  for (const dependency of validated.dependencies) {
-    clonePathForDependency(root, dependency);
-  }
+  return syncWithOperations(root, plan);
+}
 
-  updateIgnoreFiles(root);
+export function syncWithOperations(root, plan, operations = {}) {
+  const ops = {
+    cloneDependency,
+    saveState,
+    updateIgnoreFiles,
+    verifyRemoteRef,
+    ...operations,
+  };
+  const validated = validatePlan(plan);
   const dependencies = [];
 
-  for (const dependency of validated.dependencies) {
-    const refStatus = verifyRemoteRef(dependency.repoUrl, dependency.ref);
-    const result = cloneDependency(root, dependency);
-    dependencies.push({
-      ...dependency,
-      path: normalizePath(path.relative(root, result.path)),
-      refStatus,
-      status: result.status,
-    });
+  if (validated.dependencies.length === 0) {
+    return ops.saveState(root, dependencies);
   }
 
-  return saveState(root, dependencies);
+  ops.updateIgnoreFiles(root);
+
+  try {
+    for (const dependency of validated.dependencies) {
+      const refStatus = ops.verifyRemoteRef(dependency.repoUrl, dependency.ref);
+      const result = ops.cloneDependency(root, dependency);
+      dependencies.push({
+        ...dependency,
+        path: normalizePath(path.relative(root, result.path)),
+        refStatus,
+        status: result.status,
+      });
+      ops.saveState(root, dependencies);
+    }
+  } catch (error) {
+    if (dependencies.length > 0) {
+      try {
+        ops.saveState(root, dependencies);
+      } catch {
+        // Preserve the original clone/fetch error for the caller.
+      }
+    }
+    throw error;
+  }
+
+  return ops.saveState(root, dependencies);
 }
 
 export function clean(root) {

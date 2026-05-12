@@ -43,6 +43,10 @@ Expected flow:
 5. Orchestrator runs the bundled script to sync selected dependencies.
 6. Script writes state, updates ignore files, and performs safe clone/update
    operations.
+7. Orchestrator adds or updates a concise `## Cloned Dependency Source` section
+   in root `AGENTS.md` pointing future agents to `.slim/clonedeps.json` and
+   `.slim/clonedeps/repos/`, with wording that the clones are local cache and
+   may not exist in every checkout.
 
 ## Agent Ownership
 
@@ -318,8 +322,8 @@ Likely tests:
 2. Should the script support sparse checkout for monorepos in MVP, or defer?
 3. Should cloned repos be under `.slim/clonedeps/repos` or a shorter root like
    `.deps-src` for easier manual browsing?
-4. Should the skill update `AGENTS.md` to mention available cloned dependency
-   source, or is `.ignore` visibility enough?
+4. Should `clean` also remove the `AGENTS.md` section, or leave historical
+   guidance for agents? MVP leaves it unless the user asks to remove it.
 
 ## Implementation Sequence
 

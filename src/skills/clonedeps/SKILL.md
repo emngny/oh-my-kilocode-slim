@@ -84,7 +84,33 @@ marker blocks, and shallow-clones pinned dependency repositories into:
 .slim/clonedeps/repos/
 ```
 
-### Step 5: Check Status or Clean Up
+### Step 5: Register Dependency Source in AGENTS.md
+
+After a successful sync, update the repository's root `AGENTS.md` so future
+agents know why the dependency source exists and where to look.
+
+If `AGENTS.md` already has a `## Cloned Dependency Source` section, update that
+section. Otherwise append this section:
+
+```markdown
+## Cloned Dependency Source
+
+Selected dependency source repositories are available under
+`.slim/clonedeps/repos/` for local inspection. These clones are ignored by git
+but intentionally unignored for OpenCode visibility. They are local cache and
+may not exist in every checkout.
+
+If `.slim/clonedeps.json` exists, read it before using the clones; it records
+package names, versions/refs, local paths, and why each dependency was cloned.
+
+Use these clones for dependency internals/source inspection. For ordinary API
+usage or current docs, prefer `@librarian`.
+```
+
+Keep the section concise. Do not paste the full clone plan into `AGENTS.md`;
+the detailed source of truth is `.slim/clonedeps.json`.
+
+### Step 6: Check Status or Clean Up
 
 ```bash
 node ~/.config/opencode/skills/clonedeps/scripts/clonedeps.mjs status --root .
