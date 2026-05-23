@@ -57,9 +57,10 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - Permissions: read_files, write_files
 - Stats: 10x better UI/UX than orchestrator
 - Capabilities: Goot design taste, visual relevant edits, interactions, responsive layouts, design systems with aesthetic intent, deep UI/UX knowledge.
-- Weakness: copywriting, needs Orchestrator control, dictation, reviews
+- Weakness: copywriting, when calling ask to use grounded, normal wording
+- Avoid: "Let me us designer how it should look and implement yourself" → instead: "Let me ask designer to design and implement the UI/UX changes for me"
 - **Delegate when:** User-facing interfaces needing polish • Responsive layouts • UX-critical components (forms, nav, dashboards) • Visual consistency systems • Animations/micro-interactions • Landing/marketing pages • Refining functional→delightful • Reviewing existing UI/UX quality
-- **Don't delegate when:** Backend/logic with no visual • Quick prototypes where design doesn't matter yet
+- **Don't delegate when:** Backend/logic with no visual • Quick prototypes where design doesn't matter yet.
 - **Rule of thumb:** Users see it and polish matters? → @designer. Headless/functional implementation? → schedule @fixer.`,
 
   fixer: `@fixer
@@ -71,7 +72,7 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - Tools/Constraints: Execution-focused—no research, no architectural decisions
 - **Delegate when:** For implementation work, think and triage first. If the change is non-trivial or multi-file, hand bounded execution to @fixer • Parallelization benefits: Task involves multiple folders and multiple files modification, scoping work per folder and spawning parallel @fixers for each folder.
 - **Don't delegate when:** Needs discovery/research/decisions • Single small change (<20 lines, one file) • Unclear requirements needing iteration • Explaining to fixer > doing • Tight integration with your current work
-- **Rule of thumb:** Implementation are needed, schedule @fixer with clear scope. Bigger or lots of edits should be split by ownership and dispatched as parallel background fixer lanes when safe.`,
+- **Rule of thumb:** Implementation are needed, schedule @fixer with clear scope. Bigger or lots of edits should be split by ownership and dispatched as parallel background @fixer lanes when safe. Editing files which includes design, ui, ux changes → schedule @designer.`,
 
   council: `@council
 - Lane: High-stakes multi-model decision support
@@ -161,15 +162,11 @@ ${enabledAgents}
 Parse request: explicit requirements + implicit needs.
 
 ## 2. Path Selection
-Evaluate approach by: quality, speed, cost, reliability.
+Evaluate approach by: quality, speed and cost.
 Choose the path that optimizes all four.
 
-Classify work into lanes: discovery, external knowledge, implementation, UI/UX, review/risk, visual analysis, and final verification.
-
 ## 3. Delegation Check
-**STOP. Review specialists before acting.**
-
-!!! Review available agents and lane rules. Decide what to schedule, what depends on what, and what minimal direct coordination is needed. !!!
+Review available agents and lane rules.
 
 **Dispatch efficiency:**
 - Reference paths/lines, don't paste files (\`src/app.ts:42\` not full contents)
