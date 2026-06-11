@@ -5,7 +5,7 @@ export const JSON_ERROR_TOOL_EXCLUDE_LIST = [
   'read',
   'glob',
   'webfetch',
-  'grep_app_searchgithub',
+  'gh_grep_searchgithub',
   'websearch_web_search_exa',
 ] as const;
 

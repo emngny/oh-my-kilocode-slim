@@ -19,10 +19,10 @@ describe('parseList', () => {
       parseList(DEFAULT_AGENT_MCPS.orchestrator, [
         'websearch',
         'context7',
-        'grep_app',
+        'gh_grep',
         'custom-mcp',
       ]),
-    ).toEqual(['websearch', 'grep_app', 'custom-mcp']);
+    ).toEqual(['websearch', 'gh_grep', 'custom-mcp']);
   });
 
   test('wildcard with exclusions', () => {

@@ -1,6 +1,6 @@
 import type { McpName, WebsearchConfig } from '../config';
 import { context7 } from './context7';
-import { grep_app } from './grep-app';
+import { gh_grep } from './grep-app';
 import type { McpConfig } from './types';
 import { createWebsearchConfig, websearch } from './websearch';
 
@@ -9,7 +9,7 @@ export type { LocalMcpConfig, McpConfig, RemoteMcpConfig } from './types';
 const allBuiltinMcps: Record<McpName, McpConfig> = {
   websearch,
   context7,
-  grep_app,
+  gh_grep,
 };
 
 /**

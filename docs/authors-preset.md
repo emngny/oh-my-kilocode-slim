@@ -13,7 +13,7 @@ This is the exact configuration the author runs day-to-day.
     "openai": { "orchestrator": { "model": "openai/gpt-5.5-fast", "skills": [ "*" ], "mcps": [ "*", "!context7"] },
         "oracle": { "model": "openai/gpt-5.5-fast", "variant": "high", "skills": [], "mcps": [] },
         "council": { "model": "openai/gpt-5.5-fast" },
-        "librarian": { "model": "openai/gpt-5.3-codex-spark", "variant": "low", "skills": [], "mcps": [ "websearch", "context7", "grep_app" ] },
+        "librarian": { "model": "openai/gpt-5.3-codex-spark", "variant": "low", "skills": [], "mcps": [ "websearch", "context7", "gh_grep" ] },
         "explorer": { "model": "openai/gpt-5.3-codex-spark", "variant": "low", "skills": [], "mcps": [] },
         "designer": { "model": "github-copilot/gemini-3.1-pro-preview", "skills": [], "mcps": [] },
         "fixer": { "model": "openai/gpt-5.3-codex-spark", "variant": "low", "skills": [], "mcps": [] }

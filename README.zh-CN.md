@@ -86,7 +86,7 @@ bunx oh-my-opencode-slim@beta install --background-subagents=yes
     "openai": {
       "orchestrator": { "model": "openai/gpt-5.5", "skills": ["*"], "mcps": ["*", "!context7"] },
       "oracle": { "model": "openai/gpt-5.5", "variant": "high", "skills": ["simplify"], "mcps": [] },
-      "librarian": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": ["websearch", "context7", "grep_app"] },
+      "librarian": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": ["websearch", "context7", "gh_grep"] },
       "explorer": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": [] },
       "designer": { "model": "openai/gpt-5.4-mini", "variant": "medium", "skills": [], "mcps": [] },
       "fixer": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": [] }
@@ -95,7 +95,7 @@ bunx oh-my-opencode-slim@beta install --background-subagents=yes
       "orchestrator": { "model": "opencode-go/glm-5.1", "skills": [ "*" ], "mcps": [ "*", "!context7" ] },
       "oracle": { "model": "opencode-go/deepseek-v4-pro", "variant": "max", "skills": ["simplify"], "mcps": [] },
       "council": { "model": "opencode-go/deepseek-v4-pro", "variant": "high", "skills": [], "mcps": [] },
-      "librarian": { "model": "opencode-go/minimax-m2.7", "skills": [], "mcps": [ "websearch", "context7", "grep_app" ] },
+      "librarian": { "model": "opencode-go/minimax-m2.7", "skills": [], "mcps": [ "websearch", "context7", "gh_grep" ] },
       "explorer": { "model": "opencode-go/minimax-m2.7", "skills": [], "mcps": [] },
       "designer": { "model": "opencode-go/kimi-k2.6", "variant": "medium", "skills": [], "mcps": [] },
       "fixer": { "model": "opencode-go/deepseek-v4-flash", "variant": "high", "skills": [], "mcps": [] }
@@ -511,7 +511,7 @@ ping all agents
 | **[配置指南 (docs/configuration.md)](docs/configuration.md)** | 配置文件位置、JSONC 支持、提示词覆盖以及完整的选项参考 |
 | **[维护者指南 (docs/maintainers.md)](docs/maintainers.md)** | 问题分流规则、标签含义、支持路由以及仓库维护工作流 |
 | **[技能列表 (Skills) (docs/skills.md)](docs/skills.md)** | 捆绑的技能，如 `simplify`、`codemap` 和 `clonedeps` |
-| **[MCP 服务 (docs/mcps.md)](docs/mcps.md)** | `websearch`、`context7`、`grep_app` 以及每个智能体的 MCP 权限工作机制 |
+| **[MCP 服务 (docs/mcps.md)](docs/mcps.md)** | `websearch`、`context7`、`gh_grep` 以及每个智能体的 MCP 权限工作机制 |
 | **[工具说明 (docs/tools.md)](docs/tools.md)** | 内置工具能力，如 `webfetch`、LSP 工具、代码搜索和格式化工具 |
 
 ### 💡 预设配置

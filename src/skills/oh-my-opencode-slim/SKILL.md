@@ -131,7 +131,7 @@ Edit the active preset under `presets.<preset>.<agent>`:
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
+        "mcps": ["websearch", "context7", "gh_grep"]
       }
     }
   }

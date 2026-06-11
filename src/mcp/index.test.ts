@@ -8,7 +8,7 @@ describe('createBuiltinMcps', () => {
 
     expect(names).toContain('websearch');
     expect(names).toContain('context7');
-    expect(names).toContain('grep_app');
+    expect(names).toContain('gh_grep');
   });
 
   test('returns all MCPs with empty disabled list', () => {
@@ -18,7 +18,7 @@ describe('createBuiltinMcps', () => {
     expect(names.length).toBe(3);
     expect(names).toContain('websearch');
     expect(names).toContain('context7');
-    expect(names).toContain('grep_app');
+    expect(names).toContain('gh_grep');
   });
 
   test('excludes single disabled MCP', () => {
@@ -27,21 +27,21 @@ describe('createBuiltinMcps', () => {
 
     expect(names).not.toContain('websearch');
     expect(names).toContain('context7');
-    expect(names).toContain('grep_app');
+    expect(names).toContain('gh_grep');
   });
 
   test('excludes multiple disabled MCPs', () => {
-    const mcps = createBuiltinMcps(['websearch', 'grep_app']);
+    const mcps = createBuiltinMcps(['websearch', 'gh_grep']);
     const names = Object.keys(mcps);
 
     expect(names).not.toContain('websearch');
-    expect(names).not.toContain('grep_app');
+    expect(names).not.toContain('gh_grep');
     expect(names).toContain('context7');
     expect(names.length).toBe(1);
   });
 
   test('excludes all MCPs when all disabled', () => {
-    const mcps = createBuiltinMcps(['websearch', 'context7', 'grep_app']);
+    const mcps = createBuiltinMcps(['websearch', 'context7', 'gh_grep']);
     const names = Object.keys(mcps);
 
     expect(names.length).toBe(0);
@@ -55,7 +55,7 @@ describe('createBuiltinMcps', () => {
     expect(names.length).toBe(3);
     expect(names).toContain('websearch');
     expect(names).toContain('context7');
-    expect(names).toContain('grep_app');
+    expect(names).toContain('gh_grep');
   });
 
   test('MCP configs have required properties', () => {
@@ -86,11 +86,11 @@ describe('createBuiltinMcps', () => {
     expect('url' in context7).toBe(true);
   });
 
-  test('grep_app MCP has correct structure', () => {
+  test('gh_grep MCP has correct structure', () => {
     const mcps = createBuiltinMcps();
-    const grep_app = mcps.grep_app;
+    const gh_grep = mcps.gh_grep;
 
-    expect(grep_app).toBeDefined();
-    expect('url' in grep_app).toBe(true);
+    expect(gh_grep).toBeDefined();
+    expect('url' in gh_grep).toBe(true);
   });
 });

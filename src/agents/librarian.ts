@@ -13,7 +13,7 @@ const LIBRARIAN_PROMPT = `You are Librarian - a research specialist for codebase
 
 **Tools to Use**:
 - context7: Official documentation lookup
-- grep_app: Search GitHub repositories
+- gh_grep: Search GitHub repositories
 - websearch: General web search for docs
 
 ${READONLY_FILE_OPERATIONS_RULES}
