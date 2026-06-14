@@ -328,7 +328,12 @@ export class BackgroundJobBoard {
     }
     const contextFiles = [...existing.values()]
       .filter((file) => file.lineCount >= this.readContextMinLines)
-      .sort((a, b) => b.lastReadAt - a.lastReadAt)
+      .sort(
+        (a, b) =>
+          b.lineCount - a.lineCount ||
+          b.lastReadAt - a.lastReadAt ||
+          a.path.localeCompare(b.path),
+      )
       .slice(0, this.readContextMaxFiles + 1);
     this.jobs.set(taskID, { ...job, contextFiles });
   }
