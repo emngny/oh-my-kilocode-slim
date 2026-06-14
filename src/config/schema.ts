@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AGENT_ALIASES, ALL_AGENT_NAMES } from './constants';
 import { CouncilConfigSchema } from './council-schema';
 
-const FALLBACK_AGENT_NAMES = [
+const MANUAL_AGENT_NAMES = [
   'orchestrator',
   'oracle',
   'designer',
@@ -11,20 +11,49 @@ const FALLBACK_AGENT_NAMES = [
   'fixer',
 ] as const;
 
-const AgentModelChainSchema = z.array(z.string()).min(1);
+export const ProviderModelIdSchema = z
+  .string()
+  .regex(
+    /^[^/\s]+\/[^\s]+$/,
+    'Expected provider/model format (provider/.../model)',
+  );
 
-const FallbackChainsSchema = z
+export const ManualAgentPlanSchema = z
   .object({
-    orchestrator: AgentModelChainSchema.optional(),
-    oracle: AgentModelChainSchema.optional(),
-    designer: AgentModelChainSchema.optional(),
-    explorer: AgentModelChainSchema.optional(),
-    librarian: AgentModelChainSchema.optional(),
-    fixer: AgentModelChainSchema.optional(),
+    primary: ProviderModelIdSchema,
+    fallback1: ProviderModelIdSchema,
+    fallback2: ProviderModelIdSchema,
+    fallback3: ProviderModelIdSchema,
   })
-  .catchall(AgentModelChainSchema);
+  .superRefine((value, ctx) => {
+    const unique = new Set([
+      value.primary,
+      value.fallback1,
+      value.fallback2,
+      value.fallback3,
+    ]);
+    if (unique.size !== 4) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'primary and fallbacks must be unique per agent',
+      });
+    }
+  });
 
-export type FallbackAgentName = (typeof FALLBACK_AGENT_NAMES)[number];
+export const ManualPlanSchema = z
+  .object({
+    orchestrator: ManualAgentPlanSchema,
+    oracle: ManualAgentPlanSchema,
+    designer: ManualAgentPlanSchema,
+    explorer: ManualAgentPlanSchema,
+    librarian: ManualAgentPlanSchema,
+    fixer: ManualAgentPlanSchema,
+  })
+  .strict();
+
+export type ManualAgentName = (typeof MANUAL_AGENT_NAMES)[number];
+export type ManualAgentPlan = z.infer<typeof ManualAgentPlanSchema>;
+export type ManualPlan = z.infer<typeof ManualPlanSchema>;
 
 // Agent override configuration (distinct from SDK's AgentConfig)
 export const AgentOverrideConfigSchema = z
@@ -141,17 +170,20 @@ export const BackgroundJobsConfigSchema = z.object({
 
 export type BackgroundJobsConfig = z.infer<typeof BackgroundJobsConfigSchema>;
 
-export const FailoverConfigSchema = z.object({
-  enabled: z.boolean().default(true),
-  chains: FallbackChainsSchema.default({}),
-  retry_on_empty: z
-    .boolean()
-    .default(true)
-    .describe(
-      'When true (default), empty provider responses are treated as failures, ' +
-        'triggering fallback/retry. Set to false to treat them as successes.',
-    ),
-});
+export const FailoverConfigSchema = z
+  .object({
+    enabled: z.boolean().default(true),
+    timeoutMs: z.number().min(0).default(15000),
+    retryDelayMs: z.number().min(0).default(500),
+    retry_on_empty: z
+      .boolean()
+      .default(true)
+      .describe(
+        'When true (default), empty provider responses are treated as failures, ' +
+          'triggering fallback/retry. Set to false to treat them as successes.',
+      ),
+  })
+  .strict();
 
 export type FailoverConfig = z.infer<typeof FailoverConfigSchema>;
 

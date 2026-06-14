@@ -337,12 +337,23 @@
           "default": true,
           "type": "boolean"
         },
+        "timeoutMs": {
+          "default": 15000,
+          "type": "number",
+          "minimum": 0
+        },
+        "retryDelayMs": {
+          "default": 500,
+          "type": "number",
+          "minimum": 0
+        },
         "retry_on_empty": {
           "default": true,
           "description": "When true (default), empty provider responses are treated as failures, triggering fallback/retry. Set to false to treat them as successes.",
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "council": {
       "type": "object",

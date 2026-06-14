@@ -74,7 +74,7 @@ const REPROMPT_DELAY_MS = 500;
  * Manages runtime model fallback for foreground agent sessions.
  *
  * Constructed at plugin init with the ordered fallback chains for each agent
- * (built from _modelArray entries merged with fallback.chains config).
+ * (built from _modelArray entries in agents.<name>.model).
  */
 export class ForegroundFallbackManager {
   /** sessionID → last observed model string ("providerID/modelID") */
