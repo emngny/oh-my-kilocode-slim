@@ -2,6 +2,7 @@ import type { Plugin } from '@opencode-ai/plugin';
 import { createAgents, getAgentConfigs, getDisabledAgents } from './agents';
 import { buildOrchestratorPrompt } from './agents/orchestrator';
 import { CompanionManager } from './companion/manager';
+import { ensureCompanionVersion } from './companion/updater';
 import {
   type AgentOverrideConfig,
   deepMerge,
@@ -257,6 +258,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
     // Initialize auto-update checker hook
     autoUpdateChecker = createAutoUpdateCheckerHook(ctx, {
       autoUpdate: config.autoUpdate ?? true,
+      companion: config.companion,
     });
 
     // Initialize phase reminder hook for workflow compliance
@@ -376,6 +378,23 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       appLog(ctx, 'warn', msg).catch(() => {});
     }
   });
+
+  if (config.companion?.enabled === true) {
+    try {
+      const companionResult = await ensureCompanionVersion({
+        config: config.companion,
+        downloadTimeoutMs: 3_000,
+        lockTimeoutMs: 500,
+      });
+      if (companionResult.status === 'installed') {
+        log('[companion] updated before startup', companionResult.version);
+      } else if (companionResult.status === 'failed') {
+        log('[companion] startup update failed', companionResult.error);
+      }
+    } catch (err) {
+      log('[companion] startup update failed', String(err));
+    }
+  }
 
   companionManager.onLoad();
 

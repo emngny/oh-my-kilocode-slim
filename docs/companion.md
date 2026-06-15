@@ -53,6 +53,8 @@ You can enable the companion by adding a `companion` section to your setting con
 
 - **`companion.binaryPath`**: optional path to a custom companion binary. When
   set, the runtime launches this binary instead of the default install path.
+  Custom binaries are user-managed and are not replaced by automatic companion
+  updates.
 
 ### Remembered Window Position
 
@@ -133,6 +135,22 @@ If `XDG_DATA_HOME` is unset, this resolves to:
 If the binary is not located in this directory, set `companion.binaryPath` to
 the binary you want the plugin runtime to launch.
 
+When Companion is enabled and uses the default install path, the plugin keeps
+the native binary aligned with the companion version bundled by the installed
+plugin package. The updater writes install metadata beside the binary so future
+starts can skip unnecessary downloads. Existing `companion-v0.1.2` installs that
+predate metadata are migrated in place without re-downloading.
+
+Startup checks run before the Companion is spawned, but they use a short timeout
+so OpenCode startup is not blocked by a slow network. Plugin auto-update also
+tries to update the Companion binary after the new package is installed. If a
+download fails, the plugin update still succeeds and Companion update is retried
+on the next OpenCode restart.
+
+Automatic native updates only use release archives listed in the packaged
+companion manifest, and every archive must have a matching SHA256 checksum.
+Custom binaries configured with `companion.binaryPath` are never overwritten.
+
 ---
 
 ## V2 Release Strategy
@@ -146,7 +164,10 @@ plan:
    plugin can ship beta updates without rebuilding native binaries every time.
 3. **OS/Arch Detection**: `--companion=yes` selects the archive for the current
    target.
-4. **No R2 Required**: GitHub Releases are the source of truth. R2 can be added
+4. **Manifest + Checksums**: the plugin ships
+   `src/companion/companion-manifest.json`, which names the companion release
+   and SHA256 checksum for each supported archive.
+5. **No R2 Required**: GitHub Releases are the source of truth. R2 can be added
    later as a mirror if download volume becomes a problem.
 
 Current release assets are named:
@@ -229,7 +250,14 @@ gh release view companion-v0.1.2
 ```
 
 Confirm the release contains the archive names expected by the installer for the
-targets you built.
+targets you built. Then update `src/companion/companion-manifest.json` with the
+new version, tag, and each asset's SHA256 digest. GitHub release asset metadata
+includes `digest: sha256:<hash>`, which can be copied into the manifest without
+the `sha256:` prefix.
+
+The runtime updater has a matching manifest constant in
+`src/companion/updater.ts`; tests assert the JSON manifest and runtime constant
+stay in sync.
 
 ### 4. Install with the plugin installer
 
