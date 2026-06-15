@@ -551,6 +551,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "bobbyunknown",
+      "name": "Insomnia",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62272380?v=4",
+      "profile": "https://github.com/bobbyunknown",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitConvention": "angular"
