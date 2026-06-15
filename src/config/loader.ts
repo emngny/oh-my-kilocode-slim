@@ -325,6 +325,10 @@ export function loadPluginConfig(
       binaryPath: config.companion.binaryPath,
       position: config.companion.position ?? 'bottom-right',
       size: config.companion.size ?? 'medium',
+      gifPack: config.companion.gifPack ?? 'default',
+      loopStyle: config.companion.loopStyle ?? 'classic',
+      speed: config.companion.speed ?? 1,
+      debug: config.companion.debug ?? false,
     };
   }
 

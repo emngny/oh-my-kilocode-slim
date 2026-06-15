@@ -28,6 +28,10 @@ interface CompanionState {
     enabled: boolean;
     position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
     size: 'small' | 'medium' | 'large';
+    gifPack: 'default';
+    loopStyle: 'classic' | 'smooth';
+    speed: number;
+    debug: boolean;
   };
 }
 
@@ -254,6 +258,10 @@ export class CompanionManager {
             enabled: this.config.enabled ?? false,
             position: this.config.position ?? 'bottom-right',
             size: this.config.size ?? 'medium',
+            gifPack: this.config.gifPack ?? 'default',
+            loopStyle: this.config.loopStyle ?? 'classic',
+            speed: this.config.speed ?? 1,
+            debug: this.config.debug ?? false,
           };
         }
       });
@@ -273,9 +281,26 @@ export class CompanionManager {
       return;
     }
     try {
-      const child = spawn(bin, [], { detached: true, stdio: 'ignore' });
+      const child = spawn(bin, [], {
+        detached: true,
+        env: {
+          ...process.env,
+          OH_MY_OPENCODE_SLIM_COMPANION_SESSION_ID: this.id,
+          ...(this.config.debug === true
+            ? { OH_MY_OPENCODE_SLIM_COMPANION_DEBUG: '1' }
+            : {}),
+        },
+        stdio: 'ignore',
+      });
       child.unref();
-      log('[companion] spawned', bin);
+      log(
+        '[companion] spawned',
+        JSON.stringify({
+          bin,
+          sessionId: this.id,
+          debug: this.config.debug === true,
+        }),
+      );
     } catch (err) {
       log('[companion] spawn failed', String(err));
     }

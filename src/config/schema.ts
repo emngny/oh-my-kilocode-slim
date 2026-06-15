@@ -198,6 +198,26 @@ export const CompanionConfigSchema = z.object({
     .enum(['bottom-right', 'bottom-left', 'top-right', 'top-left'])
     .optional(),
   size: z.enum(['small', 'medium', 'large']).optional(),
+  gifPack: z
+    .enum(['default'])
+    .optional()
+    .describe('Bundled companion GIF pack to use.'),
+  loopStyle: z
+    .enum(['classic', 'smooth'])
+    .optional()
+    .describe(
+      'Companion GIF playback style: classic loops or smooth ping-pong playback.',
+    ),
+  speed: z
+    .number()
+    .min(0.25)
+    .max(4)
+    .optional()
+    .describe('Companion GIF playback speed multiplier.'),
+  debug: z
+    .boolean()
+    .optional()
+    .describe('Enable verbose native companion debug logs.'),
 });
 
 export type CompanionConfig = z.infer<typeof CompanionConfigSchema>;

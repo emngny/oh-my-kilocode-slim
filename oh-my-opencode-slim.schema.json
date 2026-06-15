@@ -437,6 +437,31 @@
             "medium",
             "large"
           ]
+        },
+        "gifPack": {
+          "description": "Bundled companion GIF pack to use.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        },
+        "loopStyle": {
+          "description": "Companion GIF playback style: classic loops or smooth ping-pong playback.",
+          "type": "string",
+          "enum": [
+            "classic",
+            "smooth"
+          ]
+        },
+        "speed": {
+          "description": "Companion GIF playback speed multiplier.",
+          "type": "number",
+          "minimum": 0.25,
+          "maximum": 4
+        },
+        "debug": {
+          "description": "Enable verbose native companion debug logs.",
+          "type": "boolean"
         }
       }
     },

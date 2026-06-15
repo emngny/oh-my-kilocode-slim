@@ -266,14 +266,22 @@ describe('CompanionManager', () => {
       enabled: true,
       position: 'bottom-right',
       size: 'medium',
+      gifPack: 'default',
+      loopStyle: 'classic',
+      speed: 1,
+      debug: false,
     });
   });
 
-  it('supports custom position and size', () => {
+  it('supports custom position, size, and GIF settings', () => {
     const m = make('test-custom', '/path', {
       enabled: true,
       position: 'top-left',
       size: 'large',
+      gifPack: 'default',
+      loopStyle: 'smooth',
+      speed: 1.5,
+      debug: true,
     });
     m.onLoad();
     const state = readState();
@@ -281,6 +289,10 @@ describe('CompanionManager', () => {
       enabled: true,
       position: 'top-left',
       size: 'large',
+      gifPack: 'default',
+      loopStyle: 'smooth',
+      speed: 1.5,
+      debug: true,
     });
   });
 
