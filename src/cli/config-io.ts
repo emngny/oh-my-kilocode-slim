@@ -28,12 +28,7 @@ import type {
 } from './types';
 
 const PACKAGE_NAME = 'oh-my-opencode-slim';
-const DEFAULT_OPENCODE_AGENTS_TO_DISABLE = [
-  'build',
-  'explore',
-  'general',
-  'plan',
-] as const;
+const DEFAULT_OPENCODE_AGENTS_TO_DISABLE = ['explore', 'general'] as const;
 
 function isString(value: unknown): value is string {
   return typeof value === 'string';
