@@ -7,9 +7,13 @@ type PromptStep = {
   error?: Error;
 };
 
-function createMockClient(steps: PromptStep[]) {
+function createMockClient(steps: PromptStep[], deleteBehavior?: {
+  failTimes?: number;
+}) {
   let createCount = 0;
   let promptCount = 0;
+  let deleteCallCount = 0;
+  const failTimes = deleteBehavior?.failTimes ?? 0;
 
   return {
     session: {
@@ -25,7 +29,14 @@ function createMockClient(steps: PromptStep[]) {
           },
         };
       }),
-      delete: mock(async () => ({})),
+      delete: mock(async () => {
+        deleteCallCount++;
+        if (deleteCallCount <= failTimes) {
+          throw new Error('delete failed');
+        }
+        return {};
+      }),
+      _deleteCallCount: () => deleteCallCount,
     },
     tool: {
       ids: mock(async () => ({ data: ['read', 'bash'] })),
@@ -81,5 +92,59 @@ describe('smartfetch/secondary-model', () => {
     expect(result.model).toEqual(models[1]);
     expect(client.session.prompt).toHaveBeenCalledTimes(2);
     expect(client.session.delete).toHaveBeenCalledTimes(2);
+  });
+
+  test('retries session delete on transient failure', async () => {
+    const originalWarn = console.warn;
+    const warnCalls: unknown[][] = [];
+    console.warn = (...args: unknown[]) => warnCalls.push(args);
+    try {
+      const client = createMockClient(
+        [{ text: 'Answer' }],
+        { failTimes: 1 },
+      );
+
+      const result = await runSecondaryModelWithFallback(
+        client,
+        '/tmp/project',
+        [models[0]],
+        'Summarize',
+        'This is enough fetched content to clear the short-content guard.',
+      );
+
+      expect(result.text).toBe('Answer');
+      // First attempt failed, second succeeded → 2 calls for one session
+      expect(client.session.delete).toHaveBeenCalledTimes(2);
+      expect(warnCalls.length).toBe(0);
+    } finally {
+      console.warn = originalWarn;
+    }
+  });
+
+  test('logs warning when all delete retries fail but does not throw', async () => {
+    const originalWarn = console.warn;
+    const warnCalls: unknown[][] = [];
+    console.warn = (...args: unknown[]) => warnCalls.push(args);
+    try {
+      const client = createMockClient(
+        [{ text: 'Answer' }],
+        { failTimes: 99 },
+      );
+
+      const result = await runSecondaryModelWithFallback(
+        client,
+        '/tmp/project',
+        [models[0]],
+        'Summarize',
+        'This is enough fetched content to clear the short-content guard.',
+      );
+
+      // Secondary model still succeeds despite cleanup failure
+      expect(result.text).toBe('Answer');
+      expect(warnCalls.length).toBe(1);
+      expect(String(warnCalls[0][0])).toContain('smartfetch');
+    } finally {
+      console.warn = originalWarn;
+    }
   });
 });
