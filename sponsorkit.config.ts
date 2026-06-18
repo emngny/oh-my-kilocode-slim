@@ -14,6 +14,10 @@ export default defineConfig({
       preset: tierPresets.xs,
     },
     {
+      title: 'Sponsors',
+      preset: tierPresets.base,
+    },
+    {
       title: 'Explorers',
       monthlyDollars: 5,
       preset: tierPresets.base,
