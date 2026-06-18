@@ -267,6 +267,8 @@ export class BackgroundJobBoard {
       if (TERMINAL_STATES.has(existing.state)) return existing;
     }
 
+    const notifyTerminal =
+      !TERMINAL_STATES.has(existing.state) && existing.state !== 'reconciled';
     const summary = normalizeCancelReason(reason);
     const updated: BackgroundJobRecord = {
       ...existing,
@@ -283,7 +285,7 @@ export class BackgroundJobBoard {
     };
 
     this.jobs.set(taskID, updated);
-    this.terminalStateListener?.(taskID);
+    if (notifyTerminal) this.terminalStateListener?.(taskID);
     return updated;
   }
 

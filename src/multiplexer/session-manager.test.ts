@@ -619,6 +619,49 @@ describe('MultiplexerSessionManager', () => {
       );
     });
 
+    test('disabled manager does not retry deferred idle close', async () => {
+      const ctx = createMockContext();
+      const board = new BackgroundJobBoard();
+      board.registerLaunch({
+        taskID: 'disabled-retry-deferred',
+        parentSessionID: 'parent-1',
+        agent: 'explorer',
+      });
+      mockMultiplexer.spawnPane.mockResolvedValue({
+        success: true,
+        paneId: 'p-disabled-retry-deferred',
+      });
+      const manager = new MultiplexerSessionManager(
+        ctx,
+        defaultMultiplexerConfig,
+        board,
+      );
+
+      await manager.onSessionCreated({
+        type: 'session.created',
+        properties: {
+          info: { id: 'disabled-retry-deferred', parentID: 'parent-1' },
+        },
+      });
+      await manager.onSessionStatus({
+        type: 'session.status',
+        properties: {
+          sessionID: 'disabled-retry-deferred',
+          status: { type: 'idle' },
+        },
+      });
+
+      mockMultiplexer.isInsideSession.mockReturnValue(false);
+      const disabledManager = new MultiplexerSessionManager(
+        ctx,
+        defaultMultiplexerConfig,
+        board,
+      );
+      await disabledManager.retryDeferredIdleClose('disabled-retry-deferred');
+
+      expect(mockMultiplexer.closePane).not.toHaveBeenCalled();
+    });
+
     test('explicit non-idle poll clears stale deferred idle close', async () => {
       const ctx = createMockContext();
       const board = new BackgroundJobBoard();

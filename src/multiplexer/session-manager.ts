@@ -606,6 +606,7 @@ export class MultiplexerSessionManager {
   }
 
   async retryDeferredIdleClose(sessionId: string): Promise<void> {
+    if (!this.enabled) return;
     if (!this.deferredIdleCloses.has(sessionId)) return;
     await this.closeSession(sessionId, 'idle');
   }
