@@ -601,6 +601,7 @@ describe('CouncilManager', () => {
       );
       expect(councillorCall?.[0].body?.tools).toEqual({
         task: false,
+        question: false,
         edit: false,
         write: false,
         apply_patch: false,

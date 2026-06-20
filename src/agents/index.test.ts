@@ -312,6 +312,24 @@ describe('tool permissions', () => {
     expect((councillor?.config.permission as any).council_session).toBe('deny');
   });
 
+  test('oracle is denied access to cancel_task', () => {
+    const agents = createAgents();
+    const oracle = agents.find((a) => a.name === 'oracle');
+    expect((oracle?.config.permission as any).cancel_task).toBe('deny');
+  });
+
+  test('explorer is denied access to cancel_task', () => {
+    const agents = createAgents();
+    const explorer = agents.find((a) => a.name === 'explorer');
+    expect((explorer?.config.permission as any).cancel_task).toBe('deny');
+  });
+
+  test('fixer is denied access to cancel_task', () => {
+    const agents = createAgents();
+    const fixer = agents.find((a) => a.name === 'fixer');
+    expect((fixer?.config.permission as any).cancel_task).toBe('deny');
+  });
+
   test('council agent is read-only except council_session', () => {
     const agents = createAgents({
       council: councilConfig(),

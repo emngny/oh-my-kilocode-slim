@@ -268,13 +268,14 @@ export class CouncilManager {
         await new Promise((r) => setTimeout(r, TMUX_SPAWN_DELAY_MS));
       }
 
-      // Councillors are advisory only: disable delegation and known mutating
+      // Councillors are advisory only: disable delegation, questions, and known mutating
       // tools even if host defaults would otherwise expose them.
       const body: PromptBody = {
         agent: options.agent,
         model: modelRef,
         tools: {
           task: false,
+          question: false,
           edit: false,
           write: false,
           apply_patch: false,
