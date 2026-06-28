@@ -25,12 +25,12 @@ import {
   createDelegateTaskRetryHook,
   createFilterAvailableSkillsHook,
   createJsonErrorRecoveryHook,
+  createLoopCommandHook,
   createPhaseReminderHook,
   createPostFileToolNudgeHook,
   createReflectCommandHook,
   createTaskSessionManagerHook,
   ForegroundFallbackManager,
-  createLoopCommandHook,
 } from './hooks';
 import { processImageAttachments } from './hooks/image-hook';
 import type { MessageWithParts } from './hooks/types';
@@ -263,7 +263,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       multiplexerConfig,
       backgroundJobBoard,
     );
-    backgroundJobBoard.setTerminalStateListener((taskID) => {
+    backgroundJobBoard.addTerminalStateListener((taskID) => {
       void multiplexerSessionManager.retryDeferredIdleClose(taskID);
     });
 

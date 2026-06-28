@@ -52,9 +52,7 @@ export function createLoopCommandHook(): {
 } {
   return {
     registerCommand: (opencodeConfig) => {
-      const cfg = opencodeConfig.command as
-        | Record<string, unknown>
-        | undefined;
+      const cfg = opencodeConfig.command as Record<string, unknown> | undefined;
       if (cfg?.[COMMAND_NAME]) return;
       if (!opencodeConfig.command) opencodeConfig.command = {};
       (opencodeConfig.command as Record<string, unknown>)[COMMAND_NAME] = {

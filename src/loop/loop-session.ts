@@ -109,7 +109,7 @@ export function writeHistoryFile(session: LoopSession): void {
   if (!lastAttempt) return;
   const attemptFile = join(
     session.historyDir,
-    `history-${String(session.attempts).padStart(3, '0')}.md`,
+    `history-${String(lastAttempt.attemptNumber).padStart(3, '0')}.md`,
   );
   mkdirSync(session.historyDir, { recursive: true });
   const content = compactAttempt(lastAttempt);

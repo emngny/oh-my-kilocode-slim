@@ -46,8 +46,7 @@ describe('loop command hook', () => {
       {
         command: 'loop',
         sessionID: 's1',
-        arguments:
-          'fix typescript errors until typecheck passes, max 3 tries',
+        arguments: 'fix typescript errors until typecheck passes, max 3 tries',
       },
       output,
     );
@@ -55,7 +54,9 @@ describe('loop command hook', () => {
     const text = output.parts[0].text;
     expect(output.parts.length).toBe(1);
     expect(text).toContain('The user ran `/loop`');
-    expect(text).toContain('fix typescript errors until typecheck passes, max 3 tries');
+    expect(text).toContain(
+      'fix typescript errors until typecheck passes, max 3 tries',
+    );
     expect(text).toContain('goal, successCriteria, maxAttempts');
     expect(text).toContain('missing or unclear');
     expect(text).toContain('.opencode/loop-history/');

@@ -1,9 +1,11 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, spyOn, test } from 'bun:test';
+import * as fs from 'node:fs';
 import {
   compactAttempt,
   createLoopSession,
   type LoopDefinition,
   loopDirname,
+  writeHistoryFile,
 } from './loop-session';
 
 function testDef(overrides?: Partial<LoopDefinition>): LoopDefinition {
@@ -82,5 +84,37 @@ describe('compactAttempt', () => {
       artifactPaths: ['src/output.ts', 'src/output.test.ts'],
     });
     expect(result).toContain('artifacts: src/output.ts, src/output.test.ts');
+  });
+});
+
+describe('writeHistoryFile', () => {
+  test('uses the attempt number for the history filename', () => {
+    const mkdirSpy = spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
+    const writeSpy = spyOn(fs, 'writeFileSync').mockImplementation(
+      () => undefined,
+    );
+    const session = createLoopSession(testDef(), 'loop-test-1');
+    session.attempts = 99;
+    session.history.push({
+      attemptNumber: 4,
+      executionResult: 'bun test',
+      verificationResult: { passed: true, reason: 'ok' },
+    });
+
+    try {
+      writeHistoryFile(session);
+
+      expect(mkdirSpy).toHaveBeenCalledWith(session.historyDir, {
+        recursive: true,
+      });
+      expect(writeSpy).toHaveBeenCalledWith(
+        expect.stringContaining('history-004.md'),
+        expect.stringContaining('## Attempt 4'),
+        { encoding: 'utf-8' },
+      );
+    } finally {
+      mkdirSpy.mockRestore();
+      writeSpy.mockRestore();
+    }
   });
 });

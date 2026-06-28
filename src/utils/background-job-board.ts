@@ -210,7 +210,7 @@ export class BackgroundJobBoard {
       updated.totalErrors = (existing.totalErrors ?? 0) + 1;
       updated.lastErrorAt = updated.updatedAt;
     }
-    if (input.timedOut) {
+    if (input.timedOut && input.state !== 'completed') {
       updated.timeoutCount = (existing.timeoutCount ?? 0) + 1;
     }
 
