@@ -176,6 +176,101 @@ describe('HerdrMultiplexer', () => {
     expect(success).toBe(true);
   });
 
+  test('returns true when pane close exits with code 1 (already closed)', async () => {
+    const { HerdrMultiplexer } = await importFreshHerdr();
+    const herdr = new HerdrMultiplexer('main-vertical', 60);
+
+    crossSpawnMock.mockImplementation((command: string[]) => {
+      if (command[0] === 'which') {
+        return createSpawnResult(0, '/usr/bin/herdr\n');
+      }
+      if (command.includes('close')) {
+        return createSpawnResult(1, '', 'pane not found');
+      }
+      return createSpawnResult();
+    });
+
+    const success = await herdr.closePane('w1:p2');
+    expect(success).toBe(true);
+  });
+
+  test('returns false when pane close exits with code 2 (real failure)', async () => {
+    const { HerdrMultiplexer } = await importFreshHerdr();
+    const herdr = new HerdrMultiplexer('main-vertical', 60);
+
+    crossSpawnMock.mockImplementation((command: string[]) => {
+      if (command[0] === 'which') {
+        return createSpawnResult(0, '/usr/bin/herdr\n');
+      }
+      if (command.includes('close')) {
+        return createSpawnResult(2, '', 'fatal error');
+      }
+      return createSpawnResult();
+    });
+
+    const success = await herdr.closePane('w1:p2');
+    expect(success).toBe(false);
+  });
+
+  test('parses pane_id when split output has extra NDJSON lines', async () => {
+    const { HerdrMultiplexer } = await importFreshHerdr();
+    const herdr = new HerdrMultiplexer('main-vertical', 60);
+
+    const extraLine = JSON.stringify({
+      id: 'cli:event',
+      result: { type: 'progress', message: 'splitting...' },
+    });
+    const paneLine = createSplitResponse('w1:p9');
+
+    crossSpawnMock.mockImplementation((command: string[]) => {
+      if (command[0] === 'which') {
+        return createSpawnResult(0, '/usr/bin/herdr\n');
+      }
+      if (command.includes('split')) {
+        return createSpawnResult(0, `${extraLine}\n${paneLine}\n`);
+      }
+      return createSpawnResult();
+    });
+
+    const result = await herdr.spawnPane(
+      'session-1',
+      'Herdr worker',
+      'http://localhost:4096',
+      '/repo',
+    );
+
+    expect(result).toEqual({ success: true, paneId: 'w1:p9' });
+  });
+
+  test('reports failure when split output has only non-pane JSON lines', async () => {
+    const { HerdrMultiplexer } = await importFreshHerdr();
+    const herdr = new HerdrMultiplexer('main-vertical', 60);
+
+    const progressOnly = JSON.stringify({
+      id: 'cli:event',
+      result: { type: 'progress', message: 'working...' },
+    });
+
+    crossSpawnMock.mockImplementation((command: string[]) => {
+      if (command[0] === 'which') {
+        return createSpawnResult(0, '/usr/bin/herdr\n');
+      }
+      if (command.includes('split')) {
+        return createSpawnResult(0, `${progressOnly}\n`);
+      }
+      return createSpawnResult();
+    });
+
+    const result = await herdr.spawnPane(
+      'session-1',
+      'Herdr worker',
+      'http://localhost:4096',
+      '/repo',
+    );
+
+    expect(result).toEqual({ success: false });
+  });
+
   test('reports failure when split returns non-zero exit code', async () => {
     const { HerdrMultiplexer } = await importFreshHerdr();
     const herdr = new HerdrMultiplexer('main-vertical', 60);

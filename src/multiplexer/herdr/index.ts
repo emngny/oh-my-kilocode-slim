@@ -183,7 +183,7 @@ export class HerdrMultiplexer implements Multiplexer {
 
       log('[herdr] closePane: result', { exitCode, stderr: stderr.trim() });
 
-      if (exitCode === 0) {
+      if (exitCode === 0 || exitCode === 1) {
         return true;
       }
 
@@ -257,13 +257,20 @@ function parsePaneId(stdout: string): string | null {
   const trimmed = stdout.trim();
   if (!trimmed) return null;
 
-  try {
-    const response = JSON.parse(trimmed) as HerdrCliResponse;
-    return response.result?.pane?.pane_id ?? null;
-  } catch {
-    log('[herdr] parsePaneId: failed to parse JSON', { stdout: trimmed });
-    return null;
+  for (const line of trimmed.split('\n')) {
+    const candidate = line.trim();
+    if (!candidate) continue;
+    try {
+      const response = JSON.parse(candidate) as HerdrCliResponse;
+      const paneId = response.result?.pane?.pane_id;
+      if (paneId) return paneId;
+    } catch {
+      // Not a JSON line (e.g. progress/diagnostic); skip and keep scanning.
+    }
   }
+
+  log('[herdr] parsePaneId: no pane_id found in output', { stdout: trimmed });
+  return null;
 }
 
 function getPaneDirection(layout: MultiplexerLayout): HerdrPaneDirection {
