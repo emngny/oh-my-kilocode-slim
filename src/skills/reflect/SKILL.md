@@ -17,7 +17,7 @@ The goal is to identify real repeated friction and suggest practical improvement
 Use Reflect when the user asks to:
 
 - run `/reflect` or `/reflect <focus>`;
-- run `/reflect --global` for cross-repo reflection;
+- run `/reflect --sessions` for session archaeology;
 - learn from recent sessions or repeated workflows;
 - find work they keep doing manually;
 - improve their oh-my-opencode-slim setup based on actual usage using oh-my-opencode-slim skill;
@@ -27,49 +27,137 @@ Use Reflect when the user asks to:
 Do not use Reflect for ordinary implementation work, one-off debugging, broad
 architecture review, or speculative agent creation without workflow evidence.
 
-## Global Mode
+## Session Mode
 
-When the user includes `--global` in their reflect command, shift the evidence
-sources: logs become primary for repo discovery, and per-repo project files
-become the basis for pattern detection.
+When the user includes `--sessions` in their reflect command, shift to session
+archaeology: analyze historical OpenCode sessions across all repos to find
+repeated patterns, friction, and improvement opportunities.
 
-Use available evidence in this order:
+### Session Discovery
 
-1. **OpenCode logs** — Read the OpenCode log file (default: `~/.local/share/opencode/log/opencode.log` on Linux/macOS, `%USERPROFILE%\.local\share\opencode\log\opencode.log` on Windows) to discover repos. Look for lines containing `message="creating instance"` and extract the `directory=<path>` value. Collect unique repo paths. If the exact pattern isn't found, fall back to searching for `directory=` in any nearby context line.
+1. **Extract session IDs** — Use Bash to grep the OpenCode log file:
+   ```bash
+   grep -oP 'session\.id=ses_[a-f0-9]+' ~/.local/share/opencode/log/opencode.log
+   ```
+   Collect unique session IDs. Sort by appearance (most recent first).
+   Cap at N sessions (default 50, configurable via `--last N`).
 
-If the log file does not exist, is empty, or contains no repo discoveries, inform the user that --global mode requires prior OpenCode usage across repos and suggest running /reflect in individual repos first to generate evidence.
-2. **Per-repo project files** — For each discovered repo that still exists on disk, skip any paths that do not exist on the filesystem with a warning message. Then,
-   read `AGENTS.md` (or just its headings if the file is long) and list the
-   contents of `.opencode/` (and `.slim/` if present).
-3. **Current project files** — The repo where reflect was invoked. Its AGENTS.md,
-   `.opencode/`, and `.slim/` are the baseline for comparison.
-4. **Existing assets** — Same as local mode: skills, commands, agents, prompt
-   overrides, MCP permissions, config.
+2. **Load session metadata** — For each session ID, query the SQLite database:
+   ```bash
+   bun -e "import Database from 'bun:sqlite'; const db = new Database('/home/mhenke/.local/share/opencode/opencode.db'); console.log(db.query('SELECT id, directory, title, agent, model, time_created, cost, tokens_input, tokens_output FROM session WHERE id = ?').all('ses_14de9c68effegtZtlATm42wnz7'))"
+   ```
 
-Before synthesizing, cap the number of repos to analyze. By default, limit to the 10 most recent repos by log timestamp. Announce the cap to the user: "Examining the most recent N repos (use --max-repos M to scan more or fewer)." If the user specified `--max-repos M` in their command, use M instead of 10.
+3. **Load session messages** — Query the message table:
+   ```bash
+   bun -e "import Database from 'bun:sqlite'; const db = new Database('/home/mhenke/.local/share/opencode/opencode.db'); console.log(db.query('SELECT data FROM message WHERE session_id = ?').all('ses_14de9c68effegtZtlATm42wnz7'))"
+   ```
 
-Synthesize cross-repo patterns: which configs repeat, which skills are duplicated,
-which workflows are re-invented per-repo instead of shared. Return the same compact
-report format (Findings / Recommended changes / Skipped / Needs more evidence).
+### Per-Session Analysis
 
-Respect privacy: read only AGENTS.md, `.opencode/`, and `.slim/`. Do not read
-source code files, commit history, or personal documents.
+For each session, analyze and produce a structured summary:
 
-Example output:
-Examining the most recent 10 repos (use --max-repos M to scan more or fewer).
+```json
+{
+  "session": "ses_14de9c68effegtZtlATm42wnz7",
+  "project": "/home/user/Projects/oh-my-opencode-slim",
+  "timestamp": "2026-06-10T15:08:45.427Z",
+  "goal": "Fix CI failure",
+  "success": true,
+  "frictions": [
+    "Repeated grep to find test file",
+    "Three failed test runs before passing"
+  ],
+  "recommendations": [
+    "Create /test-ci command"
+  ],
+  "duration_minutes": 18,
+  "models_used": ["opencode/mimo-v2.5-free"],
+  "agents_used": ["orchestrator", "fixer", "explorer"],
+  "tools_used": ["Read", "Edit", "Bash"],
+  "confidence": 0.85
+}
+```
+
+**Confidence scoring:**
+- 0.9-1.0: Clear success/failure, obvious patterns
+- 0.7-0.9: Likely outcome, patterns inferred from tool usage
+- 0.5-0.7: Uncertain outcome, limited evidence
+- <0.5: Skip or mark as "needs more evidence"
+
+### Storage and Caching
+
+Store session summaries in `~/.config/opencode/oh-my-opencode-slim/reflections/sessions/`.
+
+**Cache logic:**
+1. Check if `<session-id>.json` exists in reflections directory
+2. If yes, load it (saves tokens)
+3. If no, analyze session and save summary
+4. Aggregate across all summaries for final report
+
+### Aggregation
+
+After analyzing all sessions, aggregate findings:
+
+1. **Group by theme** — sessions with similar frictions cluster together
+2. **Count frequency** — "42/50 sessions had repeated grep before editing"
+3. **Rank by impact** — prioritize recommendations that appear most often
+4. **Filter noise** — skip one-off issues, focus on repeated patterns
+5. **Cross-reference** — see if patterns correlate with specific models, agents, or repos
+
+**Scope categories:**
+- **Global** — applies to all repos (pattern seen in >50% of repos)
+- **Cross-repo** — applies to specific repos where pattern appears
+- **Project-specific** — only relevant to one repo
+
+### Output Format
+
+Return a compact report with scope and confidence:
+
+```text
+Session Reflection Report
+Analyzing 50 most recent sessions across 8 repos.
+
+Repos analyzed:
+- <repo> (<N> sessions)
+- ... (M more)
+
 Findings
-- [pattern] duplicated across N repos: [details]
-- [command/tool] re-invented in N repos with [details]
-- [usage pattern] consistent: N/10 repos use it for [purpose]
+- <pattern>: N/50 sessions across M repos.
+  - Scope: global | cross-repo (<repos>) | project-specific (<repo>)
+  - Confidence: 0.95
+  - Impact: High | Medium | Low
 
 Recommended changes
-- [actionable recommendation]
+- <asset>: <purpose>
+  - Scope: global | cross-repo (<repos>) | project-specific (<repo>)
+  - Confidence: 0.97
+  - Estimated time saved: High | Medium | Low
 
 Skipped
-- [intentionally different per-project items]
+- <candidate>: why not worth packaging now.
+  - Scope: <reason>
+  - Confidence: <score>
 
 Needs more evidence
-- [patterns seen in too few repos to generalize]
+- <candidate>: what would make it actionable.
+  - Current scope: <what we've seen>
+  - Required scope: <what would confirm>
+```
+
+### Error Handling
+
+**Log file issues:**
+- Log doesn't exist → "No OpenCode log found at <path>. Run OpenCode in at least one repo first."
+- Log is empty → "OpenCode log is empty. No sessions to analyze."
+
+**Session loading issues:**
+- Session ID not loadable → Skip with warning: "Session <id> could not be loaded, skipping."
+- Session has no messages → Skip: "Session <id> has no messages."
+
+**Recovery pattern:**
+- Log the failure
+- Continue with remaining sessions
+- Report failures at end: "3 sessions skipped due to load errors"
 
 ## Core Contract
 
@@ -111,8 +199,8 @@ Reflect can be triggered directly:
 ```text
 /reflect
 /reflect release workflow and checks
-/reflect --global
-/reflect --global dependency patterns
+/reflect --sessions
+/reflect --sessions --last 100
 ```
 
 With no arguments, review recent work broadly. With arguments, focus the review
