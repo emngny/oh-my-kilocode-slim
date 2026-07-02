@@ -224,7 +224,7 @@ background work is easier to follow at a glance.
 </div>
 
 During interactive install, the installer asks whether to enable Companion and
-defaults to `yes`. For automation, enable it explicitly with:
+defaults to `no`. For automation, enable it explicitly with:
 
 ```bash
 bunx oh-my-opencode-slim@latest install --companion=yes

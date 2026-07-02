@@ -195,7 +195,7 @@ V2에서는 백그라운드 전문가가 기본 동작 모델입니다. Orchestr
   <p><i>왼쪽 아래의 시각적 companion.</i></p>
 </div>
 
-대화형 설치 중 인스톨러는 Companion 활성화 여부를 묻고 기본값은 `yes`입니다. 자동화에서는 명시적으로 활성화할 수 있습니다.
+대화형 설치 중 인스톨러는 Companion 활성화 여부를 묻고 기본값은 `no`입니다. 자동화에서는 명시적으로 활성화할 수 있습니다.
 
 ```bash
 bunx oh-my-opencode-slim@latest install --companion=yes
