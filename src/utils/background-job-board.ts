@@ -293,103 +293,37 @@ export class BackgroundJobBoard {
     return this.jobs.get(taskID);
   }
 
-  /**
-   * True if the job exists and is in 'running' state.
-   */
+  field<K extends keyof BackgroundJobRecord>(
+    taskID: string,
+    key: K,
+  ): BackgroundJobRecord[K] | undefined {
+    return this.get(taskID)?.[key];
+  }
+
   isRunning(taskID: string): boolean {
     const job = this.get(taskID);
     return job?.state === 'running';
   }
 
-  /**
-   * True if the job is terminal (completed/error/cancelled) and reconciled.
-   */
-  isReusable(taskID: string): boolean {
-    const job = this.get(taskID);
-    if (!job) return false;
-    // ponytail: inline the logic to avoid confusion with private trimReusable
-    const terminal = job.terminalState ?? terminalStateOf(job.state);
-    return terminal === 'completed' && !job.terminalUnreconciled;
-  }
-
-  /**
-   * True if cancellation was requested for this job.
-   */
-  wasCancellationRequested(taskID: string): boolean {
-    const job = this.get(taskID);
-    return !!job?.cancellationRequested;
-  }
-
-  /**
-   * True if the job is terminal but not yet reconciled.
-   */
   isTerminalUnreconciled(taskID: string): boolean {
     const job = this.get(taskID);
     return !!job?.terminalUnreconciled;
   }
 
-  /**
-   * Get the alias for a job, or undefined if not found.
-   */
-  getAlias(taskID: string): string | undefined {
-    const job = this.get(taskID);
-    return job?.alias;
-  }
-
-  /**
-   * Get the result summary for a terminal job, or undefined.
-   */
   getResultSummary(taskID: string): string | undefined {
-    const job = this.get(taskID);
-    return job?.resultSummary;
+    return this.field(taskID, 'resultSummary');
   }
 
-  /**
-   * Get the last live busy timestamp, or undefined.
-   */
   getLastLiveBusyAt(taskID: string): number | undefined {
-    const job = this.get(taskID);
-    return job?.lastLiveBusyAt;
+    return this.field(taskID, 'lastLiveBusyAt');
   }
 
-  /**
-   * Get the parent session ID for a job, or undefined if not found.
-   */
   getParentSessionID(taskID: string): string | undefined {
-    const job = this.get(taskID);
-    return job?.parentSessionID;
+    return this.field(taskID, 'parentSessionID');
   }
 
-  /**
-   * Get the terminal state for a job, or undefined if not found or not terminal.
-   */
-  getTerminalState(taskID: string): TaskOutputState | undefined {
-    const job = this.get(taskID);
-    return job?.terminalState;
-  }
-
-  /**
-   * Get the timedOut flag for a job, or false if not found.
-   */
-  isTimedOut(taskID: string): boolean {
-    const job = this.get(taskID);
-    return !!job?.timedOut;
-  }
-
-  /**
-   * Get the statusUncertain flag for a job, or false if not found.
-   */
-  isStatusUncertain(taskID: string): boolean {
-    const job = this.get(taskID);
-    return !!job?.statusUncertain;
-  }
-
-  /**
-   * Get the current state of a job, or undefined if not found.
-   */
   getState(taskID: string): BackgroundJobState | undefined {
-    const job = this.get(taskID);
-    return job?.state;
+    return this.field(taskID, 'state');
   }
 
   resolve(

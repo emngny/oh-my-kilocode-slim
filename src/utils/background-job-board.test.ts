@@ -720,55 +720,6 @@ describe('BackgroundJobBoard', () => {
       expect(board.isRunning('unknown-1')).toBe(false);
     });
 
-    test('isReusable: true only for completed + reconciled', () => {
-      const board = new BackgroundJobBoard();
-      board.registerLaunch({
-        taskID: 'running-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-      board.registerLaunch({
-        taskID: 'completed-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-      board.updateStatus({
-        taskID: 'completed-1',
-        state: 'completed',
-        now: 200,
-      });
-
-      // After updateStatus to completed, job is terminalUnreconciled, so not reusable
-      expect(board.isReusable('running-1')).toBe(false);
-      expect(board.isReusable('completed-1')).toBe(false);
-
-      // markReconciled makes it reusable by clearing terminalUnreconciled
-      const reconciled = board.markReconciled('completed-1', 300);
-      expect(reconciled).toBeDefined();
-      expect(reconciled?.state).toBe('reconciled');
-      expect(reconciled?.terminalUnreconciled).toBe(false);
-      // After reconciliation, the job should be reusable (completed + reconciled)
-      expect(board.isReusable('completed-1')).toBe(true);
-      expect(board.isReusable('unknown-1')).toBe(false);
-    });
-
-    test('wasCancellationRequested: true after markCancelled', () => {
-      const board = new BackgroundJobBoard();
-      board.registerLaunch({
-        taskID: 'job-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-
-      expect(board.wasCancellationRequested('job-1')).toBe(false);
-      board.markCancelled('job-1', 'user requested', 200);
-      expect(board.wasCancellationRequested('job-1')).toBe(true);
-      expect(board.wasCancellationRequested('unknown-1')).toBe(false);
-    });
-
     test('isTerminalUnreconciled: true after updateStatus to terminal, false after markReconciled', () => {
       const board = new BackgroundJobBoard();
       board.registerLaunch({
@@ -784,19 +735,6 @@ describe('BackgroundJobBoard', () => {
       board.markReconciled('job-1', 300);
       expect(board.isTerminalUnreconciled('job-1')).toBe(false);
       expect(board.isTerminalUnreconciled('unknown-1')).toBe(false);
-    });
-
-    test('getAlias: returns alias after registerLaunch', () => {
-      const board = new BackgroundJobBoard();
-      board.registerLaunch({
-        taskID: 'job-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-
-      expect(board.getAlias('job-1')).toBe('fix-1');
-      expect(board.getAlias('unknown-1')).toBeUndefined();
     });
 
     test('getResultSummary: returns summary after updateStatus with result', () => {
@@ -844,61 +782,6 @@ describe('BackgroundJobBoard', () => {
 
       expect(board.getParentSessionID('job-1')).toBe('parent-1');
       expect(board.getParentSessionID('unknown-1')).toBeUndefined();
-    });
-
-    test('getTerminalState: returns terminal state after updateStatus to terminal', () => {
-      const board = new BackgroundJobBoard();
-      board.registerLaunch({
-        taskID: 'job-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-
-      expect(board.getTerminalState('job-1')).toBeUndefined();
-      board.updateStatus({ taskID: 'job-1', state: 'completed', now: 200 });
-      expect(board.getTerminalState('job-1')).toBe('completed');
-      expect(board.getTerminalState('unknown-1')).toBeUndefined();
-    });
-
-    test('isTimedOut: true after updateStatus with timedOut: true', () => {
-      const board = new BackgroundJobBoard();
-      board.registerLaunch({
-        taskID: 'job-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-
-      expect(board.isTimedOut('job-1')).toBe(false);
-      board.updateStatus({
-        taskID: 'job-1',
-        state: 'running',
-        timedOut: true,
-        now: 200,
-      });
-      expect(board.isTimedOut('job-1')).toBe(true);
-      expect(board.isTimedOut('unknown-1')).toBe(false);
-    });
-
-    test('isStatusUncertain: true after updateStatus with statusUncertain: true', () => {
-      const board = new BackgroundJobBoard();
-      board.registerLaunch({
-        taskID: 'job-1',
-        parentSessionID: 'parent-1',
-        agent: 'fixer',
-        now: 100,
-      });
-
-      expect(board.isStatusUncertain('job-1')).toBe(false);
-      board.updateStatus({
-        taskID: 'job-1',
-        state: 'running',
-        statusUncertain: true,
-        now: 200,
-      });
-      expect(board.isStatusUncertain('job-1')).toBe(true);
-      expect(board.isStatusUncertain('unknown-1')).toBe(false);
     });
   });
 });

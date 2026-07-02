@@ -61,18 +61,16 @@ Use only for obsolete, wrong, conflicting, or user-requested cancellation. Accep
         parentSessionID,
         requested,
         resolvedTaskID: job?.taskID,
-        alias: job?.taskID
-          ? options.backgroundJobBoard.getAlias(job.taskID)
+        alias: job
+          ? options.backgroundJobBoard.field(job.taskID, 'alias')
           : undefined,
-        state: job?.taskID
-          ? options.backgroundJobBoard.getState(job.taskID)
+        state: job
+          ? options.backgroundJobBoard.field(job.taskID, 'state')
           : undefined,
-        terminalState: job?.taskID
-          ? options.backgroundJobBoard.getTerminalState(job.taskID)
+        terminalState: job
+          ? options.backgroundJobBoard.field(job.taskID, 'terminalState')
           : undefined,
-        cancellationRequested: job?.taskID
-          ? options.backgroundJobBoard.wasCancellationRequested(job.taskID)
-          : undefined,
+        cancellationRequested: job?.cancellationRequested,
       });
       if (!job) {
         if (isSessionID(requested)) {
@@ -85,16 +83,13 @@ Use only for obsolete, wrong, conflicting, or user-requested cancellation. Accep
           }
 
           const knownJob = options.backgroundJobBoard.get(requested);
-          if (
-            knownJob &&
-            options.backgroundJobBoard.getParentSessionID(requested) !==
-              parentSessionID
-          ) {
+          const ownerParentSessionID =
+            options.backgroundJobBoard.getParentSessionID(requested);
+          if (knownJob && ownerParentSessionID !== parentSessionID) {
             log('[cancel-task] rejected unowned tracked raw session', {
               parentSessionID,
               taskID: requested,
-              ownerParentSessionID:
-                options.backgroundJobBoard.getParentSessionID(requested),
+              ownerParentSessionID,
             });
             return unknownTaskOutput(
               requested,
@@ -162,18 +157,17 @@ Use only for obsolete, wrong, conflicting, or user-requested cancellation. Accep
         Date.now(),
         { force: true },
       );
+      const state = options.backgroundJobBoard.getState(job.taskID);
       log('[cancel-task] marked job cancelled after verified abort', {
         taskID: job.taskID,
-        alias: options.backgroundJobBoard.getAlias(job.taskID),
-        previousState: options.backgroundJobBoard.getState(job.taskID),
-        state: options.backgroundJobBoard.getState(job.taskID),
-        cancellationRequested:
-          options.backgroundJobBoard.wasCancellationRequested(job.taskID),
+        alias: options.backgroundJobBoard.field(job.taskID, 'alias'),
+        state,
+        cancellationRequested: job.cancellationRequested,
       });
 
       return [
         `task_id: ${job.taskID}`,
-        `state: ${options.backgroundJobBoard.getState(job.taskID) ?? 'cancelled'}`,
+        `state: ${state ?? 'cancelled'}`,
         '',
         '<task_error>',
         options.backgroundJobBoard.getResultSummary(job.taskID) ?? 'cancelled',
