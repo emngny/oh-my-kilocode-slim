@@ -75,10 +75,10 @@ async function runBackgroundUpdateCheck(
 ): Promise<void> {
   // Startup reconciliation (run once per top-level startup)
   if (!hasReconciledAtStartup) {
-    hasReconciledAtStartup = true;
     try {
       const runtimePackageJsonPath = getCurrentRuntimePackageJsonPath();
       if (runtimePackageJsonPath) {
+        hasReconciledAtStartup = true;
         const packageRoot = path.dirname(runtimePackageJsonPath);
         log('[auto-update-checker] Running startup skill reconciliation');
         const syncResult = syncBundledSkillsFromPackage(packageRoot);
@@ -92,14 +92,14 @@ async function runBackgroundUpdateCheck(
             `[auto-update-checker] Startup skill sync failures: ${syncResult.failed.join(', ')}`,
           );
         }
-        if ((syncResult.staged ?? []).length > 0) {
+        if (syncResult.staged.length > 0) {
           log(
-            `[auto-update-checker] Startup skill sync staged: ${syncResult.staged?.join(', ')}`,
+            `[auto-update-checker] Startup skill sync staged: ${syncResult.staged.join(', ')}`,
           );
         }
-        if ((syncResult.customized ?? []).length > 0) {
+        if (syncResult.customized.length > 0) {
           log(
-            `[auto-update-checker] Startup skill sync customized: ${syncResult.customized?.join(', ')}`,
+            `[auto-update-checker] Startup skill sync customized: ${syncResult.customized.join(', ')}`,
           );
         }
       } else {

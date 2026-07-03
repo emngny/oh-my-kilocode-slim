@@ -35,10 +35,10 @@ export interface SkillSyncResult {
   installed: string[];
   skippedExisting: string[];
   failed: string[];
-  updated?: string[];
-  staged?: string[];
-  adopted?: string[];
-  customized?: string[];
+  updated: string[];
+  staged: string[];
+  adopted: string[];
+  customized: string[];
 }
 
 export interface SkillManifestEntry {
