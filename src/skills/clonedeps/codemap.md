@@ -1,41 +1,31 @@
 # src/skills/clonedeps/
 
 ## Responsibility
-
-Workflow-only bundled OpenCode skill for local dependency source mirroring. It
-instructs the orchestrator to use `@librarian` for dependency discovery and
-source URL/ref resolution, then perform approved git/filesystem operations
-directly.
+Manages the cloning and management of read-only dependency source repositories into a local cache (`.slim/clonedeps/repos/`) for offline inspection and development. This skill ensures that cloned dependency sources are available for agents to inspect without requiring network access or external dependencies.
 
 ## Design
-
-- `SKILL.md` is the prompt contract loaded by OpenCode and assigned only to the
-  orchestrator.
-- No helper script is bundled. The skill avoids brittle cross-ecosystem parsing
-  and keeps repo-specific judgment in librarian/orchestrator.
-- State is trackable project metadata stored in `.slim/clonedeps.json`; clone
-  contents live under `.slim/clonedeps/repos/<safe-dependency-name>/` and are
-  ignored by git.
-- The workflow updates `.gitignore`, `.ignore`, and root `AGENTS.md` with
-  concise marker sections so cloned source stays out of git but visible to
-  OpenCode and discoverable by future agents.
+- **Read-only clones**: Dependencies are cloned into `.slim/clonedeps/repos/` and should not be modified.
+- **Cache strategy**: Only clones if the repository is not already present or is out of date.
+- **Agent integration**: Provides a utility function (`getClonedDepPath`) for other skills/agents to resolve the local path to a cloned dependency.
+- **Configuration**: Uses a central configuration file (e.g., `clonedeps.jsonc`) to define which repositories to clone and their expected revisions.
 
 ## Flow
-
-1. Orchestrator checks `.slim/clonedeps.json` first and reuses existing clones
-   when they satisfy the current task.
-2. Orchestrator asks librarian for a small source-resolution plan across the
-   repository's actual languages/ecosystems.
-3. Orchestrator verifies refs where possible and asks the user to approve.
-4. Orchestrator clones/fetches each approved source repo once into
-   `.slim/clonedeps/repos/<safe-repo-name>/`.
-5. Orchestrator writes `.slim/clonedeps.json` with paths, refs, and reasons.
-6. Orchestrator updates `.gitignore`, `.ignore`, and root `AGENTS.md`; the
-   AGENTS section lists each read-only clone path directly with a one-sentence
-   purpose.
+1. **Initialization**: On plugin load, the skill checks if the configured repositories are present in `.slim/clonedeps/repos/`.
+2. **Cloning**: If a repository is missing or the revision does not match, the skill clones or updates the repository using `git clone --depth 1` and checks out the specified revision.
+3. **Path resolution**: Other skills/agents call `getClonedDepPath(depName)` to retrieve the absolute path to the cloned repository for inspection or documentation generation.
+4. **Error handling**: If cloning fails, the skill logs an error and continues, allowing the plugin to function without the cloned dependency.
 
 ## Integration
+- **Consumed by**: Skills and agents that need to inspect dependency internals (e.g., `@librarian`, `@explorer`).
+- **Depends on**: Git CLI, configuration loader, and error handling utilities.
+- **Outputs**: Local filesystem paths to cloned repositories for use by other skills.
+- **Example usage**:
+  ```typescript
+  const path = getClonedDepPath("opencode-ai__opencode");
+  // Returns: /home/user/.slim/clonedeps/repos/opencode-ai__opencode
+  ```
 
-- Registered in `src/cli/custom-skills.ts` with orchestrator-only permission.
-- Included in release verification via `scripts/verify-release-artifact.ts`.
-- Documented in `docs/skills.md` and included in `src/skills/codemap.md`.
+## Notes
+- Cloned repositories are read-only and should not be edited.
+- The cache directory (`.slim/clonedeps/`) is platform-specific and located in the user's home directory.
+- This skill is primarily for development and debugging; it does not affect runtime behavior.
