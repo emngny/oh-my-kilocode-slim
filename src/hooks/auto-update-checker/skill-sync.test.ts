@@ -1,7 +1,22 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+
+let shouldFailRename = false;
+
+mock.module('node:fs', () => {
+  const actualFs = require('node:fs');
+  return {
+    ...actualFs,
+    renameSync: (src: string, dest: string) => {
+      if (shouldFailRename && src.includes('recovery-failure-test-skill')) {
+        throw new Error('Mocked rename failure');
+      }
+      return actualFs.renameSync(src, dest);
+    },
+  };
+});
 
 let importCounter = 0;
 
@@ -31,6 +46,7 @@ describe('syncBundledSkillsFromPackage', () => {
   let origEnvConfigDir: string | undefined;
 
   beforeEach(() => {
+    shouldFailRename = false;
     origEnvConfigDir = process.env.OPENCODE_CONFIG_DIR;
     // Create a unique temporary directory for this test run
     const randomId = Math.random().toString(36).substring(2, 10);
@@ -836,5 +852,52 @@ describe('syncBundledSkillsFromPackage', () => {
     expect(result.customized).toContain(skillName);
     expect((fs.statSync(destSkillFile).mode & 0o777).toString(8)).toBe('600');
     expect(fs.readFileSync(destSkillFile, 'utf-8')).toBe('# Original');
+  });
+
+  test('crash safe recovery: preserves most recent backup when renameSync fails', async () => {
+    const skillName = 'recovery-failure-test-skill';
+    const skillSrcDir = path.join(fakePackageRoot, 'src', 'skills', skillName);
+    fs.mkdirSync(skillSrcDir, { recursive: true });
+    fs.writeFileSync(path.join(skillSrcDir, 'SKILL.md'), '# Bundled Content');
+
+    const destSkillsDir = path.join(fakeDestConfigDir, 'skills');
+    fs.mkdirSync(destSkillsDir, { recursive: true });
+
+    const backupDir = path.join(destSkillsDir, `.backup-${skillName}-12345`);
+    fs.mkdirSync(backupDir, { recursive: true });
+    fs.writeFileSync(path.join(backupDir, 'SKILL.md'), '# Backup Content');
+
+    const manifestDir = path.join(fakeDestConfigDir, '.oh-my-opencode-slim');
+    fs.mkdirSync(manifestDir, { recursive: true });
+    const manifestPath = path.join(manifestDir, 'skills-manifest.json');
+    const initialManifest = {
+      schemaVersion: 1,
+      updatedAt: new Date().toISOString(),
+      skills: {
+        [skillName]: {
+          status: 'managed',
+          packageVersion: '1.0.0',
+          sourceHash: 'some-hash',
+          lastManagedHash: 'some-hash',
+          lastSeenHash: 'some-hash',
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    };
+    fs.writeFileSync(manifestPath, JSON.stringify(initialManifest, null, 2));
+
+    shouldFailRename = true;
+
+    await syncBundledSkillsFromPackage(fakePackageRoot);
+
+    // The destination directory should not exist (since rename failed)
+    const destSkillDir = path.join(destSkillsDir, skillName);
+    expect(fs.existsSync(destSkillDir)).toBe(false);
+
+    // The most recent backup directory should still exist and not be cleaned up
+    expect(fs.existsSync(backupDir)).toBe(true);
+    expect(fs.readFileSync(path.join(backupDir, 'SKILL.md'), 'utf-8')).toBe(
+      '# Backup Content',
+    );
   });
 });

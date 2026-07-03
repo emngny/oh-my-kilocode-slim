@@ -158,7 +158,11 @@ export function computeDirectoryHash(dirPath: string): string {
 
   traverse(dirPath);
 
-  entriesToHash.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  entriesToHash.sort((a, b) => {
+    if (a.relativePath < b.relativePath) return -1;
+    if (a.relativePath > b.relativePath) return 1;
+    return 0;
+  });
 
   for (const entry of entriesToHash) {
     hash.update(entry.kind);
@@ -385,12 +389,12 @@ function recoverOrphanArtifacts(
     const mostRecentBackup = backups[backups.length - 1];
 
     if (!existsSync(destPath)) {
+      backups.pop();
       try {
         renameSync(mostRecentBackup, destPath);
         log(
           `[skill-sync] Recovered backup for ${skillName} back to destination.`,
         );
-        backups.pop();
       } catch (err) {
         log(`[skill-sync] Failed to restore backup for ${skillName}:`, err);
       }

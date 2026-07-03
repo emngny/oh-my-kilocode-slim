@@ -435,7 +435,13 @@ async function runInstall(config: InstallConfig): Promise<number> {
         }
         if (result.failed.length > 0) {
           for (const skill of result.failed) {
-            printError(`Failed: ${skill}`);
+            if (skill === '__lock__') {
+              printError('Lock acquisition failed');
+            } else if (skill === '__manifest__') {
+              printError('Manifest write failed');
+            } else {
+              printError(`Failed: ${skill}`);
+            }
           }
         }
 

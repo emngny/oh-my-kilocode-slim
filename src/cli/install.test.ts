@@ -1,9 +1,142 @@
-import { afterEach, describe, expect, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { shouldInstallCompanion } from './install';
 import type { InstallConfig } from './types';
 
 const ORIGINAL_ENV = { ...process.env };
 const ORIGINAL_STDIN_IS_TTY = process.stdin.isTTY;
+
+const actualSkillSync = require('../hooks/auto-update-checker/skill-sync');
+const actualConfigManager = require('./config-manager');
+const actualBackgroundSubagents = require('./background-subagents');
+const actualPaths = require('./paths');
+
+const originalSyncBundledSkillsFromPackage =
+  actualSkillSync.syncBundledSkillsFromPackage;
+
+const originalIsOpenCodeInstalled = actualConfigManager.isOpenCodeInstalled;
+const originalGetOpenCodeVersion = actualConfigManager.getOpenCodeVersion;
+const originalGetOpenCodePath = actualConfigManager.getOpenCodePath;
+const originalAddPluginToOpenCodeConfig =
+  actualConfigManager.addPluginToOpenCodeConfig;
+const originalAddPluginToOpenCodeTuiConfig =
+  actualConfigManager.addPluginToOpenCodeTuiConfig;
+const originalWarmOpenCodePluginCache =
+  actualConfigManager.warmOpenCodePluginCache;
+const originalDisableDefaultAgents = actualConfigManager.disableDefaultAgents;
+const originalEnableLspByDefault = actualConfigManager.enableLspByDefault;
+const originalDetectCurrentConfig = actualConfigManager.detectCurrentConfig;
+const originalGenerateLiteConfig = actualConfigManager.generateLiteConfig;
+const originalWriteLiteConfig = actualConfigManager.writeLiteConfig;
+
+const originalIsBackgroundSubagentsEnabled =
+  actualBackgroundSubagents.isBackgroundSubagentsEnabled;
+const originalDetectBackgroundSubagentsTarget =
+  actualBackgroundSubagents.detectBackgroundSubagentsTarget;
+const originalExpandHomePath = actualBackgroundSubagents.expandHomePath;
+const originalGetBackgroundSubagentsBlock =
+  actualBackgroundSubagents.getBackgroundSubagentsBlock;
+const originalWriteBackgroundSubagentsBlock =
+  actualBackgroundSubagents.writeBackgroundSubagentsBlock;
+const originalManualBackgroundSubagentsInstructions =
+  actualBackgroundSubagents.manualBackgroundSubagentsInstructions;
+
+const originalGetExistingLiteConfigPath = actualPaths.getExistingLiteConfigPath;
+
+let importCounter = 0;
+let mockFailedResult: string[] = [];
+let enableInstallMocks = false;
+
+mock.module('../hooks/auto-update-checker/skill-sync', () => {
+  return {
+    ...actualSkillSync,
+    syncBundledSkillsFromPackage: (packageRoot: string, options?: any) =>
+      enableInstallMocks
+        ? {
+            installed: [],
+            skippedExisting: [],
+            failed: mockFailedResult,
+            updated: [],
+            staged: [],
+            adopted: [],
+            customized: [],
+          }
+        : originalSyncBundledSkillsFromPackage(packageRoot, options),
+  };
+});
+
+mock.module('./config-manager', () => {
+  return {
+    ...actualConfigManager,
+    isOpenCodeInstalled: async () =>
+      enableInstallMocks ? true : originalIsOpenCodeInstalled(),
+    getOpenCodeVersion: async () =>
+      enableInstallMocks ? '1.0.0' : originalGetOpenCodeVersion(),
+    getOpenCodePath: () =>
+      enableInstallMocks
+        ? '/usr/local/bin/opencode'
+        : originalGetOpenCodePath(),
+    addPluginToOpenCodeConfig: async () =>
+      enableInstallMocks
+        ? { success: true, configPath: '/path' }
+        : originalAddPluginToOpenCodeConfig(),
+    addPluginToOpenCodeTuiConfig: async () =>
+      enableInstallMocks
+        ? { success: true, configPath: '/path' }
+        : originalAddPluginToOpenCodeTuiConfig(),
+    warmOpenCodePluginCache: async () =>
+      enableInstallMocks
+        ? { success: true, configPath: '/path' }
+        : originalWarmOpenCodePluginCache(),
+    disableDefaultAgents: () =>
+      enableInstallMocks
+        ? { success: true, configPath: '/path' }
+        : originalDisableDefaultAgents(),
+    enableLspByDefault: () =>
+      enableInstallMocks
+        ? { success: true, configPath: '/path' }
+        : originalEnableLspByDefault(),
+    detectCurrentConfig: () =>
+      enableInstallMocks
+        ? { isInstalled: true }
+        : originalDetectCurrentConfig(),
+    generateLiteConfig: (cfg: any) =>
+      enableInstallMocks ? {} : originalGenerateLiteConfig(cfg),
+    writeLiteConfig: (cfg: any, path?: string) =>
+      enableInstallMocks
+        ? { success: true, configPath: '/path' }
+        : originalWriteLiteConfig(cfg, path),
+  };
+});
+
+mock.module('./background-subagents', () => {
+  return {
+    ...actualBackgroundSubagents,
+    isBackgroundSubagentsEnabled: (env?: string) =>
+      enableInstallMocks ? true : originalIsBackgroundSubagentsEnabled(env),
+    detectBackgroundSubagentsTarget: () =>
+      enableInstallMocks ? '/path' : originalDetectBackgroundSubagentsTarget(),
+    expandHomePath: (p: string) =>
+      enableInstallMocks ? p : originalExpandHomePath(p),
+    getBackgroundSubagentsBlock: (target: string) =>
+      enableInstallMocks ? '' : originalGetBackgroundSubagentsBlock(target),
+    writeBackgroundSubagentsBlock: (target: string) =>
+      enableInstallMocks ? {} : originalWriteBackgroundSubagentsBlock(target),
+    manualBackgroundSubagentsInstructions: (opts?: any) =>
+      enableInstallMocks
+        ? ''
+        : originalManualBackgroundSubagentsInstructions(opts),
+  };
+});
+
+mock.module('./paths', () => {
+  return {
+    ...actualPaths,
+    getExistingLiteConfigPath: () =>
+      enableInstallMocks
+        ? '/path/lite-config.json'
+        : originalGetExistingLiteConfigPath(),
+  };
+});
 
 function baseConfig(): InstallConfig {
   return {
@@ -47,5 +180,84 @@ describe('shouldInstallCompanion', () => {
 
     await expect(shouldInstallCompanion(config)).resolves.toBe(false);
     expect(config.companion).toBe('no');
+  });
+});
+
+describe('install skill synchronization error mapping', () => {
+  let logSpy: ReturnType<typeof mock>;
+  let originalConsoleLog: typeof console.log;
+
+  beforeEach(() => {
+    enableInstallMocks = true;
+    mockFailedResult = [];
+    originalConsoleLog = console.log;
+    logSpy = mock(() => {});
+    console.log = logSpy;
+  });
+
+  afterEach(() => {
+    enableInstallMocks = false;
+    console.log = originalConsoleLog;
+  });
+
+  test('maps __lock__ to lock acquisition failure', async () => {
+    mockFailedResult = ['__lock__'];
+    const { install } = await import(`./install?test=${importCounter++}`);
+
+    await install({
+      skills: 'yes',
+      tui: false,
+      companion: 'no',
+    });
+
+    const calls = logSpy.mock.calls.map((call: any[]) => call[0] as string);
+    const hasLockErr = calls.some((msg: string) =>
+      msg?.includes('Lock acquisition failed'),
+    );
+    expect(hasLockErr).toBe(true);
+
+    const hasRawSentinel = calls.some((msg: string) =>
+      msg?.includes('__lock__'),
+    );
+    expect(hasRawSentinel).toBe(false);
+  });
+
+  test('maps __manifest__ to manifest write failure', async () => {
+    mockFailedResult = ['__manifest__'];
+    const { install } = await import(`./install?test=${importCounter++}`);
+
+    await install({
+      skills: 'yes',
+      tui: false,
+      companion: 'no',
+    });
+
+    const calls = logSpy.mock.calls.map((call: any[]) => call[0] as string);
+    const hasManifestErr = calls.some((msg: string) =>
+      msg?.includes('Manifest write failed'),
+    );
+    expect(hasManifestErr).toBe(true);
+
+    const hasRawSentinel = calls.some((msg: string) =>
+      msg?.includes('__manifest__'),
+    );
+    expect(hasRawSentinel).toBe(false);
+  });
+
+  test('keeps normal skill names prefix as Failed: <name>', async () => {
+    mockFailedResult = ['some-custom-skill'];
+    const { install } = await import(`./install?test=${importCounter++}`);
+
+    await install({
+      skills: 'yes',
+      tui: false,
+      companion: 'no',
+    });
+
+    const calls = logSpy.mock.calls.map((call: any[]) => call[0] as string);
+    const hasSkillErr = calls.some((msg: string) =>
+      msg?.includes('Failed: some-custom-skill'),
+    );
+    expect(hasSkillErr).toBe(true);
   });
 });
