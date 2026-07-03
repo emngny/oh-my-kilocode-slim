@@ -1,6 +1,6 @@
+import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { syncBundledSkillsFromPackage } from '../hooks/auto-update-checker/skill-sync';
 import { CUSTOM_SKILLS, type CustomSkill } from './custom-skills-registry';
 import { getConfigDir } from './paths';
 
@@ -25,13 +25,13 @@ export function installCustomSkill(skill: CustomSkill): boolean {
   );
   try {
     const packageRoot = fileURLToPath(new URL('../..', import.meta.url));
-    const result = syncBundledSkillsFromPackage(packageRoot, {
-      skills: [skill],
-    });
-    return (
-      result.installed.includes(skill.name) ||
-      result.skippedExisting.includes(skill.name)
-    );
+    const sourceDir = join(packageRoot, skill.sourcePath);
+    if (!existsSync(sourceDir)) return false;
+
+    const targetDir = join(getCustomSkillsDir(), skill.name);
+    mkdirSync(getCustomSkillsDir(), { recursive: true });
+    cpSync(sourceDir, targetDir, { recursive: true, force: true });
+    return true;
   } catch (error) {
     console.error(
       `Failed to install custom skill safely: ${skill.name}`,

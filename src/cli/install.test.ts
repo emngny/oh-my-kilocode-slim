@@ -224,12 +224,12 @@ describe('install skill synchronization error mapping', () => {
     );
     expect(hasRawSentinel).toBe(false);
 
-    // Verify counter does not count __lock__ as a failed skill
+    // Verify summary does not count __lock__ as a failed skill
     const summaryMsg = calls.find((msg: string) =>
-      msg?.includes('Skill synchronization complete.'),
+      msg?.includes('Skill synchronization complete'),
     );
     expect(summaryMsg).toBeDefined();
-    expect(summaryMsg).toContain('Processed 0 skills:');
+    expect(summaryMsg).not.toContain('Processed');
     expect(summaryMsg).toContain('0 failed.');
   });
 
@@ -254,12 +254,12 @@ describe('install skill synchronization error mapping', () => {
     );
     expect(hasRawSentinel).toBe(false);
 
-    // Verify counter does not count __manifest__ as a failed skill
+    // Verify summary does not count __manifest__ as a failed skill
     const summaryMsg = calls.find((msg: string) =>
-      msg?.includes('Skill synchronization complete.'),
+      msg?.includes('Skill synchronization complete'),
     );
     expect(summaryMsg).toBeDefined();
-    expect(summaryMsg).toContain('Processed 0 skills:');
+    expect(summaryMsg).not.toContain('Processed');
     expect(summaryMsg).toContain('0 failed.');
   });
 
@@ -279,12 +279,12 @@ describe('install skill synchronization error mapping', () => {
     );
     expect(hasSkillErr).toBe(true);
 
-    // Verify counter DOES count standard skill failures in the failed count
+    // Verify summary DOES count standard skill failures in the failed count
     const summaryMsg = calls.find((msg: string) =>
-      msg?.includes('Skill synchronization complete.'),
+      msg?.includes('Skill synchronization complete'),
     );
     expect(summaryMsg).toBeDefined();
-    expect(summaryMsg).toContain('Processed 1 skills:');
+    expect(summaryMsg).not.toContain('Processed');
     expect(summaryMsg).toContain('1 failed.');
   });
 
