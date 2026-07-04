@@ -192,6 +192,25 @@ and waits for terminal task results before acting on them.
 See **[Background Orchestration](docs/v2-background-orchestration.md)** for the
 full scheduler model.
 
+#### Delegation Mode
+
+V2 lets you tune how aggressively the Chief delegates to specialist agents.
+The default is `conservative` — the Chief handles small conversational and
+mechanical edits directly, and only delegates when the task clearly needs a
+specialist lane. Opt into `aggressive` to have the Chief dispatch almost every
+non-trivial task to subagents, since most specialists run on free or cheap
+models while the Chief itself is the expensive one.
+
+```json
+// ~/.config/kilo/oh-my-kilocode-slim.json
+{
+  "delegationMode": "aggressive"
+}
+```
+
+See **[Configuration](docs/configuration.md#delegationmode)** for the full
+option reference and trade-offs.
+
 #### Companion
 
 The optional Companion is a floating desktop status window for live agent

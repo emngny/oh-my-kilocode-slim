@@ -125,6 +125,7 @@ Presets can also be switched at runtime without restarting using the `/preset` c
 | `acpAgents.<name>.timeoutMs` | integer | `0` | Timeout for a single ACP run in milliseconds. `0` disables the timeout so external agents can run indefinitely. Finite values can be up to `2147483647`ms (~24.8 days) |
 | `disabled_agents` | string[] | `["observer"]` | Agent names to disable globally. Set to `[]` to enable Observer; this is global, not per-preset |
 | `autoUpdate` | boolean | `true` | Automatically install plugin updates in the background; set to `false` for notification-only mode |
+| `delegationMode` | enum | `"conservative"` | Controls how aggressively the Chief delegates to specialist agents. `"conservative"` handles small conversational and mechanical edits directly; `"aggressive"` dispatches almost every non-trivial task to subagents. See [Delegation Mode](#delegation-mode) |
 | `multiplexer.type` | string | `"none"` | Multiplexer mode: `auto`, `tmux`, `zellij`, `herdr`, or `none` |
 | `multiplexer.layout` | string | `"main-vertical"` | Layout preset: `main-vertical`, `main-horizontal`, `tiled`, `even-horizontal`, `even-vertical`. Tmux applies full layouts; Zellij and Herdr map `main-vertical` to right and `main-horizontal` to down |
 | `multiplexer.main_pane_size` | number | `60` | Main pane size as percentage (20–80) for tmux main layouts; ignored by Zellij and Herdr |
@@ -240,6 +241,62 @@ major is available, the plugin shows a migration command instead.
 > Pinned plugin entries in `kilo.json` (for example
 > `"oh-my-kilocode-slim@1.0.1"`) are the true version lock. Those stay pinned
 > regardless of `autoUpdate`.
+
+### Delegation Mode
+
+The Chief's default behavior is **conservative** — it handles small conversational
+replies and trivial mechanical edits directly, and only delegates when a task
+clearly needs a specialist lane. This is the safest default because it
+minimizes unnecessary session overhead.
+
+`aggressive` mode flips that. The Chief treats itself as a pure orchestrator
+and dispatches almost every non-trivial request to a subagent, even things it
+could handle on its own. The reasoning is **cost**:
+
+- Most subagents run on free or cheap models (`deepseek-free`, `gemini-flash`,
+  `mimo-free`, etc.).
+- The Chief is the expensive model.
+- A small token increase (3–5x) on a free-tier subagent is usually much cheaper
+  than the same tokens on a premium Chief model.
+- Specialized prompts produce better lane-specific results.
+
+```jsonc
+// ~/.config/kilo/oh-my-kilocode-slim.json
+{
+  "delegationMode": "aggressive"
+}
+```
+
+**Trade-offs**
+
+| | Conservative (default) | Aggressive |
+|---|---|---|
+| Chief handles directly | Trivial conversational, single-line edits, quick lookups | Almost nothing non-conversational |
+| Subagent dispatch | Only when the lane is clearly needed | Default for any non-trivial task |
+| Token usage | Lower per task | Higher per task (3–5x) |
+| $ cost (mixed free chief / free subagent) | Lower | Similar or lower |
+| $ cost (premium chief / free subagent) | Higher | **Lower** (the main use case) |
+| Wall-clock latency for multi-step tasks | Slower (chief does steps serially) | Faster (parallel subagents) |
+| Context pollution | Less | More session boundaries |
+
+**When to use `aggressive`**
+
+- Your Chief model is paid and your subagents are free/cheap.
+- You want a more hands-off orchestrator that doesn't try to answer
+  architecture or library questions itself.
+- Your tasks are usually multi-step and benefit from parallel fan-out.
+
+**When to keep `conservative`**
+
+- Your Chief model is already cheap/free.
+- You want tight, fast loops where the overhead of a subagent session costs
+  more than it saves.
+- You're tuning prompts and want the Chief's reasoning visible in the main
+  session, not hidden in child sessions.
+
+The `delegationMode` value is also visible in the Chief's system prompt itself,
+so you can verify the active mode by asking the Chief "what's your current
+delegation mode?" after restarting a session.
 
 ### Background Job Management
 
