@@ -15,11 +15,8 @@ import {
   COUNCILLOR_STAGGER_MS,
   TMUX_SPAWN_DELAY_MS,
 } from '../config/constants';
-import {
-  type CouncillorConfig,
-  type CouncilResult,
-  normalizeCouncillorModels,
-} from '../config/council-schema';
+import type { CouncillorConfig, CouncilResult } from '../config/council-schema';
+import { normalizeCouncillorModels } from '../utils/councillor-models';
 import { log } from '../utils/logger';
 import {
   extractSessionResult,

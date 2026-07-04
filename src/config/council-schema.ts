@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import {
+  type CouncillorModelEntry,
+  normalizeCouncillorModels,
+} from '../utils/councillor-models';
+
+export type { CouncillorModelEntry };
 
 /**
  * Validates model IDs in "provider/model" format.
@@ -10,9 +16,6 @@ const ModelIdSchema = z
     /^[^/\s]+\/[^\s]+$/,
     'Expected provider/model format (e.g. "openai/gpt-5.4-mini")',
   );
-
-/** A single model in a councillor fallback chain, with optional variant. */
-export type CouncillorModelEntry = { id: string; variant?: string };
 
 const CouncillorModelEntrySchema = z.object({
   id: ModelIdSchema,
@@ -34,19 +37,6 @@ const CouncillorModelSchema = z
       'ordered fallback chain (array of model IDs or { id, variant } entries) ' +
       'tried in order until one responds.',
   );
-
-/** Flatten a councillor model config into an ordered list of model entries. */
-export function normalizeCouncillorModels(
-  model: string | Array<string | CouncillorModelEntry>,
-  fallbackVariant?: string,
-): CouncillorModelEntry[] {
-  const raw = Array.isArray(model) ? model : [model];
-  return raw.map((entry) =>
-    typeof entry === 'string'
-      ? { id: entry, variant: fallbackVariant }
-      : { id: entry.id, variant: entry.variant ?? fallbackVariant },
-  );
-}
 
 /**
  * Configuration for a single councillor within a preset.
