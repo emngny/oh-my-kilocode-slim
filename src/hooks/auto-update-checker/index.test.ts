@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 
-const logMock = mock(() => {});
+const logMock = mock(() => { });
 
 const checkerMocks = {
   extractChannel: mock(() => 'latest'),
@@ -240,7 +240,7 @@ describe('auto-update-checker/index', () => {
     expect(
       (
         skillSyncMocks.syncBundledSkillsFromPackage.mock.calls[0] as string[]
-      )[0].replace(/\\/g, '/'),
+      )[0].replaceAll('\\', '/'),
     ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
     expect(showToast).toHaveBeenCalledWith({
       body: {
@@ -373,7 +373,7 @@ describe('auto-update-checker/index', () => {
       (
         companionUpdaterMocks.loadCompanionManifestFromPackageRoot.mock
           .calls[0] as string[]
-      )[0].replace(/\\/g, '/'),
+      )[0].replaceAll('\\', '/'),
     ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
     expect(companionUpdaterMocks.ensureCompanionVersion).toHaveBeenCalledWith({
       config: { enabled: true },
