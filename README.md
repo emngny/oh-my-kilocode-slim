@@ -9,9 +9,7 @@
   <p><b>KiloCode Multi Agent Suite</b> · Mix any models · Auto delegate tasks</p>
   <p><sub>Forked and adapted by <b>emngny</b></sub></p>
 
-  <p>
-    <b>English</b> | <a href="README.zh-CN.md">简体中文</a> | <a href="README.ja-JP.md">日本語</a> | <a href="README.ko-KR.md">한국어</a>
-  </p>
+
 
   <p><sub>✦ ✦ ✦</sub></p>
 
@@ -68,7 +66,7 @@ Copy and paste this prompt to your LLM agent (Claude Code, AmpCode, Cursor, etc.
 
 
 ```
-Install and configure oh-my-kilocode-slim: https://raw.githubusercontent.com/alvinunreal/oh-my-kilocode-slim/refs/heads/master/README.md
+Install and configure oh-my-kilocode-slim: https://raw.githubusercontent.com/emngny/oh-my-kilocode-slim/refs/heads/main/README.md
 ```
 
 

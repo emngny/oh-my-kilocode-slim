@@ -136,7 +136,7 @@ Paste this into Claude Code, AmpCode, Cursor, or any coding agent:
 
 ```
 Install and configure by following the instructions here:
-https://raw.githubusercontent.com/alvinunreal/oh-my-kilocode-slim/refs/heads/master/README.md
+https://raw.githubusercontent.com/emngny/oh-my-kilocode-slim/refs/heads/main/README.md
 ```
 
 ---
