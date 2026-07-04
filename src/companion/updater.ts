@@ -48,7 +48,7 @@ const FIRST_METADATA_VERSION = '0.1.2';
 export const COMPANION_MANIFEST: CompanionManifest = {
   version: '0.1.3',
   tag: 'companion-v0.1.3',
-  repo: 'alvinunreal/oh-my-kilocode-slim',
+  repo: 'emngny/oh-my-kilocode-slim',
   checksums: {
     'oh-my-kilocode-slim-companion-v0.1.3-aarch64-apple-darwin.tar.gz':
       'b4885f9b1900c02376e5f8f5ae6f3b8a89d26f7514b03f836d7e3d618164a0ed',

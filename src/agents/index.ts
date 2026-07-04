@@ -450,7 +450,7 @@ export function createAgents(
 
   // 2b. Backward compat: if council has no preset override and still uses the
   // hardcoded default model, fall back to the deprecated council.master.model.
-  // See https://github.com/alvinunreal/oh-my-kilocode-slim/issues/369
+  // See https://github.com/emngny/oh-my-kilocode-slim/issues/369
   const legacyMasterModel = config?.council?._legacyMasterModel;
   if (legacyMasterModel) {
     const councilAgent = builtInSubAgents.find((a) => a.name === 'council');

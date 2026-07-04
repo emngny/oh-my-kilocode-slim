@@ -111,7 +111,7 @@ describe('companion updater', () => {
       manifest: {
         version: '0.1.2',
         tag: 'companion-v0.1.2',
-        repo: 'alvinunreal/oh-my-kilocode-slim',
+        repo: 'emngny/oh-my-kilocode-slim',
       },
     });
 

@@ -1,6 +1,6 @@
 {
-  "projectName": "oh-my-opencode-slim",
-  "projectOwner": "alvinunreal",
+  "projectName": "oh-my-kilocode-slim",
+  "projectOwner": "emngny",
   "repoType": "github",
   "files": [
     "README.md"
@@ -13,19 +13,10 @@
   "linkToUsage": false,
   "contributors": [
     {
-      "login": "alvinunreal",
-      "name": "Alvin",
-      "avatar_url": "https://avatars.githubusercontent.com/u/204474669?v=4",
-      "profile": "https://boringdystopia.ai/",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "alvinreal",
-      "name": "alvinreal",
-      "avatar_url": "https://avatars.githubusercontent.com/u/262747402?v=4",
-      "profile": "https://github.com/alvinreal",
+      "login": "emngny",
+      "name": "emngny",
+      "avatar_url": "https://github.com/emngny.png",
+      "profile": "https://github.com/emngny",
       "contributions": [
         "code"
       ]

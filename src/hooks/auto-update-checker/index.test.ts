@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 
-const logMock = mock(() => { });
+const logMock = mock(() => {});
 
 const checkerMocks = {
   extractChannel: mock(() => 'latest'),

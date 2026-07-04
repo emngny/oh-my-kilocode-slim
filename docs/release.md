@@ -58,7 +58,7 @@ When releasing a new companion binary, update the packaged companion manifest:
 {
   "version": "0.1.3",
   "tag": "companion-v0.1.3",
-  "repo": "alvinunreal/oh-my-kilocode-slim",
+  "repo": "emngny/oh-my-kilocode-slim",
   "checksums": {
     "oh-my-kilocode-slim-companion-v0.1.3-aarch64-apple-darwin.tar.gz": "..."
   }

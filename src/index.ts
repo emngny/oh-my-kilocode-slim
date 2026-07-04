@@ -352,7 +352,7 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
     await appLog(
       ctx,
       'error',
-      `INIT FAILED: ${String(err)}. Report at github.com/alvinunreal/oh-my-kilocode-slim/issues/310`,
+      `INIT FAILED: ${String(err)}. Report at github.com/emngny/oh-my-kilocode-slim/issues/310`,
     );
     throw err;
   }
@@ -378,7 +378,7 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
       `  mcps:   ${mcpCount} (expected >=${mcpThreshold})`,
       'This usually means a dependency failed to resolve (jsdom, etc).',
       'If you recently updated kilo, see:',
-      '  github.com/alvinunreal/oh-my-kilocode-slim/issues/310',
+      '  github.com/emngny/oh-my-kilocode-slim/issues/310',
     ].join('\n');
     log(`[plugin] WARN: ${msg}`);
     await appLog(ctx, 'warn', msg);

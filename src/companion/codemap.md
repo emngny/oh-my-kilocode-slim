@@ -147,7 +147,7 @@ interface CompanionConfig {
 
 ### GitHub Release Artifacts
 
-- Repository: `alvinunreal/oh-my-kilocode-slim`
+- Repository: `emngny/oh-my-kilocode-slim`
 - Release tag pattern: `companion-v{version}`
 - Artifact names: `oh-my-kilocode-slim-companion-v{version}-{target}.{tar.gz|zip}`
 
