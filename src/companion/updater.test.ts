@@ -127,7 +127,8 @@ describe('companion updater', () => {
   test('fails closed when archive checksum is missing', async () => {
     const fetchCalls: string[] = [];
     globalThis.fetch = ((url: RequestInfo | URL) => {
-      fetchCalls.push(String(url));
+      const urlStr = url instanceof Request ? url.url : String(url);
+      fetchCalls.push(urlStr);
       throw new Error('should not fetch without checksum');
     }) as unknown as typeof fetch;
 

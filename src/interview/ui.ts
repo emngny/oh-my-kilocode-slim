@@ -1081,8 +1081,8 @@ export function renderInterviewPage(
 
     <script>
       ${clipboardHelperJs()}
-      const interviewId = ${JSON.stringify(interviewId).replace(/</g, '\\u003c')};
-      const resumeSlug = ${JSON.stringify(resumeSlug).replace(/</g, '\\u003c')};
+      const interviewId = ${JSON.stringify(interviewId).replaceAll('<', String.raw`\u003c`)};
+      const resumeSlug = ${JSON.stringify(resumeSlug).replaceAll('<', String.raw`\u003c`)};
       const state = {
         data: null,
         answers: {},
