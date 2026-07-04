@@ -78,8 +78,12 @@ async function appLog(
   } catch {
     // client.app.log may deadlock or be unavailable; stderr is the
     // fallback
-    const prefix =
-      level === 'error' ? 'ERROR' : level === 'warn' ? 'WARN' : 'INFO';
+    let prefix = 'INFO';
+    if (level === 'error') {
+      prefix = 'ERROR';
+    } else if (level === 'warn') {
+      prefix = 'WARN';
+    }
     console.error(`[oh-my-kilocode-slim] ${prefix}: ${message}`);
   }
 }
@@ -471,9 +475,7 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
 
       // Merge Agent configs - per-agent shallow merge to preserve
       // user-supplied fields (e.g. tools, permission) from kilo.json
-      if (!kiloConfig.agent) {
-        kiloConfig.agent = { ...agents };
-      } else {
+      if (kiloConfig.agent) {
         for (const [name, pluginAgent] of Object.entries(agents)) {
           const existing = (kiloConfig.agent as Record<string, unknown>)[
             name
@@ -490,6 +492,8 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
             };
           }
         }
+      } else {
+        kiloConfig.agent = { ...agents };
       }
       const configAgent = kiloConfig.agent as Record<string, unknown>;
 
@@ -665,20 +669,21 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
         const entry = configAgent[agentDef.name] as
           | Record<string, unknown>
           | undefined;
-        const resolvedModel =
-          typeof entry?.model === 'string'
-            ? entry.model
-            : runtimeChains[agentDef.name]?.[0]
-              ? runtimeChains[agentDef.name][0]
-              : typeof agentDef.config.model === 'string'
-                ? agentDef.config.model
-                : undefined;
-        const resolvedVariant =
-          typeof entry?.variant === 'string'
-            ? entry.variant
-            : typeof agentDef.config.variant === 'string'
-              ? agentDef.config.variant
-              : undefined;
+        let resolvedModel: string | undefined;
+        if (typeof entry?.model === 'string') {
+          resolvedModel = entry.model;
+        } else if (runtimeChains[agentDef.name]?.[0]) {
+          resolvedModel = runtimeChains[agentDef.name][0];
+        } else if (typeof agentDef.config.model === 'string') {
+          resolvedModel = agentDef.config.model;
+        }
+
+        let resolvedVariant: string | undefined;
+        if (typeof entry?.variant === 'string') {
+          resolvedVariant = entry.variant;
+        } else if (typeof agentDef.config.variant === 'string') {
+          resolvedVariant = agentDef.config.variant;
+        }
 
         tuiAgentModels[agentDef.name] = resolvedModel ?? 'default';
         if (resolvedVariant) {
@@ -692,10 +697,10 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
 
       // Merge MCP configs
       const configMcp = kiloConfig.mcp as Record<string, unknown> | undefined;
-      if (!configMcp) {
-        kiloConfig.mcp = { ...mcps };
-      } else {
+      if (configMcp) {
         Object.assign(configMcp, mcps);
+      } else {
+        kiloConfig.mcp = { ...mcps };
       }
 
       // Get all MCP names from the merged config (built-in + custom)
@@ -775,18 +780,19 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
 
       if (event.type === 'message.updated') {
         const info = event.properties?.info;
-        const providerID =
-          typeof info?.providerID === 'string'
-            ? info.providerID
-            : typeof info?.model?.providerID === 'string'
-              ? info.model.providerID
-              : undefined;
-        const modelID =
-          typeof info?.modelID === 'string'
-            ? info.modelID
-            : typeof info?.model?.modelID === 'string'
-              ? info.model.modelID
-              : undefined;
+        let providerID: string | undefined;
+        if (typeof info?.providerID === 'string') {
+          providerID = info.providerID;
+        } else if (typeof info?.model?.providerID === 'string') {
+          providerID = info.model.providerID;
+        }
+
+        let modelID: string | undefined;
+        if (typeof info?.modelID === 'string') {
+          modelID = info.modelID;
+        } else if (typeof info?.model?.modelID === 'string') {
+          modelID = info.model.modelID;
+        }
         if (typeof info?.agent === 'string' && providerID && modelID) {
           const agentName = resolveRuntimeAgentName(config, info.agent);
           const model = `${providerID}/${modelID}`;
@@ -821,7 +827,7 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
       await foregroundFallback.handleEvent(input.event);
 
       // Handle auto-update checking
-      await autoUpdateChecker.event(input);
+      autoUpdateChecker.event(input);
 
       await interviewManager.handleEvent(
         input as {
