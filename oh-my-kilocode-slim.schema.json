@@ -8,6 +8,14 @@
     "setDefaultAgent": {
       "type": "boolean"
     },
+    "delegationMode": {
+      "description": "Controls how aggressively the chief delegates to subagents. \"conservative\" (default): handles small things directly. \"aggressive\": delegates almost everything to subagents, since subagents are often on free/cheap models.",
+      "type": "string",
+      "enum": [
+        "conservative",
+        "aggressive"
+      ]
+    },
     "compactSidebar": {
       "description": "Use the compact TUI sidebar layout when enabled.",
       "type": "boolean"

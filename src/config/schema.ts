@@ -282,6 +282,12 @@ export const PluginConfigSchema = z
   .object({
     preset: z.string().optional(),
     setDefaultAgent: z.boolean().optional(),
+    delegationMode: z
+      .enum(['conservative', 'aggressive'])
+      .optional()
+      .describe(
+        'Controls how aggressively the chief delegates to subagents. "conservative" (default): handles small things directly. "aggressive": delegates almost everything to subagents, since subagents are often on free/cheap models.',
+      ),
     compactSidebar: z
       .boolean()
       .optional()

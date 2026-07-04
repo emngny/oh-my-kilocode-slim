@@ -118,12 +118,56 @@ const PARALLEL_DELEGATION_EXAMPLES = [
   '- @observer + @explorer in parallel (visual analysis + code search)?',
 ];
 
+// Delegation aggressiveness variants for the chief's "## 3. Delegation Check"
+// section. Conservative = handle small things directly. Aggressive = delegate
+// almost everything because subagents are often free/cheap models.
+export const CONSERVATIVE_DELEGATION_CHECK = `## 3. Delegation Check
+Review available agents and lane rules.
+
+**Dispatch efficiency:**
+- Reference paths/lines, don't paste files (\`src/app.ts:42\` not full contents)
+- Brief user on delegation goal before each call
+- For trivial conversational answers or tiny mechanical edits, direct execution is allowed when scheduling overhead would clearly dominate
+- Record task IDs, state, and advisory ownership/dependency labels
+- Do not immediately wait after spawning independent background tasks unless the next step truly depends on their result
+- Reconcile results, resolve conflicts, and gate dependent lanes`;
+
+export const AGGRESSIVE_DELEGATION_CHECK = `## 3. Delegation Check
+**Default to delegating.** Subagents are cheaper (often free models: deepseek-free, gemini-flash, mimo-free), faster, and produce higher-quality lane-specialized work than the chief. You are the orchestrator, not the worker.
+
+Only handle directly when ALL are true:
+- Brief conversational reply (greeting, clarification, simple yes/no)
+- No tool calls needed
+- No code, no research, no analysis required
+
+For everything else, delegate. Even small tasks: a single-file edit goes to @fixer, a quick file lookup goes to @explorer, a docs question goes to @librarian, a debugging question goes to @oracle. The scheduling overhead is worth it because:
+- Subagents are often free/cheap — your chief model is the expensive one
+- Parallel execution saves wall-clock time
+- Specialized prompts produce better lane-specific results
+- You preserve your own context window for coordination
+
+**Dispatch efficiency:**
+- Reference paths/lines, don't paste files (\`src/app.ts:42\` not full contents)
+- Brief user on delegation goal before each call
+- Default to background: true for independent tasks so you stay unblocked
+- Record task IDs, state, and advisory ownership/dependency labels
+- Do not immediately wait after spawning independent background tasks unless the next step truly depends on their result
+- Reconcile results, resolve conflicts, and gate dependent lanes`;
+
+/** Delegation aggressiveness for the chief agent. */
+export type DelegationMode = 'conservative' | 'aggressive';
+
 /**
  * Build the chief prompt with dynamic agent filtering.
  * @param disabledAgents - Set of disabled agent names to exclude from the prompt
+ * @param delegationMode - How aggressively the chief delegates to subagents.
+ *   Defaults to 'conservative' (chief handles small things directly).
  * @returns The complete chief prompt string
  */
-export function buildChiefPrompt(disabledAgents?: Set<string>): string {
+export function buildChiefPrompt(
+  disabledAgents?: Set<string>,
+  delegationMode: DelegationMode = 'conservative',
+): string {
   // Filter agent descriptions
   const enabledAgents = Object.entries(AGENT_DESCRIPTIONS)
     .filter(([name]) => !disabledAgents?.has(name))
@@ -168,16 +212,7 @@ Parse request: explicit requirements + implicit needs.
 Evaluate approach by: quality, speed and cost.
 Choose the path that optimizes all four.
 
-## 3. Delegation Check
-Review available agents and lane rules.
-
-**Dispatch efficiency:**
-- Reference paths/lines, don't paste files (\`src/app.ts:42\` not full contents)
-- Brief user on delegation goal before each call
-- For trivial conversational answers or tiny mechanical edits, direct execution is allowed when scheduling overhead would clearly dominate
-- Record task IDs, state, and advisory ownership/dependency labels
-- Do not immediately wait after spawning independent background tasks unless the next step truly depends on their result
-- Reconcile results, resolve conflicts, and gate dependent lanes
+${delegationMode === 'aggressive' ? AGGRESSIVE_DELEGATION_CHECK : CONSERVATIVE_DELEGATION_CHECK}
 
 ${WRITABLE_FILE_OPERATIONS_RULES}
 
@@ -276,8 +311,9 @@ export function createChiefAgent(
   customPrompt?: string,
   customAppendPrompt?: string,
   disabledAgents?: Set<string>,
+  delegationMode: DelegationMode = 'conservative',
 ): AgentDefinition {
-  const basePrompt = buildChiefPrompt(disabledAgents);
+  const basePrompt = buildChiefPrompt(disabledAgents, delegationMode);
   const prompt = resolvePrompt(basePrompt, customPrompt, customAppendPrompt);
 
   const definition: AgentDefinition = {

@@ -491,7 +491,13 @@ export function createAgents(
     preset: config?.preset,
     projectDirectory: options?.projectDirectory,
   });
-  const chief = createChiefAgent(chiefModel, undefined, undefined, disabled);
+  const chief = createChiefAgent(
+    chiefModel,
+    undefined,
+    undefined,
+    disabled,
+    config?.delegationMode,
+  );
 
   const inlineChiefPrompt = chiefOverride?.prompt;
   const defaultChiefPrompt = chief.config.prompt ?? '';

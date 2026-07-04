@@ -1031,7 +1031,7 @@ const OhMyKiloCodeLite: Plugin = async (ctx) => {
           const chiefPrompt =
             typeof chiefDef?.config?.prompt === 'string'
               ? chiefDef.config.prompt
-              : buildChiefPrompt(disabledAgents);
+              : buildChiefPrompt(disabledAgents, config.delegationMode);
           output.system[0] =
             chiefPrompt + (output.system[0] ? `\n\n${output.system[0]}` : '');
         }
