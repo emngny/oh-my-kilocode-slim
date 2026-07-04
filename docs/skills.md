@@ -2,7 +2,10 @@
 
 Skills are specialized capabilities you can assign to agents. Unlike MCPs (which are running servers), skills are **prompt-based tool configurations** — instructions injected into an agent's system prompt that describe how to use a particular tool.
 
-Bundled skills are installed by the `oh-my-opencode-slim` installer.
+Bundled skills are installed by the `oh-my-opencode-slim` installer and safely
+reconciled on plugin startup/auto-update. Local customizations are preserved;
+new bundled versions for customized skills are staged under
+`~/.config/opencode/.oh-my-opencode-slim/skill-updates/` for manual review.
 
 ---
 

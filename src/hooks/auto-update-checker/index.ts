@@ -11,6 +11,7 @@ import {
   extractChannel,
   findPluginEntry,
   getCachedVersion,
+  getCurrentRuntimePackageJsonPath,
   getLatestCompatibleVersion,
   getLocalDevVersion,
 } from './checker';
@@ -60,6 +61,8 @@ export function createAutoUpdateCheckerHook(
   };
 }
 
+let hasReconciledAtStartup = false;
+
 /**
  * Orchestrates the version comparison and update process in the background.
  * @param ctx The plugin input context.
@@ -70,6 +73,45 @@ async function runBackgroundUpdateCheck(
   autoUpdate: boolean,
   companion: AutoUpdateCheckerOptions['companion'],
 ): Promise<void> {
+  // Startup reconciliation (run once per top-level startup)
+  if (!hasReconciledAtStartup) {
+    try {
+      const runtimePackageJsonPath = getCurrentRuntimePackageJsonPath();
+      if (runtimePackageJsonPath) {
+        hasReconciledAtStartup = true;
+        const packageRoot = path.dirname(runtimePackageJsonPath);
+        log('[auto-update-checker] Running startup skill reconciliation');
+        const syncResult = syncBundledSkillsFromPackage(packageRoot);
+        if (syncResult.installed.length > 0) {
+          log(
+            `[auto-update-checker] Startup skill sync installed: ${syncResult.installed.join(', ')}`,
+          );
+        }
+        if (syncResult.failed.length > 0) {
+          log(
+            `[auto-update-checker] Startup skill sync failures: ${syncResult.failed.join(', ')}`,
+          );
+        }
+        if (syncResult.staged.length > 0) {
+          log(
+            `[auto-update-checker] Startup skill sync staged: ${syncResult.staged.join(', ')}`,
+          );
+        }
+        if (syncResult.customized.length > 0) {
+          log(
+            `[auto-update-checker] Startup skill sync customized: ${syncResult.customized.join(', ')}`,
+          );
+        }
+      } else {
+        log(
+          '[auto-update-checker] Could not resolve runtime package path for startup skill reconciliation',
+        );
+      }
+    } catch (err) {
+      log('[auto-update-checker] Startup skill reconciliation failed:', err);
+    }
+  }
+
   const pluginInfo = findPluginEntry(ctx.directory);
   if (!pluginInfo) {
     log('[auto-update-checker] Plugin not found in config');
@@ -171,12 +213,16 @@ async function runBackgroundUpdateCheck(
 
   if (installSuccess) {
     let installedSkills: string[] = [];
+    let stagedSkills: string[] = [];
+    let customizedSkills: string[] = [];
     let companionUpdated = false;
     let companionWillRetry = false;
     const packageRoot = path.join(installDir, 'node_modules', PACKAGE_NAME);
     try {
       const syncResult = syncBundledSkillsFromPackage(packageRoot);
       installedSkills = syncResult.installed;
+      stagedSkills = syncResult.staged;
+      customizedSkills = syncResult.customized;
       if (syncResult.failed.length > 0) {
         log(
           `[auto-update-checker] Skill sync warnings/failures: ${syncResult.failed.join(', ')}`,
@@ -224,6 +270,12 @@ async function runBackgroundUpdateCheck(
     const messageLines = [`v${currentVersion} → v${latestVersion}`];
     if (installedSkills.length > 0) {
       messageLines.push(`Added bundled skills: ${installedSkills.join(', ')}`);
+    }
+    if (stagedSkills.length > 0) {
+      messageLines.push(`Staged skill updates: ${stagedSkills.join(', ')}`);
+    }
+    if (customizedSkills.length > 0) {
+      messageLines.push(`Customized skills: ${customizedSkills.join(', ')}`);
     }
     if (companionUpdated) {
       messageLines.push('Companion updated.');

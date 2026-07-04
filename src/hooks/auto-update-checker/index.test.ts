@@ -26,6 +26,9 @@ const skillSyncMocks = {
     installed: [],
     skippedExisting: [],
     failed: [],
+    staged: [],
+    adopted: [],
+    customized: [],
   })),
 };
 
@@ -141,6 +144,9 @@ describe('auto-update-checker/index', () => {
       installed: [],
       skippedExisting: [],
       failed: [],
+      staged: [],
+      adopted: [],
+      customized: [],
     }));
 
     companionUpdaterMocks.ensureCompanionVersion.mockReset();
@@ -252,6 +258,9 @@ describe('auto-update-checker/index', () => {
       installed: ['reflect', 'worktrees'],
       skippedExisting: ['codemap'],
       failed: [],
+      staged: [],
+      adopted: [],
+      customized: [],
     }));
 
     const { createAutoUpdateCheckerHook } = await import(
@@ -268,6 +277,46 @@ describe('auto-update-checker/index', () => {
         title: 'OMO-Slim Updated!',
         message:
           'v0.9.1 → v0.9.11\nAdded bundled skills: reflect, worktrees\nRestart OpenCode to apply.',
+        variant: 'success',
+        duration: 8000,
+      },
+    });
+  });
+
+  test('includes staged and customized skills in success toast', async () => {
+    checkerMocks.findPluginEntry.mockImplementation(() => ({
+      pinnedVersion: null,
+      isPinned: false,
+    }));
+    checkerMocks.getCachedVersion.mockImplementation(() => '0.9.1');
+    checkerMocks.getLatestCompatibleVersion.mockImplementation(async () => ({
+      latestVersion: '0.9.11',
+      latestMajorVersion: null,
+      blockedByMajor: false,
+    }));
+    skillSyncMocks.syncBundledSkillsFromPackage.mockImplementation(() => ({
+      installed: ['reflect'],
+      skippedExisting: [],
+      failed: [],
+      staged: ['worktrees'],
+      adopted: [],
+      customized: ['my-custom-skill'],
+    }));
+
+    const { createAutoUpdateCheckerHook } = await import(
+      `./index?test=${importCounter++}`
+    );
+    const { ctx, showToast } = createCtx();
+
+    const hook = createAutoUpdateCheckerHook(ctx as never);
+    hook.event({ event: { type: 'session.created', properties: {} } });
+    await waitForCalls(showToast);
+
+    expect(showToast).toHaveBeenCalledWith({
+      body: {
+        title: 'OMO-Slim Updated!',
+        message:
+          'v0.9.1 → v0.9.11\nAdded bundled skills: reflect\nStaged skill updates: worktrees\nCustomized skills: my-custom-skill\nRestart OpenCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -389,6 +438,9 @@ describe('auto-update-checker/index', () => {
       installed: [],
       skippedExisting: [],
       failed: ['reflect'],
+      staged: [],
+      adopted: [],
+      customized: [],
     }));
 
     const { createAutoUpdateCheckerHook } = await import(
@@ -632,5 +684,73 @@ describe('auto-update-checker/index', () => {
     expect(cacheMocks.preparePackageUpdate).not.toHaveBeenCalled();
     expect(crossSpawnMock).not.toHaveBeenCalled();
     expect(skillSyncMocks.syncBundledSkillsFromPackage).not.toHaveBeenCalled();
+  });
+
+  test('runs startup skill reconciliation even when already on latest version', async () => {
+    checkerMocks.findPluginEntry.mockImplementation(() => ({
+      pinnedVersion: null,
+      isPinned: false,
+    }));
+    checkerMocks.getCachedVersion.mockImplementation(() => '0.9.11');
+    checkerMocks.getLatestCompatibleVersion.mockImplementation(async () => ({
+      latestVersion: '0.9.11',
+      latestMajorVersion: null,
+      blockedByMajor: false,
+    }));
+    checkerMocks.getCurrentRuntimePackageJsonPath.mockImplementation(
+      () => '/tmp/opencode/package.json',
+    );
+
+    const { createAutoUpdateCheckerHook } = await import(
+      `./index?test=${importCounter++}`
+    );
+    const { ctx } = createCtx();
+
+    const hook = createAutoUpdateCheckerHook(ctx as never);
+    hook.event({ event: { type: 'session.created', properties: {} } });
+
+    await waitForCalls(logMock, 1);
+
+    expect(skillSyncMocks.syncBundledSkillsFromPackage).toHaveBeenCalledWith(
+      '/tmp/opencode',
+    );
+  });
+
+  test('logs staged and customized skills during startup reconciliation', async () => {
+    checkerMocks.getCurrentRuntimePackageJsonPath.mockImplementation(
+      () => '/tmp/opencode/package.json',
+    );
+    checkerMocks.findPluginEntry.mockImplementation(() => ({
+      pinnedVersion: '0.9.11',
+      isPinned: false,
+    }));
+    checkerMocks.getCachedVersion.mockImplementation(() => null);
+    skillSyncMocks.syncBundledSkillsFromPackage.mockImplementation(() => ({
+      installed: [],
+      skippedExisting: [],
+      failed: [],
+      staged: ['reflect'],
+      adopted: [],
+      customized: ['my-custom-skill'],
+    }));
+
+    const { createAutoUpdateCheckerHook } = await import(
+      `./index?test=${importCounter++}`
+    );
+    const { ctx } = createCtx();
+
+    const hook = createAutoUpdateCheckerHook(ctx as never);
+    hook.event({ event: { type: 'session.created', properties: {} } });
+
+    await waitForCalls(logMock, 3);
+
+    const logs = logMock.mock.calls.map((entry: [string]) => entry[0]);
+
+    expect(logs).toContain(
+      '[auto-update-checker] Startup skill sync staged: reflect',
+    );
+    expect(logs).toContain(
+      '[auto-update-checker] Startup skill sync customized: my-custom-skill',
+    );
   });
 });
