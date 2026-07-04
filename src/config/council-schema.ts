@@ -1,10 +1,7 @@
 import { z } from 'zod';
-import {
-  type CouncillorModelEntry,
-  normalizeCouncillorModels,
-} from '../utils/councillor-models';
+import { normalizeCouncillorModels } from '../utils/councillor-models';
 
-export type { CouncillorModelEntry };
+export type { CouncillorModelEntry } from '../utils/councillor-models';
 
 /**
  * Validates model IDs in "provider/model" format.
@@ -101,7 +98,7 @@ export const CouncilPresetSchema = z
           const innerParsed = CouncillorConfigSchema.safeParse(innerRaw);
           if (!innerParsed.success) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: 'custom',
               message: `Invalid councillor "${innerKey}" (nested under legacy "councillors" key): ${innerParsed.error.issues
                 .map((i) => i.message)
                 .join(', ')}`,
@@ -116,7 +113,7 @@ export const CouncilPresetSchema = z
       const parsed = CouncillorConfigSchema.safeParse(raw);
       if (!parsed.success) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `Invalid councillor "${key}": ${parsed.error.issues
             .map((i) => i.message)
             .join(', ')}`,
