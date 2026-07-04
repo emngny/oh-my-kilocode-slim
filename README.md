@@ -1,18 +1,13 @@
 <div align="center">
-  <a href="https://github.com/alvinunreal/oh-my-kilocode-slim/stargazers">
+  <a href="https://github.com/emngny/oh-my-kilocode-slim/stargazers">
     <img src="img/v2.webp" alt="oh-my-kilocode-slim V2 Release" style="border-radius: 10px;">
   </a>
   <h3>✨ oh-my-kilocode-slim ✨</h3>
 
   <p><i>Seven divine beings emerged from the dawn of code, each an immortal master of their craft,<br>awaiting your command to forge order from chaos and build what was once thought impossible.</i></p>
 
-  <p><b>Opencode Multi Agent Suite</b> · Mix any models · Auto delegate tasks</p>
-  <p><sub>by <b>Boring Dystopia Development</b></sub></p>
-  <p>
-    <a href="https://boringdystopia.ai/"><img src="https://img.shields.io/badge/boringdystopia.ai-111111?style=for-the-badge&logo=vercel&logoColor=white" alt="boringdystopia.ai"></a>&nbsp;
-    <a href="https://x.com/alvinunreal"><img src="https://img.shields.io/badge/X-@alvinunreal-000000?style=for-the-badge&logo=x&logoColor=white" alt="X @alvinunreal"></a>&nbsp;
-    <a href="https://t.me/boringdystopiadevelopment"><img src="https://img.shields.io/badge/Telegram-Join%20channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Join channel"></a>&nbsp;
-  </p>
+  <p><b>KiloCode Multi Agent Suite</b> · Mix any models · Auto delegate tasks</p>
+  <p><sub>Forked and adapted by <b>emngny</b></sub></p>
 
   <p>
     <b>English</b> | <a href="README.zh-CN.md">简体中文</a> | <a href="README.ja-JP.md">日本語</a> | <a href="README.ko-KR.md">한국어</a>
