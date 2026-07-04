@@ -11,6 +11,7 @@ export const GENERATED_PRESETS = ['custom'] as const;
 export const MODEL_MAPPINGS = {
   custom: {
     chief: { model: '' },
+    council: { model: '' },
     oracle: { model: '' },
     librarian: { model: '' },
     explorer: { model: '' },
