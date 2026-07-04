@@ -160,9 +160,9 @@ export async function configureBackgroundSubagents(
   }
 
   const target =
-    config.backgroundSubagentsTarget !== undefined
-      ? expandHomePath(config.backgroundSubagentsTarget)
-      : detectBackgroundSubagentsTarget();
+    config.backgroundSubagentsTarget === undefined
+      ? detectBackgroundSubagentsTarget()
+      : expandHomePath(config.backgroundSubagentsTarget);
 
   if (config.backgroundSubagents === 'no') {
     printInfo('KiloCode background subagents shell setup skipped.');
@@ -334,10 +334,10 @@ async function runInstall(config: InstallConfig): Promise<number> {
     printInfo('Dry run mode - skipping TUI plugin installation');
   } else {
     const tuiResult = await addPluginToKiloCodeTuiConfig();
-    if (!tuiResult.success) {
-      printInfo(`Skipped TUI badge: ${tuiResult.error}`);
-    } else {
+    if (tuiResult.success) {
       handleStepResult(tuiResult, 'TUI badge added');
+    } else {
+      printInfo(`Skipped TUI badge: ${tuiResult.error}`);
     }
   }
 
@@ -348,10 +348,10 @@ async function runInstall(config: InstallConfig): Promise<number> {
     const cacheResult = await warmKiloCodePluginCache();
     if (cacheResult === null) {
       printInfo('Local development install - cache warm-up not required');
-    } else if (!cacheResult.success) {
-      printInfo(`Skipped cache warm-up: ${cacheResult.error}`);
-    } else {
+    } else if (cacheResult.success) {
       handleStepResult(cacheResult, 'KiloCode cache warmed');
+    } else {
+      printInfo(`Skipped cache warm-up: ${cacheResult.error}`);
     }
   }
 
