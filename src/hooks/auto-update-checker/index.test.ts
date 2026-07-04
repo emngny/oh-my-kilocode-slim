@@ -524,7 +524,7 @@ describe('auto-update-checker/index', () => {
       latestMajorVersion: null,
       blockedByMajor: false,
     }));
-    cacheMocks.preparePackageUpdate.mockImplementation(() => null);
+    cacheMocks.preparePackageUpdate.mockImplementation(() => null as any);
 
     const { createAutoUpdateCheckerHook } = await import(
       `./index?test=${importCounter++}`
