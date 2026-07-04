@@ -444,7 +444,7 @@ function compareSemver(a: string, b: string): number {
 }
 
 function parseSemver(version: string): [number, number, number] | null {
-  const match = version.match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+  const match = /^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/.exec(version);
   if (!match) return null;
   return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
