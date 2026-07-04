@@ -1,6 +1,6 @@
 {
   "name": "@emngny/oh-my-kilocode-slim",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Lightweight agent orchestration plugin for KiloCode - a slimmed-down fork of oh-my-kilocode-slim",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
