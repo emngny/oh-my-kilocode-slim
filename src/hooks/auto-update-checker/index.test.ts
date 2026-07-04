@@ -4,16 +4,20 @@ const logMock = mock(() => {});
 
 const checkerMocks = {
   extractChannel: mock(() => 'latest'),
-  findPluginEntry: mock(() => null),
-  getCachedVersion: mock(() => null),
-  getLatestCompatibleVersion: mock(async () => ({
-    latestVersion: null,
-    latestMajorVersion: null,
-    blockedByMajor: false,
-  })),
-  getLatestVersion: mock(async () => null),
-  getLocalDevVersion: mock(() => null),
-  getCurrentRuntimePackageJsonPath: mock(() => null),
+  findPluginEntry: mock(() => null as any),
+  getCachedVersion: mock(() => null as any),
+  getLatestCompatibleVersion: mock(
+    async () =>
+      ({
+        latestVersion: null as string | null,
+        latestMajorVersion: null as string | null,
+        blockedByMajor: false as boolean,
+        unsafeReason: null as string | null | undefined,
+      }) as any,
+  ),
+  getLatestVersion: mock(async () => null as any),
+  getLocalDevVersion: mock(() => null as any),
+  getCurrentRuntimePackageJsonPath: mock(() => null as any),
 };
 
 const cacheMocks = {
@@ -23,22 +27,25 @@ const cacheMocks = {
 
 const skillSyncMocks = {
   syncBundledSkillsFromPackage: mock(() => ({
-    installed: [],
-    skippedExisting: [],
-    failed: [],
-    staged: [],
-    adopted: [],
-    customized: [],
+    installed: [] as string[],
+    skippedExisting: [] as string[],
+    failed: [] as string[],
+    staged: [] as string[],
+    adopted: [] as string[],
+    customized: [] as string[],
   })),
 };
 
 const companionUpdaterMocks = {
-  ensureCompanionVersion: mock(async () => ({
-    status: 'current' as const,
-    binaryPath: '/tmp/companion',
-    version: '0.1.2',
-  })),
-  loadCompanionManifestFromPackageRoot: mock(() => null),
+  ensureCompanionVersion: mock(
+    async () =>
+      ({
+        status: 'current' as const,
+        binaryPath: '/tmp/companion',
+        version: '0.1.2',
+      }) as any,
+  ),
+  loadCompanionManifestFromPackageRoot: mock(() => null as any),
 };
 
 const crossSpawnMock = mock((_command: string[]) => ({
@@ -231,10 +238,9 @@ describe('auto-update-checker/index', () => {
       expect.objectContaining({ cwd: '/tmp/kilo' }),
     );
     expect(
-      skillSyncMocks.syncBundledSkillsFromPackage.mock.calls[0][0].replace(
-        /\\/g,
-        '/',
-      ),
+      (
+        skillSyncMocks.syncBundledSkillsFromPackage.mock.calls[0] as string[]
+      )[0].replace(/\\/g, '/'),
     ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
     expect(showToast).toHaveBeenCalledWith({
       body: {
@@ -364,10 +370,10 @@ describe('auto-update-checker/index', () => {
     await waitForCalls(showToast);
 
     expect(
-      companionUpdaterMocks.loadCompanionManifestFromPackageRoot.mock.calls[0][0].replace(
-        /\\/g,
-        '/',
-      ),
+      (
+        companionUpdaterMocks.loadCompanionManifestFromPackageRoot.mock
+          .calls[0] as string[]
+      )[0].replace(/\\/g, '/'),
     ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
     expect(companionUpdaterMocks.ensureCompanionVersion).toHaveBeenCalledWith({
       config: { enabled: true },
@@ -750,7 +756,7 @@ describe('auto-update-checker/index', () => {
 
     await waitForCalls(logMock, 3);
 
-    const logs = logMock.mock.calls.map((entry: [string]) => entry[0]);
+    const logs = (logMock.mock.calls as string[][]).map((entry) => entry[0]);
 
     expect(logs).toContain(
       '[auto-update-checker] Startup skill sync staged: reflect',
