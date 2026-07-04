@@ -161,7 +161,11 @@ describe('auto-update-checker/cache', () => {
         `./cache?test=${importCounter++}`
       );
 
-      const result = preparePackageUpdate('1.0.1', '@emngny/oh-my-kilocode-slim', null);
+      const result = preparePackageUpdate(
+        '1.0.1',
+        '@emngny/oh-my-kilocode-slim',
+        null,
+      );
 
       expect(result?.replace(/\\/g, '/').endsWith('kilo')).toBe(true);
       expect(writeSpy).not.toHaveBeenCalled();

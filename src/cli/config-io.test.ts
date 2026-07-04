@@ -122,7 +122,9 @@ describe('config-io', () => {
     paths.ensureConfigDir();
     writeFileSync(
       configPath,
-      JSON.stringify({ plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'] }),
+      JSON.stringify({
+        plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'],
+      }),
     );
     process.argv[1] = '';
 
@@ -146,7 +148,9 @@ describe('config-io', () => {
     mkdirSync(defaultConfigDir, { recursive: true });
     writeFileSync(
       customConfigPath,
-      JSON.stringify({ plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'] }),
+      JSON.stringify({
+        plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'],
+      }),
     );
     writeFileSync(defaultConfigPath, JSON.stringify({ plugin: ['default'] }));
     process.argv[1] = '';
@@ -157,7 +161,10 @@ describe('config-io', () => {
     expect(result.configPath).toBe(customConfigPath);
     const customSaved = JSON.parse(readFileSync(customConfigPath, 'utf-8'));
     const defaultSaved = JSON.parse(readFileSync(defaultConfigPath, 'utf-8'));
-    expect(customSaved.plugin).toEqual(['other', '@emngny/oh-my-kilocode-slim']);
+    expect(customSaved.plugin).toEqual([
+      'other',
+      '@emngny/oh-my-kilocode-slim',
+    ]);
     expect(defaultSaved.plugin).toEqual(['default']);
   });
 
@@ -241,7 +248,11 @@ describe('config-io', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['other-plugin', objectPlugin, '@emngny/oh-my-kilocode-slim@1.0.0'],
+        plugin: [
+          'other-plugin',
+          objectPlugin,
+          '@emngny/oh-my-kilocode-slim@1.0.0',
+        ],
       }),
     );
 
@@ -280,7 +291,9 @@ describe('config-io', () => {
     paths.ensureConfigDir();
     writeFileSync(
       tuiPath,
-      JSON.stringify({ plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'] }),
+      JSON.stringify({
+        plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'],
+      }),
     );
     process.argv[1] = '';
 
@@ -403,7 +416,11 @@ describe('config-io', () => {
     writeFileSync(
       tuiPath,
       JSON.stringify({
-        plugin: ['other-plugin', objectPlugin, '@emngny/oh-my-kilocode-slim@1.0.0'],
+        plugin: [
+          'other-plugin',
+          objectPlugin,
+          '@emngny/oh-my-kilocode-slim@1.0.0',
+        ],
       }),
     );
 
@@ -419,7 +436,7 @@ describe('config-io', () => {
     expect(saved.plugin.length).toBe(3);
   });
 
-  test('writeLiteConfig writes lite config with OpenAI preset', () => {
+  test('writeLiteConfig writes lite config with default custom preset', () => {
     const litePath = join(tmpDir, 'kilo', 'oh-my-kilocode-slim.json');
     paths.ensureConfigDir();
 
@@ -434,30 +451,26 @@ describe('config-io', () => {
     expect(saved.$schema).toBe(
       'https://unpkg.com/@emngny/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json',
     );
-    expect(saved.preset).toBe('openai');
-    expect(saved.presets.openai).toBeDefined();
-    expect(saved.presets['kilo-go']).toBeDefined();
+    expect(saved.preset).toBe('custom');
+    expect(saved.presets.custom).toBeDefined();
     expect(saved.tmux.enabled).toBe(true);
   });
 
-  test('writeLiteConfig writes selected preset', () => {
+  test('writeLiteConfig writes selected custom preset', () => {
     const litePath = join(tmpDir, 'kilo', 'oh-my-kilocode-slim.json');
     paths.ensureConfigDir();
 
     const result = writeLiteConfig({
       hasTmux: false,
       installCustomSkills: false,
-      preset: 'kilo-go',
+      preset: 'custom',
       reset: false,
     });
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(litePath, 'utf-8'));
-    expect(saved.preset).toBe('kilo-go');
-    expect(saved.disabled_agents).toEqual([]);
-    expect(saved.presets.openai).toBeDefined();
-    expect(saved.presets['kilo-go'].chief.model).toBe('kilo-go/glm-5.2');
-    expect(saved.presets['kilo-go'].observer.model).toBe('kilo-go/kimi-k2.6');
+    expect(saved.preset).toBe('custom');
+    expect(saved.presets.custom).toBeDefined();
   });
 
   test('disableDefaultAgents disables conflicting KiloCode built-in agents', () => {

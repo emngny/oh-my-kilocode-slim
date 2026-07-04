@@ -184,14 +184,13 @@ function getRequestedPackageTag(packageRoot: string): string | undefined {
   const markerIndex = normalizedPath.lastIndexOf(marker);
   if (markerIndex === -1) return undefined;
 
-  const bunxSegment = normalizedPath
-    .slice(markerIndex + marker.length)
-    .split('/')[0];
+  const remainder = normalizedPath.slice(markerIndex + marker.length);
   const packagePrefix = `${PACKAGE_NAME}@`;
-  const packageIndex = bunxSegment.lastIndexOf(packagePrefix);
+  const packageIndex = remainder.indexOf(packagePrefix);
   if (packageIndex === -1) return undefined;
 
-  const tag = bunxSegment.slice(packageIndex + packagePrefix.length);
+  const afterPrefix = remainder.slice(packageIndex + packagePrefix.length);
+  const tag = afterPrefix.split('/')[0];
   return tag || undefined;
 }
 

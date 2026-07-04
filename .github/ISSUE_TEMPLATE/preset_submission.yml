@@ -91,5 +91,5 @@ body:
       label: Display permission
       description: Confirm you agree to have this preset displayed on the Community Presets page.
       options:
-        - label: I confirm this preset can be shown publicly on oh-my-opencode-slim.com/community-presets.
+        - label: I confirm this preset can be shown publicly on oh-my-kilocode-slim.com/community-presets.
           required: true

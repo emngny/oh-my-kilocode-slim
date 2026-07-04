@@ -38,16 +38,11 @@ tmp/
 temp/
 local
 .loop-history-*.md
-.opencode/loop-history/
 
 .sisyphus/
 .hive/
-.opencode/
 .claude/
 .ignore
-opencode
-oh-my-opencode
-opencode.jsonc
 
 # AI Memory
 .aim/
@@ -88,14 +83,14 @@ captures/
 # Rust companion build artifacts
 companion/target/
 
-# BEGIN oh-my-opencode-slim clonedeps
+# BEGIN oh-my-kilocode-slim clonedeps
 .slim/clonedeps/repos/
-# END oh-my-opencode-slim clonedeps
+# END oh-my-kilocode-slim clonedeps
 
-# BEGIN oh-my-opencode-slim worktrees
+# BEGIN oh-my-kilocode-slim worktrees
 .slim/worktrees/
 .slim/worktrees.json
-# END oh-my-opencode-slim worktrees
+# END oh-my-kilocode-slim worktrees
 
 # Deepwork session artifacts
 .slim/deepwork/

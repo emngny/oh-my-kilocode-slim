@@ -9,7 +9,7 @@ mod singleton;
 mod state;
 
 fn main() -> eframe::Result {
-    let Some(owner_session_id) = std::env::var("OH_MY_OPENCODE_SLIM_COMPANION_SESSION_ID")
+    let Some(owner_session_id) = std::env::var("OH_MY_KILOCODE_SLIM_COMPANION_SESSION_ID")
         .ok()
         .filter(|session_id| !session_id.trim().is_empty())
     else {
@@ -36,8 +36,8 @@ fn main() -> eframe::Result {
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_title("oh-my-opencode-slim-companion")
-            .with_app_id("oh-my-opencode-slim-companion")
+            .with_title("oh-my-kilocode-slim-companion")
+            .with_app_id("oh-my-kilocode-slim-companion")
             .with_decorations(false)
             .with_transparent(true)
             .with_always_on_top()
@@ -59,7 +59,7 @@ fn main() -> eframe::Result {
     };
 
     eframe::run_native(
-        "oh-my-opencode-slim-companion",
+        "oh-my-kilocode-slim-companion",
         options,
         Box::new(|cc| Ok(Box::new(app::CompanionApp::new(cc)))),
     )

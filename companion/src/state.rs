@@ -75,9 +75,9 @@ pub fn state_file_path() -> PathBuf {
                 .join(".local")
                 .join("share")
         });
-    base.join("opencode")
+    base.join("kilo")
         .join("storage")
-        .join("oh-my-opencode-slim")
+        .join("oh-my-kilocode-slim")
         .join("companion-state.json")
 }
 

@@ -3,20 +3,20 @@
   "updatedAt": "2026-06-15T00:00:00.000Z",
   "dependencies": [
     {
-      "name": "@opencode-ai/plugin",
-      "resolvedVersion": "1.4.3",
-      "repoUrl": "https://github.com/opencode-ai/opencode.git",
+      "name": "@kilocode/plugin",
+      "resolvedVersion": "7.3.54",
+      "repoUrl": "https://github.com/kilo-ai/kilo.git",
       "ref": "main@73ee493265acf15fcd8caab2bc8cd3bd375b63cb",
-      "path": ".slim/clonedeps/repos/opencode-ai__opencode",
+      "path": ".slim/clonedeps/repos/kilo-ai__kilo",
       "packagePath": "packages/plugin",
       "reason": "Core plugin lifecycle and hook API used by the orchestration plugin."
     },
     {
-      "name": "@opencode-ai/sdk",
-      "resolvedVersion": "1.4.3",
-      "repoUrl": "https://github.com/opencode-ai/opencode.git",
+      "name": "@kilocode/sdk",
+      "resolvedVersion": "7.3.54",
+      "repoUrl": "https://github.com/kilo-ai/kilo.git",
       "ref": "main@73ee493265acf15fcd8caab2bc8cd3bd375b63cb",
-      "path": ".slim/clonedeps/repos/opencode-ai__opencode",
+      "path": ".slim/clonedeps/repos/kilo-ai__kilo",
       "packagePath": "packages/sdk/js",
       "reason": "SDK types and runtime client/session/message shapes used across agents, hooks, tools, and council code."
     },
@@ -30,13 +30,13 @@
       "reason": "MCP protocol/server implementation details used by built-in MCP integrations."
     },
     {
-      "name": "anomalyco/opencode",
+      "name": "anomalyco/kilo",
       "resolvedVersion": "dev",
-      "repoUrl": "https://github.com/anomalyco/opencode.git",
+      "repoUrl": "https://github.com/anomalyco/kilo.git",
       "ref": "dev@356f6841865d68adf6d0123c37357ad50814497a",
-      "path": ".slim/clonedeps/repos/opencode",
-      "packagePath": "packages/opencode",
-      "reason": "Latest OpenCode TypeScript runtime source with experimental background subagent support."
+      "path": ".slim/clonedeps/repos/kilo",
+      "packagePath": "packages/kilo",
+      "reason": "Latest KiloCode TypeScript runtime source with experimental background subagent support."
     },
     {
       "name": "agentclientprotocol/agent-client-protocol",

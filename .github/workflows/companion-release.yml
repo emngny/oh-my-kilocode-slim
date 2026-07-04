@@ -35,10 +35,10 @@ jobs:
           set -euo pipefail
           version='${{ github.event.inputs.version }}'
           target='aarch64-apple-darwin'
-          name="oh-my-opencode-slim-companion-v${version}-${target}"
+          name="oh-my-kilocode-slim-companion-v${version}-${target}"
           mkdir -p dist
-          cp "companion/target/${target}/release/oh-my-opencode-slim-companion" dist/oh-my-opencode-slim-companion
-          tar -C dist -czf "${name}.tar.gz" oh-my-opencode-slim-companion
+          cp "companion/target/${target}/release/oh-my-kilocode-slim-companion" dist/oh-my-kilocode-slim-companion
+          tar -C dist -czf "${name}.tar.gz" oh-my-kilocode-slim-companion
       - uses: actions/upload-artifact@v4
         with:
           name: companion-macos-arm64
@@ -61,10 +61,10 @@ jobs:
           set -euo pipefail
           version='${{ github.event.inputs.version }}'
           target='x86_64-apple-darwin'
-          name="oh-my-opencode-slim-companion-v${version}-${target}"
+          name="oh-my-kilocode-slim-companion-v${version}-${target}"
           mkdir -p dist
-          cp "companion/target/${target}/release/oh-my-opencode-slim-companion" dist/oh-my-opencode-slim-companion
-          tar -C dist -czf "${name}.tar.gz" oh-my-opencode-slim-companion
+          cp "companion/target/${target}/release/oh-my-kilocode-slim-companion" dist/oh-my-kilocode-slim-companion
+          tar -C dist -czf "${name}.tar.gz" oh-my-kilocode-slim-companion
       - uses: actions/upload-artifact@v4
         with:
           name: companion-macos-x64
@@ -91,10 +91,10 @@ jobs:
           set -euo pipefail
           version='${{ github.event.inputs.version }}'
           target='x86_64-unknown-linux-gnu'
-          name="oh-my-opencode-slim-companion-v${version}-${target}"
+          name="oh-my-kilocode-slim-companion-v${version}-${target}"
           mkdir -p dist
-          cp "companion/target/${target}/release/oh-my-opencode-slim-companion" dist/oh-my-opencode-slim-companion
-          tar -C dist -czf "${name}.tar.gz" oh-my-opencode-slim-companion
+          cp "companion/target/${target}/release/oh-my-kilocode-slim-companion" dist/oh-my-kilocode-slim-companion
+          tar -C dist -czf "${name}.tar.gz" oh-my-kilocode-slim-companion
       - uses: actions/upload-artifact@v4
         with:
           name: companion-linux-x64
@@ -121,10 +121,10 @@ jobs:
           set -euo pipefail
           version='${{ github.event.inputs.version }}'
           target='aarch64-unknown-linux-gnu'
-          name="oh-my-opencode-slim-companion-v${version}-${target}"
+          name="oh-my-kilocode-slim-companion-v${version}-${target}"
           mkdir -p dist
-          cp "companion/target/${target}/release/oh-my-opencode-slim-companion" dist/oh-my-opencode-slim-companion
-          tar -C dist -czf "${name}.tar.gz" oh-my-opencode-slim-companion
+          cp "companion/target/${target}/release/oh-my-kilocode-slim-companion" dist/oh-my-kilocode-slim-companion
+          tar -C dist -czf "${name}.tar.gz" oh-my-kilocode-slim-companion
       - uses: actions/upload-artifact@v4
         with:
           name: companion-linux-arm64
@@ -147,10 +147,10 @@ jobs:
         run: |
           $version = '${{ github.event.inputs.version }}'
           $target = 'x86_64-pc-windows-msvc'
-          $name = "oh-my-opencode-slim-companion-v$version-$target"
+          $name = "oh-my-kilocode-slim-companion-v$version-$target"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item "companion/target/$target/release/oh-my-opencode-slim-companion.exe" "dist/oh-my-opencode-slim-companion.exe"
-          Compress-Archive -Path "dist/oh-my-opencode-slim-companion.exe" -DestinationPath "$name.zip" -Force
+          Copy-Item "companion/target/$target/release/oh-my-kilocode-slim-companion.exe" "dist/oh-my-kilocode-slim-companion.exe"
+          Compress-Archive -Path "dist/oh-my-kilocode-slim-companion.exe" -DestinationPath "$name.zip" -Force
       - uses: actions/upload-artifact@v4
         with:
           name: companion-windows-x64
@@ -182,6 +182,6 @@ jobs:
           if ! gh release view "$tag" >/dev/null 2>&1; then
             gh release create "$tag" \
               --title "Companion v${VERSION}" \
-              --notes "Manual companion binary release for oh-my-opencode-slim."
+              --notes "Manual companion binary release for oh-my-kilocode-slim."
           fi
           gh release upload "$tag" artifacts/* --clobber

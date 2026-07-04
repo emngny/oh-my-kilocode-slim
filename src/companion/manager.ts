@@ -348,9 +348,9 @@ export class CompanionManager {
         detached: true,
         env: {
           ...process.env,
-          OH_MY_OPENCODE_SLIM_COMPANION_SESSION_ID: this.id,
+          OH_MY_KILOCODE_SLIM_COMPANION_SESSION_ID: this.id,
           ...(this.config.debug === true
-            ? { OH_MY_OPENCODE_SLIM_COMPANION_DEBUG: '1' }
+            ? { OH_MY_KILOCODE_SLIM_COMPANION_DEBUG: '1' }
             : {}),
         },
         stdio: 'ignore',

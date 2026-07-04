@@ -83,7 +83,7 @@ describe('auto-update-checker/checker', () => {
         (p: string) => {
           if (p.includes('kilo.json')) {
             return JSON.stringify({
-              plugin: ['file:///dev/oh-my-kilocode-slim'],
+              plugin: ['file:///dev/@emngny/oh-my-kilocode-slim'],
             });
           }
           if (p.includes('package.json')) {

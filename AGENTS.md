@@ -1,287 +1,104 @@
 # Agent Coding Guidelines
 
-This document provides guidelines for AI agents operating in this repository.
-
 ## Project Overview
 
-**oh-my-kilocode-slim** - A lightweight agent orchestration plugin for KiloCode, a slimmed-down fork of oh-my-kilocode. Built with TypeScript, Bun, and Biome.
+**oh-my-kilocode-slim** - KiloCode plugin: specialist-agent orchestration layer. TypeScript + Bun + Biome. ESM-only.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `bun run build` | Build TypeScript to `dist/` (both index.ts and cli/index.ts) |
-| `bun run typecheck` | Run TypeScript type checking without emitting |
-| `bun test` | Run all tests with Bun |
-| `bun run lint` | Run Biome linter on entire codebase |
-| `bun run format` | Format entire codebase with Biome |
-| `bun run check` | Run Biome check with auto-fix (lint + format + organize imports) |
-| `bun run check:ci` | Run Biome check without auto-fix (CI mode) |
+| `bun run build` | Clean + build plugin, CLI, declarations, schema |
+| `bun run typecheck` | TypeScript type checking (no emit) |
+| `bun test` | Run all tests |
+| `bun test -t "pattern"` | Run single test by name |
+| `bun run check` | Biome auto-fix (lint + format + organize imports) |
+| `bun run check:ci` | Biome check without auto-fix (CI mode) |
+| `bun run lint` | Lint only |
+| `bun run format` | Format only |
 | `bun run dev` | Build and run with KiloCode |
 
-**Running a single test:** Use Bun's test filtering with the `-t` flag:
-```bash
-bun test -t "test-name-pattern"
-```
+**Verification order before commit:** `bun run check:ci` → `bun run typecheck` → `bun test`
 
 ## Code Style
 
-### General Rules
-- **Formatter/Linter:** Biome (configured in `biome.json`)
-- **Line width:** 80 characters
-- **Indentation:** 2 spaces
-- **Line endings:** LF (Unix)
-- **Quotes:** Single quotes in JavaScript/TypeScript
-- **Trailing commas:** Always enabled
+- **Formatter/Linter:** Biome (`biome.json`)
+- **Indent:** 2 spaces | **Width:** 80 chars | **Line endings:** LF
+- **Quotes:** single | **Trailing commas:** always
+- **Strict TS:** enabled | **No `any`:** warn (off in test files)
+- **Module:** ESM (`"type": "module"`) | **Resolution:** bundler
+- Biome auto-organizes imports on save
+- Use Zod for runtime validation (already a dependency, **v4**)
 
-### TypeScript Guidelines
-- **Strict mode:** Enabled in `tsconfig.json`
-- **No explicit `any`:** Generates a linter warning (disabled for test files)
-- **Module resolution:** `bundler` strategy
-- **Declarations:** Generate `.d.ts` files in `dist/`
+## Build Entry Points
 
-### Imports
-- Biome auto-organizes imports on save (`organizeImports: "on"`)
-- Let the formatter handle import sorting
-- Use path aliases defined in TypeScript configuration if present
+Build produces two plugin bundles from `src/`:
+- `src/index.ts` → `dist/index.js` (main plugin bootstrap)
+- `src/tui.ts` → `dist/tui.js` (TUI export)
 
-### Naming Conventions
-- **Variables/functions:** camelCase
-- **Classes/interfaces:** PascalCase
-- **Constants:** SCREAMING_SNAKE_CASE
-- **Files:** kebab-case for most, PascalCase for React components
+CLI separately: `src/cli/index.ts` → `dist/cli/index.js`
 
-### Error Handling
-- Use typed errors with descriptive messages
-- Let errors propagate appropriately rather than catching silently
-- Use Zod for runtime validation (already a dependency)
-
-### Git Integration
-- Biome integrates with git (VCS enabled)
-- Commits should pass `bun run check:ci` before pushing
+Both `@kilocode/plugin` and `@kilocode/sdk` are **external** — never bundled.
 
 ## Project Structure
 
 ```
-oh-my-kilocode-slim/
-├── src/
-│   ├── agents/       # Agent factories (chief, explorer, oracle, etc.)
-│   ├── cli/          # CLI entry point
-│   ├── config/       # Constants, schemas, MCP defaults
-│   ├── council/      # Council manager (multi-LLM session orchestration)
-│   ├── hooks/        # KiloCode lifecycle hooks
-│   ├── mcp/          # MCP server definitions
-│   ├── multiplexer/  # Tmux/Zellij pane integration for child sessions
-│   ├── skills/       # Skill definitions (included in package publish)
-│   ├── tools/        # Tool definitions (council, webfetch, AST-grep, etc.)
-│   └── utils/        # Shared utilities (tmux, session helpers)
-├── dist/             # Built JavaScript and declarations
-├── docs/             # User-facing documentation
-├── biome.json        # Biome configuration
-├── tsconfig.json     # TypeScript configuration
-└── package.json      # Project manifest and scripts
+src/
+├── agents/       # Agent factories (chief, specialist, council)
+├── cli/          # CLI entry point + installer
+├── companion/    # Companion binary manager + updater
+├── config/       # Schema, loaders, presets, constants
+├── council/      # Multi-LLM session orchestration
+├── hooks/        # Runtime hooks (apply-patch, phase-reminder, etc.)
+├── interview/    # /interview feature
+├── loop/         # Loop session
+├── mcp/          # MCP server definitions
+├── multiplexer/  # Tmux/Zellij/herdr pane integration
+├── skills/       # Bundled install-time skills
+├── tools/        # Tool defs (council, smartfetch, ast-grep, preset)
+└── utils/        # Shared helpers (tmux, logging, session, env)
 ```
 
-## Key Dependencies
+## Tmux Session Lifecycle
 
-- `@modelcontextprotocol/sdk` - MCP protocol implementation
-- `@kilocode/sdk` - KiloCode AI SDK
-- `zod` - Runtime validation
-
-## Development Workflow
-
-1. Make code changes
-2. Update docs when behavior, commands, configuration, workflows, or user-facing output changes
-   - Check `README.md` plus relevant files in `docs/`
-   - Keep examples, command snippets, and feature lists in sync with the code
-   - If no doc update is needed, explicitly confirm that in your final summary
-3. Run `bun run check:ci` to verify linting and formatting
-4. Run `bun run typecheck` to verify types
-5. Run `bun test` to verify tests pass
-6. Commit changes
-
-## Release Workflow
-
-For plugin or Companion releases, follow `docs/release.md`. It documents the
-required diff inspection, companion asset workflow, GitHub release creation,
-tagging, verification, and npm publish order.
-
-## Tmux Session Lifecycle Management
-
-When working with tmux integration, understanding the session lifecycle is crucial for preventing orphaned processes and ghost panes.
-
-### Session Lifecycle Flow
+Critical for preventing orphaned processes:
 
 ```
-Task Launch:
-  session.create() → tmux pane spawned → task runs
-
-Task Completes Normally:
-  session.status (idle) → extract results → session.abort()
-  → session.deleted event → tmux pane closed
-
-Task Cancelled:
-  cancel() → session.abort() → session.deleted event
-  → tmux pane closed
-
-Session Deleted Externally:
-  session.deleted event → task cleanup → tmux pane closed
+Launch:  session.create() → tmux pane → task runs
+Complete: session.status (idle) → extract results → session.abort() → deleted → pane closed
+Cancel:  cancel() → session.abort() → deleted → pane closed
 ```
 
-### Key Implementation Details
+**Key rules:**
+- Always `session.abort()` AFTER extracting results (content preserved)
+- Graceful shutdown: Ctrl+C → delay 250ms → kill-pane (`src/utils/tmux.ts`)
+- `multiplexerSessionManager.onSessionDeleted()` must stay wired in `src/index.ts`
 
-**1. Graceful Shutdown (src/utils/tmux.ts)**
-```typescript
-// Always send Ctrl+C before killing pane
-spawn([tmux, "send-keys", "-t", paneId, "C-c"])
-await delay(250)
-spawn([tmux, "kill-pane", "-t", paneId])
-```
-
-**2. Session Abort Timing (src/council/council-manager.ts)**
-- Call `session.abort()` AFTER extracting task results
-- This ensures content is preserved before session termination
-- Triggers `session.deleted` event for cleanup
-
-**3. Event Handlers (src/index.ts)**
-The multiplexer session handler must stay wired up:
-- `multiplexerSessionManager.onSessionDeleted()` - closes tmux/zellij panes
-
-### Testing Tmux Integration
-
-After making changes to session management:
-
+**Manual verification:**
 ```bash
-# 1. Build the plugin
 bun run build
-
-# 2. Run from local fork (in ~/.config/kilo/kilo.jsonc):
-# "plugin": ["file:///path/to/oh-my-kilocode-slim"]
-
-# 3. Launch test tasks
-@explorer count files in src/
-@librarian search for Bun documentation
-
-# 4. Verify no orphans
-ps aux | grep "kilo attach" | grep -v grep
-# Should return 0 processes after tasks complete
+# Test with local fork in ~/.config/kilo/kilo.jsonc
+# After tasks: ps aux | grep "kilo attach" | grep -v grep  # should return 0
 ```
-
-### Common Issues
-
-**Ghost panes remaining open:**
-- Check that `session.abort()` is called after result extraction
-- Verify `session.deleted` handler is wired in src/index.ts
-
-**Orphaned kilo attach processes:**
-- Ensure graceful shutdown sends Ctrl+C before kill-pane
-- Check that tmux pane closes before process termination
-
-## Pre-Push Code Review
-
-Before pushing changes to the repository, always run a code review to catch issues like:
-- Duplicate code
-- Redundant function calls
-- Race conditions
-- Logic errors
-
-### Using `/review` Command (Recommended)
-
-KiloCode has a built-in `/review` command that automatically performs comprehensive code reviews:
-
-```bash
-# Review uncommitted changes (default)
-/review
-
-# Review specific commit
-/review <commit-hash>
-
-# Review branch comparison
-/review <branch-name>
-
-# Review PR
-/review <pr-url-or-number>
-```
-
-**Why use `/review` instead of asking @oracle manually?**
-- Standardized review process with consistent focus areas (bugs, structure, performance)
-- Automatically handles git operations (diff, status, etc.)
-- Context-aware: reads full files and convention files (AGENTS.md, etc.)
-- Delegates to specialized @build subagent with proper permissions
-- Provides actionable, matter-of-fact feedback
-
-### Workflow Before Pushing
-
-1. **Make your changes**
-   ```bash
-   # ... edit files ...
-   ```
-
-2. **Stage changes**
-   ```bash
-   git add .
-   ```
-
-3. **Run code review**
-   ```
-   /review
-   ```
-
-4. **Address any issues found**
-
-5. **Run checks**
-   ```bash
-   bun run check:ci
-   bun test
-   ```
-
-6. **Commit and push**
-   ```bash
-   git commit -m "..."
-   git push origin <branch>
-   ```
-
-**Note:** The `/review` command found issues in our PR #127 (duplicate code, redundant abort calls) that neither linter nor tests caught. Always use it before pushing!
-
-## Common Patterns
-
-- This is an KiloCode plugin - most functionality lives in `src/`
-- The CLI entry point is `src/cli/index.ts`
-- The main plugin export is `src/index.ts`
-- Agent factories are in `src/agents/` - each agent has its own file + optional `.test.ts`
-- Skills are located in `src/skills/` (included in package publish)
-- Multiplexer session management is in `src/multiplexer/`
-- Council manager (multi-LLM orchestration) is in `src/council/`
-- Tmux utilities are in `src/utils/tmux.ts`
-- 468 tests across 35 files - run `bun test` to verify
-
-## Repository Map
-
-A full codemap is available at `codemap.md` in the project root.
-
-Before working on any task, read `codemap.md` to understand:
-- Project architecture and entry points
-- Directory responsibilities and design patterns
-- Data flow and integration points between modules
-
-For deep work on a specific folder, also read that folder's `codemap.md`.
-
-## Debugging Issues
-### KiloCode
-Log files are written to:
-macOS/Linux: ~/.local/share/kilo/log/
-Windows: Press WIN+R and paste %USERPROFILE%\.local\share\kilo\log
-Log files are named with timestamps (e.g., 2025-01-09T123456.log) and the most recent 10 log files are kept.
-You can set the log level with the --log-level command-line option to get more detailed debug information. For example, kilo --log-level DEBUG.
-### Plugin
-~/.local/share/kilo/log/oh-my-kilocode-slim.<timestamp>.log
 
 ## Cloned Dependency Source
 
-Read-only dependency source repositories are available under
-`.slim/clonedeps/repos/` for inspection. Do not edit these clones.
+Read-only repos under `.slim/clonedeps/repos/` for inspection (do not edit):
+- `kilo-ai__kilo/` — KiloCode plugin + SDK internals
+- `kilo/` — TypeScript runtime + background subagent support
+- `modelcontextprotocol__typescript-sdk/` — MCP protocol
+- `agentclientprotocol__agent-client-protocol/` — ACP protocol
 
-- `.slim/clonedeps/repos/kilo-ai__kilo/` - `https://github.com/kilo-ai/kilo.git` at `main@73ee493265acf15fcd8caab2bc8cd3bd375b63cb`; inspect `packages/plugin` and `packages/sdk/js` for KiloCode plugin and SDK internals.
-- `.slim/clonedeps/repos/kilo/` - `https://github.com/anomalyco/kilo.git` at `dev@356f6841865d68adf6d0123c37357ad50814497a`; inspect `packages/kilo` for latest TypeScript runtime internals and experimental background subagent support.
-- `.slim/clonedeps/repos/modelcontextprotocol__typescript-sdk/` - `https://github.com/modelcontextprotocol/typescript-sdk.git` at `v1.29.0@e12cbd7078db388152f6e839abdbe09ba01f3f32`; inspect it for MCP protocol and server integration internals.
-- `.slim/clonedeps/repos/agentclientprotocol__agent-client-protocol/` - `https://github.com/agentclientprotocol/agent-client-protocol.git` at `main@8110fde4e8283b4bef1329d1ef7b074fd14cee1e`; inspect it for ACP protocol specification and schema details.
+## Debugging
+
+**KiloCode logs:** `~/.local/share/kilo/log/` (Win: `%USERPROFILE%\.local\share\kilo\log`)
+- Files: `YYYY-MM-DDTHHMMSS.log`, last 10 kept
+- Debug level: `kilo --log-level DEBUG`
+
+**Plugin logs:** `~/.local/share/kilo/log/oh-my-kilocode-slim.<timestamp>.log`
+
+## Release
+
+Dual-track: plugin (npm) + companion (GitHub release assets). Full process: `docs/release.md`
+- Plugin tag: `v<version>` | Companion tag: `companion-v<version>`
+- Companion version lives in `src/companion/companion-manifest.json`

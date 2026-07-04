@@ -100,12 +100,12 @@ describe('warmKiloCodePluginCache', () => {
       tmpDir,
       'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.0' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim', version: '2.0.0' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -133,10 +133,10 @@ describe('warmKiloCodePluginCache', () => {
     expect(
       JSON.parse(readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8')),
     ).toEqual({
-      name: 'oh-my-kilocode-slim-cache',
+      name: '@emngny/oh-my-kilocode-slim-cache',
       private: true,
       dependencies: {
-        'oh-my-kilocode-slim': 'latest',
+        '@emngny/oh-my-kilocode-slim': 'latest',
       },
     });
 
@@ -152,12 +152,12 @@ describe('warmKiloCodePluginCache', () => {
       tmpDir,
       'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -184,10 +184,10 @@ describe('warmKiloCodePluginCache', () => {
     expect(
       JSON.parse(readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8')),
     ).toEqual({
-      name: 'oh-my-kilocode-slim-cache',
+      name: '@emngny/oh-my-kilocode-slim-cache',
       private: true,
       dependencies: {
-        'oh-my-kilocode-slim': 'latest',
+        '@emngny/oh-my-kilocode-slim': 'latest',
       },
     });
 
@@ -203,12 +203,12 @@ describe('warmKiloCodePluginCache', () => {
       tmpDir,
       'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.1' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim', version: '2.0.1' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -221,12 +221,12 @@ describe('warmKiloCodePluginCache', () => {
     const stalePluginDir = join(
       expectedCacheDir,
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(stalePluginDir, { recursive: true });
     writeFileSync(
       join(stalePluginDir, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '1.1.2' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim', version: '1.1.2' }),
     );
     writeFileSync(join(expectedCacheDir, 'bun.lock'), 'stale lockfile');
 
@@ -258,12 +258,12 @@ describe('warmKiloCodePluginCache', () => {
       tmpDir,
       'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
     crossSpawnMock.mockImplementation(() => createSpawnResult());
@@ -285,7 +285,7 @@ describe('warmKiloCodePluginCache', () => {
         'packages',
         '@emngny/oh-my-kilocode-slim@latest',
         'node_modules',
-        'oh-my-kilocode-slim',
+        '@emngny/oh-my-kilocode-slim',
         'package.json',
       )}`,
     });
@@ -302,12 +302,12 @@ describe('warmKiloCodePluginCache', () => {
       tmpDir,
       'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
     crossSpawnMock.mockImplementation(() => ({
@@ -341,12 +341,12 @@ describe('warmKiloCodePluginCache', () => {
       tmpDir,
       'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -391,7 +391,7 @@ describe('warmKiloCodePluginCache', () => {
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -416,7 +416,7 @@ describe('warmKiloCodePluginCache', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['oh-my-kilocode-slim@1.2.3'],
+        plugin: ['@emngny/oh-my-kilocode-slim@1.2.3'],
       }),
     );
 
@@ -428,12 +428,12 @@ describe('warmKiloCodePluginCache', () => {
         tmpDir,
         'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
         'node_modules',
-        'oh-my-kilocode-slim',
+        '@emngny/oh-my-kilocode-slim',
       );
       mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
       writeFileSync(
         join(packageRoot, 'package.json'),
-        JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+        JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
       );
       process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -444,7 +444,7 @@ describe('warmKiloCodePluginCache', () => {
         cacheHome,
         'kilo',
         'packages',
-        'oh-my-kilocode-slim@1.2.3',
+        '@emngny/oh-my-kilocode-slim@1.2.3',
       );
 
       expect(result?.success).toBe(true);
@@ -454,10 +454,10 @@ describe('warmKiloCodePluginCache', () => {
           readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8'),
         ),
       ).toEqual({
-        name: 'oh-my-kilocode-slim-cache',
+        name: '@emngny/oh-my-kilocode-slim-cache',
         private: true,
         dependencies: {
-          'oh-my-kilocode-slim': '1.2.3',
+          '@emngny/oh-my-kilocode-slim': '1.2.3',
         },
       });
     } finally {
@@ -473,14 +473,17 @@ describe('warmKiloCodePluginCache', () => {
     // Simulate bunx @beta: package.json has a beta version, config has no pinned version
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@beta',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@beta',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.0-beta.13' }),
+      JSON.stringify({
+        name: '@emngny/oh-my-kilocode-slim',
+        version: '2.0.0-beta.13',
+      }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -492,7 +495,7 @@ describe('warmKiloCodePluginCache', () => {
       cacheHome,
       'kilo',
       'packages',
-      'oh-my-kilocode-slim@beta',
+      '@emngny/oh-my-kilocode-slim@beta',
     );
 
     expect(result?.success).toBe(true);
@@ -500,10 +503,10 @@ describe('warmKiloCodePluginCache', () => {
     expect(
       JSON.parse(readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8')),
     ).toEqual({
-      name: 'oh-my-kilocode-slim-cache',
+      name: '@emngny/oh-my-kilocode-slim-cache',
       private: true,
       dependencies: {
-        'oh-my-kilocode-slim': 'beta',
+        '@emngny/oh-my-kilocode-slim': 'beta',
       },
     });
 
@@ -522,7 +525,7 @@ describe('warmKiloCodePluginCache', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: [['oh-my-kilocode-slim@1.2.3', { someOption: true }]],
+        plugin: [['@emngny/oh-my-kilocode-slim@1.2.3', { someOption: true }]],
       }),
     );
 
@@ -533,12 +536,12 @@ describe('warmKiloCodePluginCache', () => {
         tmpDir,
         'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
         'node_modules',
-        'oh-my-kilocode-slim',
+        '@emngny/oh-my-kilocode-slim',
       );
       mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
       writeFileSync(
         join(packageRoot, 'package.json'),
-        JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+        JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
       );
       process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -549,7 +552,7 @@ describe('warmKiloCodePluginCache', () => {
         cacheHome,
         'kilo',
         'packages',
-        'oh-my-kilocode-slim@1.2.3',
+        '@emngny/oh-my-kilocode-slim@1.2.3',
       );
 
       expect(result?.success).toBe(true);
@@ -559,10 +562,10 @@ describe('warmKiloCodePluginCache', () => {
           readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8'),
         ),
       ).toEqual({
-        name: 'oh-my-kilocode-slim-cache',
+        name: '@emngny/oh-my-kilocode-slim-cache',
         private: true,
         dependencies: {
-          'oh-my-kilocode-slim': '1.2.3',
+          '@emngny/oh-my-kilocode-slim': '1.2.3',
         },
       });
     } finally {
@@ -578,14 +581,17 @@ describe('warmKiloCodePluginCache', () => {
     // Running version is beta
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@beta',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@beta',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.0-beta.13' }),
+      JSON.stringify({
+        name: '@emngny/oh-my-kilocode-slim',
+        version: '2.0.0-beta.13',
+      }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
@@ -596,7 +602,7 @@ describe('warmKiloCodePluginCache', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['oh-my-kilocode-slim@1.2.3'],
+        plugin: ['@emngny/oh-my-kilocode-slim@1.2.3'],
       }),
     );
 
@@ -610,7 +616,7 @@ describe('warmKiloCodePluginCache', () => {
         cacheHome,
         'kilo',
         'packages',
-        'oh-my-kilocode-slim@1.2.3',
+        '@emngny/oh-my-kilocode-slim@1.2.3',
       );
 
       expect(result?.success).toBe(true);
@@ -620,10 +626,10 @@ describe('warmKiloCodePluginCache', () => {
           readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8'),
         ),
       ).toEqual({
-        name: 'oh-my-kilocode-slim-cache',
+        name: '@emngny/oh-my-kilocode-slim-cache',
         private: true,
         dependencies: {
-          'oh-my-kilocode-slim': '1.2.3',
+          '@emngny/oh-my-kilocode-slim': '1.2.3',
         },
       });
     } finally {
@@ -639,10 +645,14 @@ function mkdirTemp(): string {
 function writeCachedPluginPackage(cacheDir?: string): void {
   if (!cacheDir) return;
 
-  const pluginRoot = join(cacheDir, 'node_modules', 'oh-my-kilocode-slim');
+  const pluginRoot = join(
+    cacheDir,
+    'node_modules',
+    '@emngny/oh-my-kilocode-slim',
+  );
   mkdirSync(pluginRoot, { recursive: true });
   writeFileSync(
     join(pluginRoot, 'package.json'),
-    JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+    JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
   );
 }

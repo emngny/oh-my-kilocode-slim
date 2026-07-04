@@ -21,14 +21,14 @@ fn lock_path(owner_session_id: &str) -> PathBuf {
                 .join(".local")
                 .join("share")
         });
-    base.join("opencode")
+    base.join("kilo")
         .join("storage")
-        .join("oh-my-opencode-slim")
+        .join("oh-my-kilocode-slim")
         .join(format!("companion.{safe_owner}.pid"))
 }
 
 /// Returns true if this process should continue running.
-/// Returns false if another companion instance for the same OpenCode session is
+/// Returns false if another companion instance for the same KiloCode session is
 /// already alive.
 pub fn acquire(owner_session_id: &str) -> bool {
     let path = lock_path(owner_session_id);
