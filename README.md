@@ -31,12 +31,12 @@ To explore the agents themselves, see **[Meet the Pantheon](#meet-the-pantheon)*
 >
 > \- `vipor_idk`
 
-> “I ditched all my harnesses for this beta version of omo-slim and don't look
+> “I ditched all my harnesses for this beta version of omk-slim and don't look
 > back or miss anything. Great work and IMHO all in the right direction.”
 >
 > \- `stephanschielke`
 
-> “I love omo-slim, and can't imagine running kilo without it. I love that I
+> “I love omk-slim, and can't imagine running kilo without it. I love that I
 > can create a Frankenstein of models... Makes the setup such a beast.”
 >
 > \- `Capital-One3039`

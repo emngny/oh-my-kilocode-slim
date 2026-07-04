@@ -77,7 +77,7 @@ describe('readConfigInvalid', () => {
     // Isolate from real user config and env presets
     delete process.env.KILOCODE_CONFIG_DIR;
     delete process.env.OH_MY_KILOCODE_SLIM_PRESET;
-    configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-env-'));
+    configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'omk-tui-env-'));
     process.env.XDG_CONFIG_HOME = configHome;
   });
 
@@ -87,7 +87,7 @@ describe('readConfigInvalid', () => {
   });
 
   test('detects invalid config from the current directory without persisted state', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-'));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omk-tui-'));
     try {
       const projectDir = path.join(tempDir, 'project');
       const configDir = path.join(projectDir, '.kilo');
@@ -104,7 +104,7 @@ describe('readConfigInvalid', () => {
   });
 
   test('returns false for valid config', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-'));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omk-tui-'));
     try {
       const projectDir = path.join(tempDir, 'project');
       const configDir = path.join(projectDir, '.kilo');

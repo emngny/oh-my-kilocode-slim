@@ -18,13 +18,13 @@ import { getConfigDir } from '../../cli/paths';
 import { log } from '../../utils/logger';
 
 let localProcessToken = (
-  globalThis as { OMO_SKILL_SYNC_PROCESS_TOKEN?: string }
-).OMO_SKILL_SYNC_PROCESS_TOKEN;
+  globalThis as { OMK_SKILL_SYNC_PROCESS_TOKEN?: string }
+).OMK_SKILL_SYNC_PROCESS_TOKEN;
 if (!localProcessToken) {
   localProcessToken = crypto.randomUUID();
   (
-    globalThis as { OMO_SKILL_SYNC_PROCESS_TOKEN?: string }
-  ).OMO_SKILL_SYNC_PROCESS_TOKEN = localProcessToken;
+    globalThis as { OMK_SKILL_SYNC_PROCESS_TOKEN?: string }
+  ).OMK_SKILL_SYNC_PROCESS_TOKEN = localProcessToken;
 }
 const PROCESS_TOKEN = localProcessToken;
 

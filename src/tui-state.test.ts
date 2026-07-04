@@ -13,7 +13,7 @@ let tempDir: string;
 
 beforeEach(() => {
   previousXdgDataHome = process.env.XDG_DATA_HOME;
-  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-state-'));
+  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omk-tui-state-'));
   process.env.XDG_DATA_HOME = tempDir;
 });
 

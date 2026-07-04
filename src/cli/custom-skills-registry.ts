@@ -66,7 +66,7 @@ export const CUSTOM_SKILLS: CustomSkill[] = [
   {
     name: 'worktrees',
     description:
-      'Manage Git worktrees as OMO safe isolated coding lanes for complex/risky/parallel work',
+      'Manage Git worktrees as OMK safe isolated coding lanes for complex/risky/parallel work',
     allowedAgents: ['chief'],
     sourcePath: 'src/skills/worktrees',
   },

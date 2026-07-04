@@ -134,7 +134,7 @@ async function runBackgroundUpdateCheck(
     if (latestInfo.latestMajorVersion) {
       showToast(
         ctx,
-        `OMO-Slim ${latestInfo.latestMajorVersion}`,
+        `OMK-Slim ${latestInfo.latestMajorVersion}`,
         `v${latestInfo.latestMajorVersion} available. Auto-update skipped because the current version could not be compared safely.`,
         'info',
         8000,
@@ -175,7 +175,7 @@ async function runBackgroundUpdateCheck(
   if (pluginInfo.isPinned) {
     showToast(
       ctx,
-      `OMO-Slim ${latestVersion}`,
+      `OMK-Slim ${latestVersion}`,
       `v${latestVersion} available.\nVersion is pinned. Update your plugin config to apply.`,
       'info',
       8000,
@@ -187,7 +187,7 @@ async function runBackgroundUpdateCheck(
   if (!autoUpdate) {
     showToast(
       ctx,
-      `OMO-Slim ${latestVersion}`,
+      `OMK-Slim ${latestVersion}`,
       `v${latestVersion} available. Auto-update is disabled.`,
       'info',
       8000,
@@ -200,7 +200,7 @@ async function runBackgroundUpdateCheck(
   if (!installDir) {
     showToast(
       ctx,
-      `OMO-Slim ${latestVersion}`,
+      `OMK-Slim ${latestVersion}`,
       `v${latestVersion} available. Auto-update could not prepare the active install.`,
       'info',
       8000,
@@ -286,7 +286,7 @@ async function runBackgroundUpdateCheck(
 
     showToast(
       ctx,
-      'OMO-Slim Updated!',
+      'OMK-Slim Updated!',
       messageLines.join('\n'),
       'success',
       8000,
@@ -297,7 +297,7 @@ async function runBackgroundUpdateCheck(
   } else {
     showToast(
       ctx,
-      `OMO-Slim ${latestVersion}`,
+      `OMK-Slim ${latestVersion}`,
       `v${latestVersion} available, but auto-update failed to install it. Check logs or retry manually.`,
       'error',
       8000,

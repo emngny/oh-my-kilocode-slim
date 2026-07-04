@@ -26,7 +26,7 @@ MCPs, hooks, Companion, or the TUI sidebar. This is a temporary escape hatch:
 OH_MY_KILOCODE_SLIM_DISABLE=1 kilo
 ```
 
-If OmO-slim detects an invalid plugin config for the current project, the TUI sidebar shows a warning. Run `oh-my-kilocode-slim doctor` from your project root for full diagnostics.
+If OMK-slim detects an invalid plugin config for the current project, the TUI sidebar shows a warning. Run `oh-my-kilocode-slim doctor` from your project root for full diagnostics.
 
 ---
 

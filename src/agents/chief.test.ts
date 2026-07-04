@@ -12,20 +12,38 @@ describe('buildChiefPrompt', () => {
     // Conservative-only phrase: "Review available agents and lane rules"
     expect(prompt).toContain('Review available agents and lane rules');
     // Aggressive-only phrase should NOT appear
-    expect(prompt).not.toContain('Default to delegating');
+    expect(prompt).not.toContain('MUST delegate to a specialist subagent');
   });
 
   test('conservative mode explicit produces conservative delegation text', () => {
     const prompt = buildChiefPrompt(undefined, 'conservative');
     expect(prompt).toContain('Review available agents and lane rules');
-    expect(prompt).not.toContain('Default to delegating');
+    expect(prompt).not.toContain('MUST delegate to a specialist subagent');
   });
 
   test('aggressive mode produces aggressive delegation text', () => {
     const prompt = buildChiefPrompt(undefined, 'aggressive');
-    expect(prompt).toContain('Default to delegating');
+    expect(prompt).toContain('MUST delegate to a specialist subagent');
+    expect(prompt).toContain(
+      'forbidden from using Edit, Read, Glob, Grep, Bash',
+    );
     // Conservative-only phrase should NOT appear
     expect(prompt).not.toContain('Review available agents and lane rules');
+  });
+
+  test('aggressive mode routes to all seven subagents', () => {
+    const prompt = buildChiefPrompt(undefined, 'aggressive');
+    for (const agent of [
+      '@explorer',
+      '@librarian',
+      '@oracle',
+      '@fixer',
+      '@designer',
+      '@observer',
+      '@council',
+    ]) {
+      expect(prompt).toContain(agent);
+    }
   });
 
   test('aggressive mode includes the cheap/free-model rationale', () => {
@@ -71,7 +89,7 @@ describe('createChiefAgent', () => {
     const agent = createChiefAgent();
     const prompt = agent.config.prompt ?? '';
     expect(prompt).toContain('Review available agents and lane rules');
-    expect(prompt).not.toContain('Default to delegating');
+    expect(prompt).not.toContain('MUST delegate to a specialist subagent');
   });
 
   test('aggressive mode propagates into the agent prompt', () => {
@@ -83,6 +101,9 @@ describe('createChiefAgent', () => {
       'aggressive',
     );
     const prompt = agent.config.prompt ?? '';
-    expect(prompt).toContain('Default to delegating');
+    expect(prompt).toContain('MUST delegate to a specialist subagent');
+    expect(prompt).toContain(
+      'forbidden from using Edit, Read, Glob, Grep, Bash',
+    );
   });
 });

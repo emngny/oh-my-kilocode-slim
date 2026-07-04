@@ -79,8 +79,8 @@ timestamp=2026-06-10T15:08:45.427Z level=INFO run=9bd29194 message=loop session.
 **Decision:** Store reflection summaries in `~/.config/kilo/oh-my-kilocode-slim/reflections/`.
 
 **Rationale:**
-- Existing OMOS directory already contains presets, prompts, chief_append.md
-- Pragmatic: keeps all OMOS data in one place
+- Existing OMK directory already contains presets, prompts, chief_append.md
+- Pragmatic: keeps all OMK data in one place
 - Easy discovery and cleanup
 - Global across projects (sessions are not project-specific)
 
@@ -99,7 +99,7 @@ timestamp=2026-06-10T15:08:45.427Z level=INFO run=9bd29194 message=loop session.
 | Option | Pros | Cons | Decision |
 |--------|------|------|----------|
 | `~/.config/kilo/oh-my-kilocode-slim/reflections/` | Existing directory, single location | Mixes config and data | **Accepted** |
-| `~/.local/share/oh-my-kilocode-slim/reflections/` | XDG-compliant, data separation | New directory, splits OMOS data | Rejected |
+| `~/.local/share/oh-my-kilocode-slim/reflections/` | XDG-compliant, data separation | New directory, splits OMK data | Rejected |
 | `.slim/reflections/` (project-local) | Tied to codebase | Sessions are global, not project-specific | Rejected |
 | Ephemeral (no storage) | No disk overhead | Re-analyzes expensive sessions, no trend tracking | Rejected |
 
@@ -183,7 +183,7 @@ KiloCode logs
 ## Consequences
 
 - No code changes needed - purely skill instruction updates
-- All OMOS persistent data lives in one directory tree
+- All OMK persistent data lives in one directory tree
 - Reflections are available across all projects (global)
 - LLM manages file I/O, cache, and aggregation
 - Users can inspect or delete reflections manually

@@ -412,7 +412,7 @@ export class ForegroundFallbackManager {
       // Agent is known: use its chain exactly if configured.
       const chain = this.chains[agentName];
       if (chain) return chain;
-      // Known omos built-in agent (oracle, librarian, …) without a
+      // Known omk built-in agent (oracle, librarian, …) without a
       // configured chain: keep isolation - do NOT bleed into other
       // agents' chains (preserves the cross-agent isolation contract
       // from PR #199).

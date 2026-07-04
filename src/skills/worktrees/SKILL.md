@@ -1,12 +1,12 @@
 ---
 name: worktrees
-description: Manage Git worktrees as OMO safe isolated coding lanes for complex, risky, or parallel work.
+description: Manage Git worktrees as OMK safe isolated coding lanes for complex, risky, or parallel work.
 ---
 
 # Worktrees Orchestration Protocol
 
 The `worktrees` skill provides an opinionated, safe orchestration protocol for
-managing Git worktrees as isolated coding lanes. Its value is giving the Chief a consistent OMO workflow for parallel agents, risky experiments, integration review, and cleanup.
+managing Git worktrees as isolated coding lanes. Its value is giving the Chief a consistent OMK workflow for parallel agents, risky experiments, integration review, and cleanup.
 
 ## Core Contract
 
@@ -35,7 +35,7 @@ structural tracking:
   "lanes": [
     {
       "slug": "feature-auth-v2",
-      "branch": "omos/feature-auth-v2",
+      "branch": "omk/feature-auth-v2",
       "path": ".slim/worktrees/feature-auth-v2",
       "base": "main",
       "purpose": "refactor authentication flow to use OAuth2",
@@ -64,7 +64,7 @@ following guards:
 - Confirm the current directory is inside a Git repository.
 - Check the current branch, base branch, and dirty/uncommitted state.
 - Inspect the output of `git worktree list` to avoid path or branch conflicts.
-- Ensure the branch name (e.g. `omos/<slug>` or custom project convention) does not already exist locally or on remote.
+- Ensure the branch name (e.g. `omk/<slug>` or custom project convention) does not already exist locally or on remote.
 - Ensure `.slim/worktrees/` is ignored by Git before creating nested worktrees.
 
 ### 2. Mandatory User Confirmation
@@ -109,7 +109,7 @@ Before creating lanes, add or update managed marker blocks only.
 
 ### Phase 1: Planning & Setup
 1. Identify the task scope and determine a short `<slug>` for the worktree.
-2. Formulate a branch name. Default to `omos/<slug>` unless project/user conventions dictate otherwise.
+2. Formulate a branch name. Default to `omk/<slug>` unless project/user conventions dictate otherwise.
 3. Validate repository safety. Ask the user for confirmation to initialize the lane.
 4. Ensure the managed ignore blocks are present.
 5. Run:

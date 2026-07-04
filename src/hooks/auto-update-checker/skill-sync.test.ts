@@ -50,7 +50,7 @@ describe('syncBundledSkillsFromPackage', () => {
     origEnvConfigDir = process.env.KILOCODE_CONFIG_DIR;
     // Create a unique temporary directory for this test run
     const randomId = Math.random().toString(36).substring(2, 10);
-    tempDir = path.join(os.tmpdir(), `omo-test-${randomId}`);
+    tempDir = path.join(os.tmpdir(), `omk-test-${randomId}`);
     fs.mkdirSync(tempDir, { recursive: true });
 
     fakePackageRoot = path.join(tempDir, 'fake-package');
@@ -1264,7 +1264,7 @@ describe('syncBundledSkillsFromPackage', () => {
       host: require('node:os').hostname(),
       time: Date.now(),
       // We retrieve process token from globalThis or module
-      token: (globalThis as any).OMO_SKILL_SYNC_PROCESS_TOKEN,
+      token: (globalThis as any).OMK_SKILL_SYNC_PROCESS_TOKEN,
     };
     fs.writeFileSync(
       path.join(lockDir, 'owner.json'),

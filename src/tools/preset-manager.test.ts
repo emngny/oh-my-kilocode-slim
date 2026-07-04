@@ -46,7 +46,7 @@ beforeEach(() => {
   previousXdgDataHome = process.env.XDG_DATA_HOME;
   previousXdgConfigHome = process.env.XDG_CONFIG_HOME;
   previousKiloCodeConfigDir = process.env.KILOCODE_CONFIG_DIR;
-  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-preset-manager-'));
+  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omk-preset-manager-'));
   process.env.XDG_DATA_HOME = tempDir;
   process.env.XDG_CONFIG_HOME = path.join(tempDir, 'xdg-config');
   delete process.env.KILOCODE_CONFIG_DIR;

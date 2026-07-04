@@ -825,8 +825,8 @@ describe('ForegroundFallbackManager resolveChain cross-agent isolation', () => {
     expect(call[0].body.model.modelID).toBe('gpt-4o');
   });
 
-  test('falls through to model matching for non-omos agents (e.g. compaction)', async () => {
-    // compaction is an KiloCode built-in agent that is NOT an omos agent,
+  test('falls through to model matching for non-omk agents (e.g. compaction)', async () => {
+    // compaction is an KiloCode built-in agent that is NOT an omk agent,
     // so it has no chain configured. It should fall through to model
     // matching and inherit a chain from a configured agent that shares
     // its model, instead of being silently excluded from fallback.
@@ -842,7 +842,7 @@ describe('ForegroundFallbackManager resolveChain cross-agent isolation', () => {
       properties: {
         info: {
           sessionID: 'compaction-sess',
-          agent: 'compaction', // NOT a known omos built-in agent
+          agent: 'compaction', // NOT a known omk built-in agent
           providerID: 'openai',
           modelID: 'gpt-5.4',
           error: { message: 'rate limit exceeded' },

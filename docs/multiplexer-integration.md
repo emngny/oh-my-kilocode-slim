@@ -33,7 +33,7 @@ If you open multiple KiloCode sessions, use a random high port for each launch i
 **Bash helper:**
 
 ```bash
-omos() {
+omk() {
   local port
   port=$(jot -r 1 49152 65535)
   OPENCODE_PORT="$port" \

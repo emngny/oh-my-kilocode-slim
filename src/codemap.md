@@ -64,7 +64,7 @@ KiloCode Core → Plugin Initialization (index.ts)
 4. **Snapshot Loading**: Reads agent models/variants from `tui-state.ts`
 5. **Live Updates**: Sets up interval to refresh snapshot every 1000ms
 6. **Sidebar Rendering**: Renders sidebar with:
-   - Plugin header (OMO-Slim + version)
+   - Plugin header (OMK-Slim + version)
    - Config status warning (if invalid)
    - Agent list with model/variant details
 7. **Lifecycle Management**: Cleans up interval on dispose

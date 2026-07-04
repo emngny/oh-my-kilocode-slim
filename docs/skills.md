@@ -172,7 +172,7 @@ Other agents can be delegated tasks inside the worktree lane, but the Chief coor
 Safety defaults:
 - Pre-flight check on Git repo status and dirty worktrees.
 - Strict confirmation gates for all git modifications (`worktree add/remove`, `merge`, `rebase`, `cherry-pick`, `reset --hard`, branch operations).
-- Branch names default to `omo/<slug>` but respect custom user patterns.
+- Branch names default to `omk/<slug>` but respect custom user patterns.
 - Automated diff validation and compilation/test check before final integration.
 
 See **[Worktrees](worktrees.md)** for the detailed safety protocol.

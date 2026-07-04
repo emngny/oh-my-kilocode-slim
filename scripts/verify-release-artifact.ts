@@ -138,7 +138,7 @@ function packArtifact() {
 }
 
 function verifyFreshInstall(tarballPath: string) {
-  const tempRoot = mkdtempSync(path.join(tmpdir(), 'omos-release-'));
+  const tempRoot = mkdtempSync(path.join(tmpdir(), 'omk-release-'));
 
   try {
     console.log('Installing packed artifact into clean temp project...');

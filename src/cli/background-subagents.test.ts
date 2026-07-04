@@ -108,7 +108,7 @@ describe('background subagents writing', () => {
   });
 
   test('writes managed block without duplicates', () => {
-    tempDir = mkdtempSync(join(tmpdir(), 'omoo-bg-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'omk-bg-'));
     const target = join(tempDir, '.bashrc');
     writeFileSync(target, 'existing=true\n');
 
@@ -171,7 +171,7 @@ describe('configureBackgroundSubagents', () => {
   });
 
   test('writes shell config without prompting', async () => {
-    tempDir = mkdtempSync(join(tmpdir(), 'omoo-bg-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'omk-bg-'));
     delete process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
     const log = spyOn(console, 'log').mockImplementation(() => undefined);
     const originalShell = process.env.SHELL;
@@ -205,7 +205,7 @@ describe('configureBackgroundSubagents', () => {
   });
 
   test('returns no configured target when writing shell config fails', async () => {
-    tempDir = mkdtempSync(join(tmpdir(), 'omoo-bg-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'omk-bg-'));
     delete process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
     rmSync(tempDir, { recursive: true, force: true });
     writeFileSync(tempDir, 'not a directory');

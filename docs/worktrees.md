@@ -5,7 +5,7 @@ isolated coding lanes under `.slim/worktrees/<slug>/`. It lets agents work on
 parallel, complex, or high-risk tasks in separate checkouts without polluting
 your current workspace.
 
-The skill does not exist to explain Git worktrees. It gives OMO an opinionated
+The skill does not exist to explain Git worktrees. It gives OMK an opinionated
 safety protocol for planning lanes, assigning agents, validating diffs,
 integrating changes, and cleaning up without losing user work.
 
@@ -55,7 +55,7 @@ Local Git worktrees are placed here, separated from your main checkout while
 sharing the same underlying Git database. Specialists such as `@fixer` or
 `@designer` are directed to write and run tests strictly within this path.
 
-For example, `.slim/worktrees/refactor-auth/` contains a copy of the repository files on the `omo/refactor-auth` branch.
+For example, `.slim/worktrees/refactor-auth/` contains a copy of the repository files on the `omk/refactor-auth` branch.
 
 ### `.slim/worktrees.json`
 
@@ -68,7 +68,7 @@ A local metadata registry mapping active worktree lanes.
   "lanes": [
     {
       "slug": "refactor-auth",
-      "branch": "omo/refactor-auth",
+      "branch": "omk/refactor-auth",
       "path": ".slim/worktrees/refactor-auth",
       "base": "main",
       "purpose": "Refactor token parsing module",

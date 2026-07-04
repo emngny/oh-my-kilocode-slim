@@ -177,7 +177,7 @@ function renderSidebar(
         [
           box(
             { paddingLeft: 1, paddingRight: 1, backgroundColor: theme.accent },
-            [text({ fg: theme.background }, ['OMO-Slim'])],
+            [text({ fg: theme.background }, ['OMK-Slim'])],
           ),
           text({ fg: theme.textMuted }, [`v${version}`]),
         ],

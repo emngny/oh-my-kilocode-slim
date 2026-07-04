@@ -244,7 +244,7 @@ describe('auto-update-checker/index', () => {
     ).toBe('/tmp/kilo/node_modules/@emngny/oh-my-kilocode-slim');
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim Updated!',
+        title: 'OMK-Slim Updated!',
         message: 'v0.9.1 → v0.9.11\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
@@ -283,7 +283,7 @@ describe('auto-update-checker/index', () => {
 
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim Updated!',
+        title: 'OMK-Slim Updated!',
         message:
           'v0.9.1 → v0.9.11\nAdded bundled skills: reflect, worktrees\nRestart KiloCode to apply.',
         variant: 'success',
@@ -323,7 +323,7 @@ describe('auto-update-checker/index', () => {
 
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim Updated!',
+        title: 'OMK-Slim Updated!',
         message:
           'v0.9.1 → v0.9.11\nAdded bundled skills: reflect\nStaged skill updates: worktrees\nCustomized skills: my-custom-skill\nRestart KiloCode to apply.',
         variant: 'success',
@@ -385,7 +385,7 @@ describe('auto-update-checker/index', () => {
     });
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim Updated!',
+        title: 'OMK-Slim Updated!',
         message:
           'v0.9.1 → v0.9.11\nCompanion updated.\nRestart KiloCode to apply.',
         variant: 'success',
@@ -426,7 +426,7 @@ describe('auto-update-checker/index', () => {
 
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim Updated!',
+        title: 'OMK-Slim Updated!',
         message:
           'v0.9.1 → v0.9.11\nCompanion update will retry on restart.\nRestart KiloCode to apply.',
         variant: 'success',
@@ -466,7 +466,7 @@ describe('auto-update-checker/index', () => {
 
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim Updated!',
+        title: 'OMK-Slim Updated!',
         message: 'v0.9.1 → v0.9.11\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
@@ -502,7 +502,7 @@ describe('auto-update-checker/index', () => {
 
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim 0.9.11',
+        title: 'OMK-Slim 0.9.11',
         message: 'v0.9.11 available. Auto-update is disabled.',
         variant: 'info',
         duration: 8000,
@@ -539,7 +539,7 @@ describe('auto-update-checker/index', () => {
     expect(skillSyncMocks.syncBundledSkillsFromPackage).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim 0.9.11',
+        title: 'OMK-Slim 0.9.11',
         message:
           'v0.9.11 available. Auto-update could not prepare the active install.',
         variant: 'info',
@@ -585,7 +585,7 @@ describe('auto-update-checker/index', () => {
     expect(skillSyncMocks.syncBundledSkillsFromPackage).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim 0.9.11',
+        title: 'OMK-Slim 0.9.11',
         message:
           'v0.9.11 available, but auto-update failed to install it. Check logs or retry manually.',
         variant: 'error',
@@ -686,7 +686,7 @@ describe('auto-update-checker/index', () => {
     expect(showToast).toHaveBeenCalledTimes(1);
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'OMO-Slim 1.9.0',
+        title: 'OMK-Slim 1.9.0',
         message:
           'v1.9.0 available. Auto-update skipped because the current version could not be compared safely.',
         variant: 'info',
