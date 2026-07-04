@@ -609,8 +609,8 @@ describe('ForegroundFallbackManager deduplication', () => {
     );
 
     // Second error — model B also fails within the 5s dedup window.
-    // This is a DIFFERENT incident (new model), so it should NOT be deduped
-    // after the successful model switch cleared the lastTrigger timer.
+    // This is a DIFFERENT incident (new model), so dedup is bypassed
+    // because the current model differs from lastTriggerModel.
     await mgr.handleEvent({
       type: 'session.error',
       properties: {
@@ -620,8 +620,7 @@ describe('ForegroundFallbackManager deduplication', () => {
     });
 
     // Should trigger a second fallback despite being within the original
-    // 5-second dedup window, because the lastTrigger was reset after the
-    // successful model switch.
+    // 5-second dedup window, because the model changed (modelChanged bypass).
     expect(mocks.promptAsync).toHaveBeenCalledTimes(2);
     expect(mocks.promptAsync.mock.calls[1][0]).toEqual(
       expect.objectContaining({

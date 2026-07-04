@@ -98,7 +98,7 @@ export class ForegroundFallbackManager {
   /** sessionID → model in use when lastTrigger was set; dedup is bypassed
    *  when the model has changed, allowing the cascade to continue when a
    *  new fallback model also fails within the dedup window. */
-  private readonly lastTriggerModel = new Map<string, string | undefined>();
+  private readonly lastTriggerModel = new Map<string, string>();
 
   constructor(
     private readonly client: OpencodeClient,
@@ -235,16 +235,19 @@ export class ForegroundFallbackManager {
     // Bypass dedup when the model changed since the last trigger — the new
     // model's failure is a separate incident and the cascade should continue.
     const now = Date.now();
-    const lastModel = this.lastTriggerModel.get(sessionID);
     const curModel = this.sessionModel.get(sessionID);
-    const modelChanged = lastModel !== undefined && lastModel !== curModel;
+    const modelChanged =
+      this.lastTriggerModel.has(sessionID) &&
+      this.lastTriggerModel.get(sessionID) !== curModel;
     if (
       !modelChanged &&
       now - (this.lastTrigger.get(sessionID) ?? 0) < DEDUP_WINDOW_MS
     )
       return;
     this.lastTrigger.set(sessionID, now);
-    this.lastTriggerModel.set(sessionID, curModel);
+    if (curModel !== undefined) {
+      this.lastTriggerModel.set(sessionID, curModel);
+    }
 
     this.inProgress.add(sessionID);
     try {
