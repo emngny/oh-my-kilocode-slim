@@ -18,7 +18,7 @@ describe('providers', () => {
     });
 
     expect(config.$schema).toBe(
-      'https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json',
+      'https://unpkg.com/@emngny/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json',
     );
     expect(config.preset).toBe('custom');
     expect(config.disabled_agents).toBeUndefined();

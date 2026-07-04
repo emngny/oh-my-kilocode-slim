@@ -88,7 +88,7 @@ describe('auto-update-checker/checker', () => {
           }
           if (p.includes('package.json')) {
             return JSON.stringify({
-              name: 'oh-my-kilocode-slim',
+              name: '@emngny/oh-my-kilocode-slim',
               version: '1.2.3-dev',
             });
           }
@@ -115,7 +115,7 @@ describe('auto-update-checker/checker', () => {
       );
       const readSpy = spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({
-          plugin: ['oh-my-kilocode-slim'],
+          plugin: ['@emngny/oh-my-kilocode-slim'],
         }),
       );
 
@@ -125,7 +125,7 @@ describe('auto-update-checker/checker', () => {
 
       const entry = findPluginEntry('/test');
       expect(entry).not.toBeNull();
-      expect(entry?.entry).toBe('oh-my-kilocode-slim');
+      expect(entry?.entry).toBe('@emngny/oh-my-kilocode-slim');
       expect(entry?.isPinned).toBe(false);
       expect(entry?.pinnedVersion).toBeNull();
 
@@ -139,7 +139,7 @@ describe('auto-update-checker/checker', () => {
       );
       const readSpy = spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({
-          plugin: ['oh-my-kilocode-slim@1.0.0'],
+          plugin: ['@emngny/oh-my-kilocode-slim@1.0.0'],
         }),
       );
 

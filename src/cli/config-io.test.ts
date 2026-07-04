@@ -50,7 +50,7 @@ describe('config-io', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(
       join(dir, 'package.json'),
-      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
+      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
     );
   }
 
@@ -122,7 +122,7 @@ describe('config-io', () => {
     paths.ensureConfigDir();
     writeFileSync(
       configPath,
-      JSON.stringify({ plugin: ['other', 'oh-my-kilocode-slim@1.0.0'] }),
+      JSON.stringify({ plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'] }),
     );
     process.argv[1] = '';
 
@@ -130,8 +130,8 @@ describe('config-io', () => {
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-kilocode-slim');
-    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
+    expect(saved.plugin).toContain('@emngny/oh-my-kilocode-slim');
+    expect(saved.plugin).not.toContain('@emngny/oh-my-kilocode-slim@1.0.0');
     expect(saved.plugin.length).toBe(2);
   });
 
@@ -146,7 +146,7 @@ describe('config-io', () => {
     mkdirSync(defaultConfigDir, { recursive: true });
     writeFileSync(
       customConfigPath,
-      JSON.stringify({ plugin: ['other', 'oh-my-kilocode-slim@1.0.0'] }),
+      JSON.stringify({ plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'] }),
     );
     writeFileSync(defaultConfigPath, JSON.stringify({ plugin: ['default'] }));
     process.argv[1] = '';
@@ -157,7 +157,7 @@ describe('config-io', () => {
     expect(result.configPath).toBe(customConfigPath);
     const customSaved = JSON.parse(readFileSync(customConfigPath, 'utf-8'));
     const defaultSaved = JSON.parse(readFileSync(defaultConfigPath, 'utf-8'));
-    expect(customSaved.plugin).toEqual(['other', 'oh-my-kilocode-slim']);
+    expect(customSaved.plugin).toEqual(['other', '@emngny/oh-my-kilocode-slim']);
     expect(defaultSaved.plugin).toEqual(['default']);
   });
 
@@ -167,7 +167,7 @@ describe('config-io', () => {
       tmpDir,
       'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     paths.ensureConfigDir();
     writeFileSync(configPath, JSON.stringify({ plugin: [] }));
@@ -178,7 +178,7 @@ describe('config-io', () => {
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['oh-my-kilocode-slim']);
+    expect(saved.plugin).toEqual(['@emngny/oh-my-kilocode-slim']);
   });
 
   test('addPluginToKiloCodeConfig stores local repo path for local dev paths', async () => {
@@ -241,7 +241,7 @@ describe('config-io', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['other-plugin', objectPlugin, 'oh-my-kilocode-slim@1.0.0'],
+        plugin: ['other-plugin', objectPlugin, '@emngny/oh-my-kilocode-slim@1.0.0'],
       }),
     );
 
@@ -249,9 +249,9 @@ describe('config-io', () => {
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-kilocode-slim');
+    expect(saved.plugin).toContain('@emngny/oh-my-kilocode-slim');
     expect(saved.plugin).toContain('other-plugin');
-    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
+    expect(saved.plugin).not.toContain('@emngny/oh-my-kilocode-slim@1.0.0');
     // Non-string entries (objects) must survive the plugin refresh
     expect(saved.plugin).toContainEqual(objectPlugin);
     expect(saved.plugin.length).toBe(3);
@@ -263,7 +263,7 @@ describe('config-io', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['other', ['oh-my-kilocode-slim', { enabled: true }]],
+        plugin: ['other', ['@emngny/oh-my-kilocode-slim', { enabled: true }]],
       }),
     );
     process.argv[1] = '';
@@ -272,7 +272,7 @@ describe('config-io', () => {
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['other', 'oh-my-kilocode-slim']);
+    expect(saved.plugin).toEqual(['other', '@emngny/oh-my-kilocode-slim']);
   });
 
   test('addPluginToKiloCodeTuiConfig adds plugin to tui.json and removes duplicates', async () => {
@@ -280,7 +280,7 @@ describe('config-io', () => {
     paths.ensureConfigDir();
     writeFileSync(
       tuiPath,
-      JSON.stringify({ plugin: ['other', 'oh-my-kilocode-slim@1.0.0'] }),
+      JSON.stringify({ plugin: ['other', '@emngny/oh-my-kilocode-slim@1.0.0'] }),
     );
     process.argv[1] = '';
 
@@ -288,8 +288,8 @@ describe('config-io', () => {
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-kilocode-slim');
-    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
+    expect(saved.plugin).toContain('@emngny/oh-my-kilocode-slim');
+    expect(saved.plugin).not.toContain('@emngny/oh-my-kilocode-slim@1.0.0');
     expect(saved.plugin.length).toBe(2);
   });
 
@@ -299,7 +299,7 @@ describe('config-io', () => {
       tmpDir,
       'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     paths.ensureConfigDir();
     writeFileSync(tuiPath, JSON.stringify({ plugin: [] }));
@@ -310,7 +310,7 @@ describe('config-io', () => {
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['oh-my-kilocode-slim']);
+    expect(saved.plugin).toEqual(['@emngny/oh-my-kilocode-slim']);
   });
 
   test('addPluginToKiloCodeTuiConfig removes tuple plugin entries', async () => {
@@ -319,7 +319,7 @@ describe('config-io', () => {
     writeFileSync(
       tuiPath,
       JSON.stringify({
-        plugin: ['other', ['oh-my-kilocode-slim', { enabled: true }]],
+        plugin: ['other', ['@emngny/oh-my-kilocode-slim', { enabled: true }]],
       }),
     );
     process.argv[1] = '';
@@ -328,7 +328,7 @@ describe('config-io', () => {
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['other', 'oh-my-kilocode-slim']);
+    expect(saved.plugin).toEqual(['other', '@emngny/oh-my-kilocode-slim']);
   });
 
   test('addPluginToKiloCodeTuiConfig honors KILOCODE_TUI_CONFIG', async () => {
@@ -341,7 +341,7 @@ describe('config-io', () => {
     expect(result.configPath).toBe(tuiPath);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['oh-my-kilocode-slim']);
+    expect(saved.plugin).toEqual(['@emngny/oh-my-kilocode-slim']);
   });
 
   test('addPluginToKiloCodeTuiConfig does not bypass KILOCODE_TUI_CONFIG for existing default config', async () => {
@@ -358,7 +358,7 @@ describe('config-io', () => {
 
     const custom = JSON.parse(readFileSync(customTuiPath, 'utf-8'));
     const original = JSON.parse(readFileSync(defaultTuiPath, 'utf-8'));
-    expect(custom.plugin).toEqual(['oh-my-kilocode-slim']);
+    expect(custom.plugin).toEqual(['@emngny/oh-my-kilocode-slim']);
     expect(original.plugin).toEqual(['default']);
   });
 
@@ -403,7 +403,7 @@ describe('config-io', () => {
     writeFileSync(
       tuiPath,
       JSON.stringify({
-        plugin: ['other-plugin', objectPlugin, 'oh-my-kilocode-slim@1.0.0'],
+        plugin: ['other-plugin', objectPlugin, '@emngny/oh-my-kilocode-slim@1.0.0'],
       }),
     );
 
@@ -411,9 +411,9 @@ describe('config-io', () => {
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-kilocode-slim');
+    expect(saved.plugin).toContain('@emngny/oh-my-kilocode-slim');
     expect(saved.plugin).toContain('other-plugin');
-    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
+    expect(saved.plugin).not.toContain('@emngny/oh-my-kilocode-slim@1.0.0');
     // Non-string entries (objects) must survive the plugin refresh
     expect(saved.plugin).toContainEqual(objectPlugin);
     expect(saved.plugin.length).toBe(3);
@@ -432,7 +432,7 @@ describe('config-io', () => {
 
     const saved = JSON.parse(readFileSync(litePath, 'utf-8'));
     expect(saved.$schema).toBe(
-      'https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json',
+      'https://unpkg.com/@emngny/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json',
     );
     expect(saved.preset).toBe('openai');
     expect(saved.presets.openai).toBeDefined();
@@ -542,7 +542,7 @@ describe('config-io', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['oh-my-kilocode-slim'],
+        plugin: ['@emngny/oh-my-kilocode-slim'],
         provider: {
           kimi: {
             npm: '@ai-sdk/openai-compatible',
@@ -583,7 +583,7 @@ describe('config-io', () => {
 
     writeFileSync(
       configPath,
-      JSON.stringify({ plugin: ['oh-my-kilocode-slim'] }),
+      JSON.stringify({ plugin: ['@emngny/oh-my-kilocode-slim'] }),
     );
     writeFileSync(
       litePath,

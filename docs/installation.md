@@ -18,13 +18,13 @@ Complete installation instructions for oh-my-kilocode-slim.
 Run the interactive installer:
 
 ```bash
-bunx oh-my-kilocode-slim@latest install
+bunx @emngny/oh-my-kilocode-slim@latest install
 ```
 
 Or use non-interactive mode:
 
 ```bash
-bunx oh-my-kilocode-slim@latest install --no-tui --skills=yes --background-subagents=yes
+bunx @emngny/oh-my-kilocode-slim@latest install --no-tui --skills=yes --background-subagents=yes
 ```
 
 ### Configuration Options
@@ -55,13 +55,13 @@ The installer asks before adding that export to your shell startup file. The
 prompt defaults to `yes` because V2's default orchestration depends on it.
 
 ```bash
-bunx oh-my-kilocode-slim@latest install
+bunx @emngny/oh-my-kilocode-slim@latest install
 ```
 
 For non-interactive setup, pass the choice explicitly:
 
 ```bash
-bunx oh-my-kilocode-slim@latest install --no-tui --background-subagents=yes
+bunx @emngny/oh-my-kilocode-slim@latest install --no-tui --background-subagents=yes
 ```
 
 After the installer updates a shell startup file, restart your terminal or source
@@ -90,14 +90,14 @@ By default, the installer is non-destructive. If an `oh-my-kilocode-slim.json` c
 To force overwrite of your existing configuration, use the `--reset` flag:
 
 ```bash
-bunx oh-my-kilocode-slim@latest install --reset
+bunx @emngny/oh-my-kilocode-slim@latest install --reset
 ```
 
 **Note:** When using `--reset`, the installer creates a `.bak` backup file before overwriting, so your previous configuration is preserved.
 
 ### After Installation
 
-The installer generates both OpenAI and KiloCode Go presets, with OpenAI active by default (using variant-aware `gpt-5.5` and `gpt-5.4-mini` models, including `gpt-5.5 (medium)` for Chief, `gpt-5.5 (high)` for Oracle, `gpt-5.5 (low)` for Fixer, and `gpt-5.4-mini` variants for other specialists). To make KiloCode Go active during install, run `bunx oh-my-kilocode-slim@latest install --preset=kilo-go`. That preset uses GLM-5.1 for Chief, so the installer also enables Observer with `kilo-go/kimi-k2.6` for visual analysis. To switch providers later or build a mixed setup, use **[Configuration Reference](configuration.md)** for the full option reference and the preset docs for copyable examples.
+The installer generates both OpenAI and KiloCode Go presets, with OpenAI active by default (using variant-aware `gpt-5.5` and `gpt-5.4-mini` models, including `gpt-5.5 (medium)` for Chief, `gpt-5.5 (high)` for Oracle, `gpt-5.5 (low)` for Fixer, and `gpt-5.4-mini` variants for other specialists). To make KiloCode Go active during install, run `bunx @emngny/oh-my-kilocode-slim@latest install --preset=kilo-go`. That preset uses GLM-5.1 for Chief, so the installer also enables Observer with `kilo-go/kimi-k2.6` for visual analysis. To switch providers later or build a mixed setup, use **[Configuration Reference](configuration.md)** for the full option reference and the preset docs for copyable examples.
 
 The plugin safely reconciles bundled skills on startup and after successful
 auto-updates. Missing bundled skills are installed, and previously managed skills
@@ -158,25 +158,25 @@ If not installed, direct the user to https://kilo.ai/docs first.
 The installer generates OpenAI and KiloCode Go presets, with OpenAI active by default:
 
 ```bash
-bunx oh-my-kilocode-slim@latest install --no-tui --skills=yes
+bunx @emngny/oh-my-kilocode-slim@latest install --no-tui --skills=yes
 ```
 
 **Examples:**
 ```bash
 # Interactive install
-bunx oh-my-kilocode-slim@latest install
+bunx @emngny/oh-my-kilocode-slim@latest install
 
 # Non-interactive with bundled skills
-bunx oh-my-kilocode-slim@latest install --no-tui --skills=yes --background-subagents=yes
+bunx @emngny/oh-my-kilocode-slim@latest install --no-tui --skills=yes --background-subagents=yes
 
 # Make the generated KiloCode Go preset active
-bunx oh-my-kilocode-slim@latest install --preset=kilo-go
+bunx @emngny/oh-my-kilocode-slim@latest install --preset=kilo-go
 
 # Non-interactive without skills
-bunx oh-my-kilocode-slim@latest install --no-tui --skills=no
+bunx @emngny/oh-my-kilocode-slim@latest install --no-tui --skills=no
 
 # Force overwrite existing configuration
-bunx oh-my-kilocode-slim@latest install --reset
+bunx @emngny/oh-my-kilocode-slim@latest install --reset
 ```
 
 The installer automatically:
@@ -223,7 +223,7 @@ Verify all agents respond successfully.
 
 Check the expected config format:
 ```bash
-bunx oh-my-kilocode-slim@latest install --help
+bunx @emngny/oh-my-kilocode-slim@latest install --help
 ```
 
 Then manually create the config files at:
@@ -237,7 +237,7 @@ If the installer reports that the configuration already exists, you have two opt
 
 2. **Reset configuration**: Use `--reset` to overwrite:
    ```bash
-   bunx oh-my-kilocode-slim@latest install --reset
+   bunx @emngny/oh-my-kilocode-slim@latest install --reset
    ```
    A `.bak` backup file will be created automatically.
 
@@ -250,7 +250,7 @@ If the installer reports that the configuration already exists, you have two opt
 
 2. From your project root, verify your config file exists and is valid:
    ```bash
-   bunx oh-my-kilocode-slim@latest doctor
+   bunx @emngny/oh-my-kilocode-slim@latest doctor
    ```
 
 3. Check that your provider is configured in `~/.config/kilo/kilo.json`
@@ -280,7 +280,7 @@ return task IDs, or delegation behaves like a blocking foreground call:
 
 4. If shell setup was missing, rerun the installer:
    ```bash
-   bunx oh-my-kilocode-slim@latest install
+   bunx @emngny/oh-my-kilocode-slim@latest install
    ```
 
 ### Authentication Issues
@@ -308,7 +308,7 @@ Add a `$schema` reference to your config for autocomplete and inline validation:
 
 ```jsonc
 {
-  "$schema": "https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json",
+  "$schema": "https://unpkg.com/@emngny/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json",
   // your config...
 }
 ```

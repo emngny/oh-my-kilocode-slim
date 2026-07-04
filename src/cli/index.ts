@@ -68,8 +68,8 @@ function printHelp(): void {
 oh-my-kilocode-slim installer
 
 Usage:
-  bunx oh-my-kilocode-slim install [OPTIONS]
-  bunx oh-my-kilocode-slim doctor [OPTIONS]
+  bunx @emngny/oh-my-kilocode-slim install [OPTIONS]
+  bunx @emngny/oh-my-kilocode-slim doctor [OPTIONS]
 
 Options:
   --skills=yes|no        Install bundled skills (default: yes)
@@ -96,12 +96,12 @@ OpenAI is active unless --preset selects another generated preset.
 For the full config reference, see docs/configuration.md.
 
 Examples:
-  bunx oh-my-kilocode-slim install
-  bunx oh-my-kilocode-slim install --no-tui --skills=yes
-  bunx oh-my-kilocode-slim install --background-subagents=yes
-  bunx oh-my-kilocode-slim install --preset=kilo-go
-  bunx oh-my-kilocode-slim install --reset
-  bunx oh-my-kilocode-slim doctor
+  bunx @emngny/oh-my-kilocode-slim install
+  bunx @emngny/oh-my-kilocode-slim install --no-tui --skills=yes
+  bunx @emngny/oh-my-kilocode-slim install --background-subagents=yes
+  bunx @emngny/oh-my-kilocode-slim install --preset=kilo-go
+  bunx @emngny/oh-my-kilocode-slim install --reset
+  bunx @emngny/oh-my-kilocode-slim doctor
 `);
 }
 

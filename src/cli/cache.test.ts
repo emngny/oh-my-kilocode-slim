@@ -98,7 +98,7 @@ describe('warmKiloCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@latest',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
       'oh-my-kilocode-slim',
     );
@@ -116,7 +116,7 @@ describe('warmKiloCodePluginCache', () => {
       cacheHome,
       'kilo',
       'packages',
-      'oh-my-kilocode-slim@latest',
+      '@emngny/oh-my-kilocode-slim@latest',
     );
 
     expect(result?.success).toBe(true);
@@ -150,7 +150,7 @@ describe('warmKiloCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@latest',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
       'oh-my-kilocode-slim',
     );
@@ -165,7 +165,7 @@ describe('warmKiloCodePluginCache', () => {
       cacheHome,
       'kilo',
       'packages',
-      'oh-my-kilocode-slim@latest',
+      '@emngny/oh-my-kilocode-slim@latest',
     );
     mkdirSync(expectedCacheDir, { recursive: true });
     writeFileSync(
@@ -201,7 +201,7 @@ describe('warmKiloCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@latest',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
       'oh-my-kilocode-slim',
     );
@@ -216,7 +216,7 @@ describe('warmKiloCodePluginCache', () => {
       cacheHome,
       'kilo',
       'packages',
-      'oh-my-kilocode-slim@latest',
+      '@emngny/oh-my-kilocode-slim@latest',
     );
     const stalePluginDir = join(
       expectedCacheDir,
@@ -256,7 +256,7 @@ describe('warmKiloCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@latest',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
       'oh-my-kilocode-slim',
     );
@@ -277,13 +277,13 @@ describe('warmKiloCodePluginCache', () => {
         cacheHome,
         'kilo',
         'packages',
-        'oh-my-kilocode-slim@latest',
+        '@emngny/oh-my-kilocode-slim@latest',
       ),
       error: `Cached plugin package not found at ${join(
         cacheHome,
         'kilo',
         'packages',
-        'oh-my-kilocode-slim@latest',
+        '@emngny/oh-my-kilocode-slim@latest',
         'node_modules',
         'oh-my-kilocode-slim',
         'package.json',
@@ -300,7 +300,7 @@ describe('warmKiloCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@latest',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
       'oh-my-kilocode-slim',
     );
@@ -324,7 +324,7 @@ describe('warmKiloCodePluginCache', () => {
         cacheHome,
         'kilo',
         'packages',
-        'oh-my-kilocode-slim@latest',
+        '@emngny/oh-my-kilocode-slim@latest',
       ),
       error: 'registry unavailable',
     });
@@ -339,7 +339,7 @@ describe('warmKiloCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-kilocode-slim@latest',
+      'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
       'node_modules',
       'oh-my-kilocode-slim',
     );
@@ -351,7 +351,7 @@ describe('warmKiloCodePluginCache', () => {
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
     const packageJsonSuffix = join(
-      'oh-my-kilocode-slim@latest',
+      '@emngny/oh-my-kilocode-slim@latest',
       'package.json',
     );
     const fs = await import('node:fs');
@@ -374,7 +374,7 @@ describe('warmKiloCodePluginCache', () => {
           cacheHome,
           'kilo',
           'packages',
-          'oh-my-kilocode-slim@latest',
+          '@emngny/oh-my-kilocode-slim@latest',
         ),
         error: 'Failed to write cache package.json: Error: disk full',
       });
@@ -426,7 +426,7 @@ describe('warmKiloCodePluginCache', () => {
     try {
       const packageRoot = join(
         tmpDir,
-        'bunx-1000-oh-my-kilocode-slim@latest',
+        'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
         'node_modules',
         'oh-my-kilocode-slim',
       );
@@ -531,7 +531,7 @@ describe('warmKiloCodePluginCache', () => {
     try {
       const packageRoot = join(
         tmpDir,
-        'bunx-1000-oh-my-kilocode-slim@latest',
+        'bunx-1000-@emngny/oh-my-kilocode-slim@latest',
         'node_modules',
         'oh-my-kilocode-slim',
       );

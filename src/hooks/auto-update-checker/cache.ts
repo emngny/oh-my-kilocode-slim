@@ -118,11 +118,30 @@ export function resolveInstallContext(
     const packageDir = path.dirname(runtimePackageJsonPath);
     const nodeModulesDir = path.dirname(packageDir);
 
+    // Unscoped: node_modules/pkg/package.json
+    // basename(packageDir) === 'pkg', basename(nodeModulesDir) === 'node_modules'
     if (
       path.basename(packageDir) === PACKAGE_NAME &&
       path.basename(nodeModulesDir) === 'node_modules'
     ) {
       const installDir = path.dirname(nodeModulesDir);
+      const packageJsonPath = path.join(installDir, 'package.json');
+      if (fs.existsSync(packageJsonPath)) {
+        return { installDir, packageJsonPath };
+      }
+    }
+
+    // Scoped: node_modules/@scope/pkg/package.json
+    // basename(packageDir) === 'pkg', basename(nodeModulesDir) === '@scope'
+    const scopeDir = nodeModulesDir;
+    const nodeModulesDirForScoped = path.dirname(scopeDir);
+    const scope = path.basename(scopeDir);
+    if (
+      scope.startsWith('@') &&
+      `${scope}/${path.basename(packageDir)}` === PACKAGE_NAME &&
+      path.basename(nodeModulesDirForScoped) === 'node_modules'
+    ) {
+      const installDir = path.dirname(nodeModulesDirForScoped);
       const packageJsonPath = path.join(installDir, 'package.json');
       if (fs.existsSync(packageJsonPath)) {
         return { installDir, packageJsonPath };

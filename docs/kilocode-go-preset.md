@@ -14,7 +14,7 @@ agent and configures it with `kilo-go/kimi-k2.6` for visual analysis.
 ## Install with KiloCode Go Active
 
 ```bash
-bunx oh-my-kilocode-slim@latest install --preset=kilo-go
+bunx @emngny/oh-my-kilocode-slim@latest install --preset=kilo-go
 ```
 
 Then authenticate and refresh models:

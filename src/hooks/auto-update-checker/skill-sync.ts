@@ -70,7 +70,7 @@ interface SkillSyncOptions {
  * from the published npm package tarballs to allow upgrading existing users.
  *
  * How to populate:
- * 1. Download previous releases of the npm package: `npm pack oh-my-kilocode-slim@<version>`
+ * 1. Download previous releases of the npm package: `npm pack @emngny/oh-my-kilocode-slim@<version>`
  * 2. Compute directory hash for each legacy skill directory inside the unpacked tarball:
  *    `import { computeDirectoryHash } from './skill-sync';`
  *    `const hash = computeDirectoryHash('path/to/extracted/package/src/skills/<skill-name>');`

@@ -310,7 +310,7 @@ function showMajorUpgradeToast(ctx: PluginInput, version: string): void {
   showToast(
     ctx,
     `oh-my-kilocode-slim v${version} is available.`,
-    'It requires KiloCode background subagents.\nRun: bunx oh-my-kilocode-slim@latest install',
+    'It requires KiloCode background subagents.\nRun: bunx @emngny/oh-my-kilocode-slim@latest install',
     'info',
     12_000,
   );

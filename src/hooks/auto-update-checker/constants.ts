@@ -2,7 +2,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { getKiloCodeConfigPaths } from '../../cli/config-manager';
 
-export const PACKAGE_NAME = 'oh-my-kilocode-slim';
+export const PACKAGE_NAME = '@emngny/oh-my-kilocode-slim';
 export const NPM_REGISTRY_URL = `https://registry.npmjs.org/-/package/${PACKAGE_NAME}/dist-tags`;
 export const NPM_PACKAGE_URL = `https://registry.npmjs.org/${PACKAGE_NAME}`;
 export const NPM_FETCH_TIMEOUT = 5000;

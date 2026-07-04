@@ -231,7 +231,7 @@ describe('auto-update-checker/index', () => {
 
     expect(cacheMocks.preparePackageUpdate).toHaveBeenCalledWith(
       '0.9.11',
-      'oh-my-kilocode-slim',
+      '@emngny/oh-my-kilocode-slim',
     );
     expect(crossSpawnMock).toHaveBeenCalledWith(
       ['bun', 'install'],
@@ -241,7 +241,7 @@ describe('auto-update-checker/index', () => {
       (
         skillSyncMocks.syncBundledSkillsFromPackage.mock.calls[0] as string[]
       )[0].replaceAll('\\', '/'),
-    ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
+    ).toBe('/tmp/kilo/node_modules/@emngny/oh-my-kilocode-slim');
     expect(showToast).toHaveBeenCalledWith({
       body: {
         title: 'OMO-Slim Updated!',
@@ -374,7 +374,7 @@ describe('auto-update-checker/index', () => {
         companionUpdaterMocks.loadCompanionManifestFromPackageRoot.mock
           .calls[0] as string[]
       )[0].replaceAll('\\', '/'),
-    ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
+    ).toBe('/tmp/kilo/node_modules/@emngny/oh-my-kilocode-slim');
     expect(companionUpdaterMocks.ensureCompanionVersion).toHaveBeenCalledWith({
       config: { enabled: true },
       manifest: {
@@ -619,7 +619,7 @@ describe('auto-update-checker/index', () => {
       body: {
         title: 'oh-my-kilocode-slim v2.0.0 is available.',
         message:
-          'It requires KiloCode background subagents.\nRun: bunx oh-my-kilocode-slim@latest install',
+          'It requires KiloCode background subagents.\nRun: bunx @emngny/oh-my-kilocode-slim@latest install',
         variant: 'info',
         duration: 12000,
       },

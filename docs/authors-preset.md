@@ -8,7 +8,7 @@ This is the exact configuration the author runs day-to-day.
 
 ```jsonc
 {
-  "$schema": "https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json",
+  "$schema": "https://unpkg.com/@emngny/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json",
   "preset": "openai",
   "showStartupToast": false,
   "companion": {

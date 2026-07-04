@@ -27,7 +27,7 @@ import type {
   KiloCodeConfig,
 } from './types';
 
-const PACKAGE_NAME = 'oh-my-kilocode-slim';
+const PACKAGE_NAME = '@emngny/oh-my-kilocode-slim';
 const DEFAULT_OPENCODE_AGENTS_TO_DISABLE = ['explore', 'general'] as const;
 
 function isString(value: unknown): value is string {

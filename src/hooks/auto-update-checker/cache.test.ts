@@ -23,14 +23,14 @@ describe('auto-update-checker/cache', () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
         (p: string) =>
           p.replace(/\\/g, '/') ===
-          '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json',
+          '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json',
       );
       const { resolveInstallContext } = await import(
         `./cache?test=${importCounter++}`
       );
 
       const context = resolveInstallContext(
-        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim/package.json',
+        '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim/package.json',
       );
 
       expect(
@@ -42,9 +42,9 @@ describe('auto-update-checker/cache', () => {
           : null,
       ).toEqual({
         installDir:
-          '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest',
+          '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest',
         packageJsonPath:
-          '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json',
+          '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json',
       });
 
       existsSpy.mockRestore();
@@ -57,7 +57,7 @@ describe('auto-update-checker/cache', () => {
       );
 
       const context = resolveInstallContext(
-        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim/package.json',
+        '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim/package.json',
       );
 
       expect(context).toBeNull();
@@ -83,19 +83,19 @@ describe('auto-update-checker/cache', () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
         (p: string) =>
           p.replace(/\\/g, '/') ===
-            '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json' ||
+            '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json' ||
           p.replace(/\\/g, '/') ===
-            '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim',
+            '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim',
       );
       const readSpy = spyOn(fs, 'readFileSync').mockImplementation(
         (p: string) => {
           if (
             p.replace(/\\/g, '/') ===
-            '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json'
+            '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json'
           ) {
             return JSON.stringify({
               dependencies: {
-                'oh-my-kilocode-slim': '0.9.1',
+                '@emngny/oh-my-kilocode-slim': '0.9.1',
               },
             });
           }
@@ -115,20 +115,20 @@ describe('auto-update-checker/cache', () => {
 
       const result = preparePackageUpdate(
         '0.9.11',
-        'oh-my-kilocode-slim',
-        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim/package.json',
+        '@emngny/oh-my-kilocode-slim',
+        '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim/package.json',
       );
 
       expect(result?.replace(/\\/g, '/')).toBe(
-        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest',
+        '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest',
       );
       expect(rmSyncSpy.mock.calls[0][0].replace(/\\/g, '/')).toBe(
-        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim',
+        '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim',
       );
       expect(writtenData.length).toBeGreaterThan(0);
       expect(JSON.parse(writtenData[0])).toEqual({
         dependencies: {
-          'oh-my-kilocode-slim': '0.9.11',
+          '@emngny/oh-my-kilocode-slim': '0.9.11',
         },
       });
 
@@ -144,14 +144,14 @@ describe('auto-update-checker/cache', () => {
           const normalized = p.replace(/\\/g, '/');
           return (
             normalized.endsWith('kilo/package.json') ||
-            normalized.endsWith('kilo/node_modules/oh-my-kilocode-slim')
+            normalized.endsWith('kilo/node_modules/@emngny/oh-my-kilocode-slim')
           );
         },
       );
       const readSpy = spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({
           dependencies: {
-            'oh-my-kilocode-slim': '1.0.1',
+            '@emngny/oh-my-kilocode-slim': '1.0.1',
           },
         }),
       );
@@ -161,7 +161,7 @@ describe('auto-update-checker/cache', () => {
         `./cache?test=${importCounter++}`
       );
 
-      const result = preparePackageUpdate('1.0.1', 'oh-my-kilocode-slim', null);
+      const result = preparePackageUpdate('1.0.1', '@emngny/oh-my-kilocode-slim', null);
 
       expect(result?.replace(/\\/g, '/').endsWith('kilo')).toBe(true);
       expect(writeSpy).not.toHaveBeenCalled();

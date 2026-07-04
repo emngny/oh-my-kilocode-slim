@@ -3,7 +3,7 @@ import { CUSTOM_SKILLS } from './custom-skills';
 import type { InstallConfig } from './types';
 
 const SCHEMA_URL =
-  'https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json';
+  'https://unpkg.com/@emngny/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json';
 
 export const GENERATED_PRESETS = ['custom'] as const;
 
