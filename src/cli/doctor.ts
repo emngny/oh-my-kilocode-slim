@@ -35,7 +35,7 @@ export type ConfigCheckResult = {
   error?: {
     kind: 'invalid-json' | 'invalid-schema' | 'read-error';
     message: string;
-    issues?: z.ZodIssue[];
+    issues?: z.ZodError['issues'];
   };
 };
 
@@ -205,8 +205,7 @@ export function runDoctorCheck(cwd: string): DoctorResult {
 export function formatHumanDoctorResult(result: DoctorResult): string {
   const lines: string[] = [];
 
-  lines.push(`Project: ${result.project}`);
-  lines.push('');
+  lines.push(`Project: ${result.project}`, '');
 
   for (const config of result.configs) {
     if (config.path === null) {
@@ -231,9 +230,8 @@ export function formatHumanDoctorResult(result: DoctorResult): string {
   }
 
   if (result.presetCheck) {
-    lines.push('');
     const status = result.presetCheck.ok ? '✓' : '✗';
-    lines.push(`[preset] ${result.presetCheck.preset} ${status}`);
+    lines.push('', `[preset] ${result.presetCheck.preset} ${status}`);
 
     if (result.presetCheck.error) {
       lines.push(`  ${result.presetCheck.error.message}`);

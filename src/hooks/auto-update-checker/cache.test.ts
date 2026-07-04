@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, mock, spyOn, test } from 'bun:test';
 import * as fs from 'node:fs';
 
@@ -21,8 +22,8 @@ describe('auto-update-checker/cache', () => {
   describe('resolveInstallContext', () => {
     test('detects KiloCode packages install root from runtime package path', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
-        (p: string) =>
-          p.replace(/\\/g, '/') ===
+        (p: fs.PathLike) =>
+          String(p).replaceAll('\\', '/') ===
           '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json',
       );
       const { resolveInstallContext } = await import(
@@ -36,8 +37,8 @@ describe('auto-update-checker/cache', () => {
       expect(
         context
           ? {
-              installDir: context.installDir.replace(/\\/g, '/'),
-              packageJsonPath: context.packageJsonPath.replace(/\\/g, '/'),
+              installDir: context.installDir.replaceAll('\\', '/'),
+              packageJsonPath: context.packageJsonPath.replaceAll('\\', '/'),
             }
           : null,
       ).toEqual({
@@ -81,31 +82,31 @@ describe('auto-update-checker/cache', () => {
 
     test('updates packages wrapper dependency and removes installed package', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
-        (p: string) =>
-          p.replace(/\\/g, '/') ===
+        (p: fs.PathLike) =>
+          String(p).replaceAll('\\', '/') ===
             '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json' ||
-          p.replace(/\\/g, '/') ===
+          String(p).replaceAll('\\', '/') ===
             '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim',
       );
-      const readSpy = spyOn(fs, 'readFileSync').mockImplementation(
-        (p: string) => {
-          if (
-            p.replace(/\\/g, '/') ===
-            '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json'
-          ) {
-            return JSON.stringify({
-              dependencies: {
-                '@emngny/oh-my-kilocode-slim': '0.9.1',
-              },
-            });
-          }
-          return '';
-        },
-      );
+      const readSpy = spyOn(fs, 'readFileSync').mockImplementation(((
+        p: fs.PathOrFileDescriptor,
+      ) => {
+        if (
+          String(p).replaceAll('\\', '/') ===
+          '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/package.json'
+        ) {
+          return JSON.stringify({
+            dependencies: {
+              '@emngny/oh-my-kilocode-slim': '0.9.1',
+            },
+          });
+        }
+        return '';
+      }) as any);
       const writtenData: string[] = [];
       const writeSpy = spyOn(fs, 'writeFileSync').mockImplementation(
-        (_path: string, data: string) => {
-          writtenData.push(data);
+        (_path: fs.PathOrFileDescriptor, data: any) => {
+          writtenData.push(data as string);
         },
       );
       const rmSyncSpy = spyOn(fs, 'rmSync').mockReturnValue(undefined);
@@ -119,10 +120,10 @@ describe('auto-update-checker/cache', () => {
         '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim/package.json',
       );
 
-      expect(result?.replace(/\\/g, '/')).toBe(
+      expect(result?.replaceAll('\\', '/')).toBe(
         '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest',
       );
-      expect(rmSyncSpy.mock.calls[0][0].replace(/\\/g, '/')).toBe(
+      expect(String(rmSyncSpy.mock.calls[0][0]).replaceAll('\\', '/')).toBe(
         '/home/user/.cache/kilo/packages/@emngny/oh-my-kilocode-slim@latest/node_modules/@emngny/oh-my-kilocode-slim',
       );
       expect(writtenData.length).toBeGreaterThan(0);
@@ -140,8 +141,8 @@ describe('auto-update-checker/cache', () => {
 
     test('keeps working when dependency is already on target version', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
-        (p: string) => {
-          const normalized = p.replace(/\\/g, '/');
+        (p: fs.PathLike) => {
+          const normalized = String(p).replaceAll('\\', '/');
           return (
             normalized.endsWith('kilo/package.json') ||
             normalized.endsWith('kilo/node_modules/@emngny/oh-my-kilocode-slim')
@@ -167,7 +168,7 @@ describe('auto-update-checker/cache', () => {
         null,
       );
 
-      expect(result?.replace(/\\/g, '/').endsWith('kilo')).toBe(true);
+      expect(result?.replaceAll('\\', '/').endsWith('kilo')).toBe(true);
       expect(writeSpy).not.toHaveBeenCalled();
       expect(rmSyncSpy).toHaveBeenCalled();
 
