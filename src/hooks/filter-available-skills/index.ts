@@ -1,9 +1,9 @@
 /**
  * Filter available_skills block based on the current agent's permission.skill rules.
- * OpenCode core injects `<available_skills>` globally, so this hook rewrites that
+ * KiloCode core injects `<available_skills>` globally, so this hook rewrites that
  * block before the prompt is sent.
  */
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import { getSkillPermissionsForAgent } from '../../cli/skills';
 import { getAgentOverride, type PluginConfig } from '../../config';
 import {
@@ -27,11 +27,11 @@ function getCurrentAgent(messages: MessageWithParts[]): string {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index];
     if (isUserMessageWithParts(message)) {
-      return message.info.agent ?? 'orchestrator';
+      return message.info.agent ?? 'chief';
     }
   }
 
-  return 'orchestrator';
+  return 'chief';
 }
 
 function extractSkillEntries(blockContent: string): SkillEntry[] {

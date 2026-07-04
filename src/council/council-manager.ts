@@ -5,7 +5,7 @@
  * parallel and collects their results for the council agent to synthesize.
  */
 
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import {
   formatCouncillorPrompt,
   formatCouncillorResults,

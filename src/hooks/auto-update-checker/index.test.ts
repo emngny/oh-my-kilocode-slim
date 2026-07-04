@@ -17,8 +17,8 @@ const checkerMocks = {
 };
 
 const cacheMocks = {
-  preparePackageUpdate: mock(() => '/tmp/opencode'),
-  resolveInstallContext: mock(() => ({ installDir: '/tmp/opencode' })),
+  preparePackageUpdate: mock(() => '/tmp/kilo'),
+  resolveInstallContext: mock(() => ({ installDir: '/tmp/kilo' })),
 };
 
 const skillSyncMocks = {
@@ -123,10 +123,10 @@ describe('auto-update-checker/index', () => {
     checkerMocks.getLocalDevVersion.mockImplementation(() => null);
 
     cacheMocks.preparePackageUpdate.mockReset();
-    cacheMocks.preparePackageUpdate.mockImplementation(() => '/tmp/opencode');
+    cacheMocks.preparePackageUpdate.mockImplementation(() => '/tmp/kilo');
     cacheMocks.resolveInstallContext.mockReset();
     cacheMocks.resolveInstallContext.mockImplementation(() => ({
-      installDir: '/tmp/opencode',
+      installDir: '/tmp/kilo',
     }));
 
     crossSpawnMock.mockReset();
@@ -172,7 +172,7 @@ describe('auto-update-checker/index', () => {
       `./index?test=${importCounter++}`
     );
 
-    expect(getAutoUpdateInstallDir()).toBe('/tmp/opencode');
+    expect(getAutoUpdateInstallDir()).toBe('/tmp/kilo');
   });
 
   test('skips background update for local dev installs without startup toast', async () => {
@@ -224,19 +224,22 @@ describe('auto-update-checker/index', () => {
 
     expect(cacheMocks.preparePackageUpdate).toHaveBeenCalledWith(
       '0.9.11',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     expect(crossSpawnMock).toHaveBeenCalledWith(
       ['bun', 'install'],
-      expect.objectContaining({ cwd: '/tmp/opencode' }),
+      expect.objectContaining({ cwd: '/tmp/kilo' }),
     );
-    expect(skillSyncMocks.syncBundledSkillsFromPackage).toHaveBeenCalledWith(
-      '/tmp/opencode/node_modules/oh-my-opencode-slim',
-    );
+    expect(
+      skillSyncMocks.syncBundledSkillsFromPackage.mock.calls[0][0].replace(
+        /\\/g,
+        '/',
+      ),
+    ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
     expect(showToast).toHaveBeenCalledWith({
       body: {
         title: 'OMO-Slim Updated!',
-        message: 'v0.9.1 → v0.9.11\nRestart OpenCode to apply.',
+        message: 'v0.9.1 → v0.9.11\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -276,7 +279,7 @@ describe('auto-update-checker/index', () => {
       body: {
         title: 'OMO-Slim Updated!',
         message:
-          'v0.9.1 → v0.9.11\nAdded bundled skills: reflect, worktrees\nRestart OpenCode to apply.',
+          'v0.9.1 → v0.9.11\nAdded bundled skills: reflect, worktrees\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -316,7 +319,7 @@ describe('auto-update-checker/index', () => {
       body: {
         title: 'OMO-Slim Updated!',
         message:
-          'v0.9.1 → v0.9.11\nAdded bundled skills: reflect\nStaged skill updates: worktrees\nCustomized skills: my-custom-skill\nRestart OpenCode to apply.',
+          'v0.9.1 → v0.9.11\nAdded bundled skills: reflect\nStaged skill updates: worktrees\nCustomized skills: my-custom-skill\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -361,8 +364,11 @@ describe('auto-update-checker/index', () => {
     await waitForCalls(showToast);
 
     expect(
-      companionUpdaterMocks.loadCompanionManifestFromPackageRoot,
-    ).toHaveBeenCalledWith('/tmp/opencode/node_modules/oh-my-opencode-slim');
+      companionUpdaterMocks.loadCompanionManifestFromPackageRoot.mock.calls[0][0].replace(
+        /\\/g,
+        '/',
+      ),
+    ).toBe('/tmp/kilo/node_modules/oh-my-kilocode-slim');
     expect(companionUpdaterMocks.ensureCompanionVersion).toHaveBeenCalledWith({
       config: { enabled: true },
       manifest: {
@@ -375,7 +381,7 @@ describe('auto-update-checker/index', () => {
       body: {
         title: 'OMO-Slim Updated!',
         message:
-          'v0.9.1 → v0.9.11\nCompanion updated.\nRestart OpenCode to apply.',
+          'v0.9.1 → v0.9.11\nCompanion updated.\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -416,7 +422,7 @@ describe('auto-update-checker/index', () => {
       body: {
         title: 'OMO-Slim Updated!',
         message:
-          'v0.9.1 → v0.9.11\nCompanion update will retry on restart.\nRestart OpenCode to apply.',
+          'v0.9.1 → v0.9.11\nCompanion update will retry on restart.\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -455,7 +461,7 @@ describe('auto-update-checker/index', () => {
     expect(showToast).toHaveBeenCalledWith({
       body: {
         title: 'OMO-Slim Updated!',
-        message: 'v0.9.1 → v0.9.11\nRestart OpenCode to apply.',
+        message: 'v0.9.1 → v0.9.11\nRestart KiloCode to apply.',
         variant: 'success',
         duration: 8000,
       },
@@ -568,7 +574,7 @@ describe('auto-update-checker/index', () => {
 
     expect(crossSpawnMock).toHaveBeenCalledWith(
       ['bun', 'install'],
-      expect.objectContaining({ cwd: '/tmp/opencode' }),
+      expect.objectContaining({ cwd: '/tmp/kilo' }),
     );
     expect(skillSyncMocks.syncBundledSkillsFromPackage).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith({
@@ -605,9 +611,9 @@ describe('auto-update-checker/index', () => {
 
     expect(showToast).toHaveBeenCalledWith({
       body: {
-        title: 'oh-my-opencode-slim v2.0.0 is available.',
+        title: 'oh-my-kilocode-slim v2.0.0 is available.',
         message:
-          'It requires OpenCode background subagents.\nRun: bunx oh-my-opencode-slim@latest install',
+          'It requires KiloCode background subagents.\nRun: bunx oh-my-kilocode-slim@latest install',
         variant: 'info',
         duration: 12000,
       },
@@ -641,7 +647,7 @@ describe('auto-update-checker/index', () => {
     expect(showToast).toHaveBeenCalledTimes(1);
     expect(showToast).toHaveBeenCalledWith({
       body: expect.objectContaining({
-        title: 'oh-my-opencode-slim v2.0.0 is available.',
+        title: 'oh-my-kilocode-slim v2.0.0 is available.',
       }),
     });
     expect(cacheMocks.preparePackageUpdate).not.toHaveBeenCalled();
@@ -698,7 +704,7 @@ describe('auto-update-checker/index', () => {
       blockedByMajor: false,
     }));
     checkerMocks.getCurrentRuntimePackageJsonPath.mockImplementation(
-      () => '/tmp/opencode/package.json',
+      () => '/tmp/kilo/package.json',
     );
 
     const { createAutoUpdateCheckerHook } = await import(
@@ -712,13 +718,13 @@ describe('auto-update-checker/index', () => {
     await waitForCalls(logMock, 1);
 
     expect(skillSyncMocks.syncBundledSkillsFromPackage).toHaveBeenCalledWith(
-      '/tmp/opencode',
+      '/tmp/kilo',
     );
   });
 
   test('logs staged and customized skills during startup reconciliation', async () => {
     checkerMocks.getCurrentRuntimePackageJsonPath.mockImplementation(
-      () => '/tmp/opencode/package.json',
+      () => '/tmp/kilo/package.json',
     );
     checkerMocks.findPluginEntry.mockImplementation(() => ({
       pinnedVersion: '0.9.11',

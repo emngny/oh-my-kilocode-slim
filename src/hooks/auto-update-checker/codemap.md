@@ -2,19 +2,19 @@
 
 ## Responsibility
 
-Implements a background auto-update system for oh-my-opencode-slim that:
-- Checks for plugin updates when new OpenCode sessions are created
+Implements a background auto-update system for oh-my-kilocode-slim that:
+- Checks for plugin updates when new KiloCode sessions are created
 - Validates version compatibility and channel membership (latest, alpha, beta, etc.)
 - Prevents major version upgrades automatically (surfaces as manual migration notice)
-- Synchronizes bundled skills from updated packages to OpenCode's skills directory
-- Provides user notifications via OpenCode TUI toasts
+- Synchronizes bundled skills from updated packages to KiloCode's skills directory
+- Provides user notifications via KiloCode TUI toasts
 
 ## Design
 
 ### Architecture Pattern: Observer Hook
 
-The folder implements an **OpenCode plugin hook** that observes the `session.created` event and triggers background update checks. This follows the Observer pattern where:
-- The hook subscribes to OpenCode lifecycle events
+The folder implements an **KiloCode plugin hook** that observes the `session.created` event and triggers background update checks. This follows the Observer pattern where:
+- The hook subscribes to KiloCode lifecycle events
 - Update checks run asynchronously without blocking session creation
 - Results are communicated via toast notifications
 
@@ -22,7 +22,7 @@ The folder implements an **OpenCode plugin hook** that observes the `session.cre
 
 | Module | Purpose | Key Abstractions |
 |--------|---------|------------------|
-| `index.ts` | Main hook factory and update orchestrator | `createAutoUpdateCheckerHook()`, `runBackgroundUpdateCheck()` |
+| `index.ts` | Main hook factory and update chief | `createAutoUpdateCheckerHook()`, `runBackgroundUpdateCheck()` |
 | `checker.ts` | Version checking and compatibility logic | `getLatestCompatibleVersion()`, `extractChannel()`, version parsing and comparison |
 | `constants.ts` | Configuration constants and paths | `PACKAGE_NAME`, `NPM_REGISTRY_URL`, `CACHE_DIR` |
 | `types.ts` | TypeScript interfaces and types | `AutoUpdateCheckerOptions`, `CompatibleVersionResult`, `PluginEntryInfo` |
@@ -36,13 +36,13 @@ The system implements multiple safety checks:
 2. **Channel Extraction**: Parses version strings to determine channel (latest, alpha, beta, rc, canary, next)
 3. **Major Version Blocking**: Prevents auto-updates that cross major versions; surfaces as manual migration notice
 4. **Pinned Version Detection**: Respects pinned versions in user configuration
-5. **Timeout Protection**: Uses 60-second timeout for `bun install` to prevent stalling OpenCode
+5. **Timeout Protection**: Uses 60-second timeout for `bun install` to prevent stalling KiloCode
 6. **Atomic Skill Sync**: Uses staging directories with rename for atomic skill synchronization
 
 ### Data Flow
 
 ```
-OpenCode Session Created
+KiloCode Session Created
     ↓
 Hook: session.created → createAutoUpdateCheckerHook()
     ↓
@@ -66,11 +66,11 @@ Action: Prepare package update (download + extract)
     ↓
 Action: Run bun install in isolated directory
     ↓
-Sync: Bundled skills to OpenCode config/skills/
+Sync: Bundled skills to KiloCode config/skills/
     ↓
 Sync: Companion update (if enabled)
     ↓
-Notify: Success/failure via OpenCode TUI toast
+Notify: Success/failure via KiloCode TUI toast
 ```
 
 ## Flow
@@ -78,7 +78,7 @@ Notify: Success/failure via OpenCode TUI toast
 ### Hook Initialization Flow
 
 1. **Plugin Registration**: The hook is registered by the main plugin (`src/index.ts`) during plugin initialization
-2. **Event Subscription**: Hook subscribes to `session.created` OpenCode event
+2. **Event Subscription**: Hook subscribes to `session.created` KiloCode event
 3. **Single Execution**: Uses `hasChecked` flag to ensure only one background check per plugin load
 4. **Parent Session Check**: Skips checks for child sessions (only runs for top-level sessions)
 5. **Asynchronous Execution**: Uses `setTimeout(async () => {...}, 0)` to run in background without blocking
@@ -128,36 +128,36 @@ Notify: Success/failure via OpenCode TUI toast
 - **Primary Consumer**: Main plugin (`src/index.ts`) - registers the auto-update hook during plugin initialization
 - **Secondary Consumers**: 
   - `src/companion/updater.ts` - companion version management
-  - OpenCode TUI - toast notifications
+  - KiloCode TUI - toast notifications
 
 ### Dependencies
 
 | Dependency | Purpose |
 |------------|---------|
-| `@opencode-ai/plugin` | OpenCode plugin SDK types |
-| `@opencode-ai/sdk` | OpenCode AI SDK |
+| `@kilocode/plugin` | KiloCode plugin SDK types |
+| `@kilocode/sdk` | KiloCode AI SDK |
 | `node:fs`, `node:path` | File system operations |
 | `node:os` | Platform detection for cache paths |
 | External: NPM registry | Version lookup and compatibility checking |
 
 ### Configuration Integration
 
-The system reads from OpenCode configuration files:
-- User config: `~/.config/opencode/opencode.json`
-- User config (JSONC): `~/.config/opencode/opencode.jsonc`
-- Local config: `.opencode/opencode.json` or `.opencode/opencode.jsonc` in plugin directory
+The system reads from KiloCode configuration files:
+- User config: `~/.config/kilo/kilo.json`
+- User config (JSONC): `~/.config/kilo/kilo.jsonc`
+- Local config: `.kilo/kilo.json` or `.kilo/kilo.jsonc` in plugin directory
 
 ### Event Integration
 
 - **Event Type**: `session.created`
-- **Event Source**: OpenCode plugin lifecycle
+- **Event Source**: KiloCode plugin lifecycle
 - **Event Properties**: Checks for `parentID` to avoid duplicate checks in child sessions
 
 ### Cache Integration
 
-Uses OpenCode's plugin cache directory:
-- Platform-specific: `~/.cache/opencode/` (Linux/macOS) or `%LOCALAPPDATA%\opencode` (Windows)
-- Plugin cache: `node_modules/oh-my-opencode-slim/`
+Uses KiloCode's plugin cache directory:
+- Platform-specific: `~/.cache/kilo/` (Linux/macOS) or `%LOCALAPPDATA%\kilo` (Windows)
+- Plugin cache: `node_modules/oh-my-kilocode-slim/`
 - Package updates are installed to isolated cache directories
 
 ## Error Handling & Recovery
@@ -172,15 +172,15 @@ Uses OpenCode's plugin cache directory:
 
 ### Recovery Strategies
 
-- **Retry on Restart**: Companion updates that fail will retry on next OpenCode restart
+- **Retry on Restart**: Companion updates that fail will retry on next KiloCode restart
 - **Atomic Operations**: Skill sync uses staging + rename for atomic updates
-- **Graceful Degradation**: If auto-update fails, shows error toast but doesn't crash OpenCode
+- **Graceful Degradation**: If auto-update fails, shows error toast but doesn't crash KiloCode
 - **Local Dev Fallback**: Local development mode skips all update checks
 
 ## Performance Considerations
 
 - **Background Execution**: All update checks run asynchronously after session creation
-- **Timeout Protection**: Prevents network or install operations from stalling OpenCode
+- **Timeout Protection**: Prevents network or install operations from stalling KiloCode
 - **Memoization**: Cached version lookups avoid repeated file system operations
 - **Isolated Installs**: Updates run in isolated cache directories to avoid conflicts
 - **Single Execution**: Hook ensures only one background check per plugin load

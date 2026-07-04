@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import type { InterviewConfig } from '../config';
 import {
   createInternalAgentTextPart,
@@ -517,18 +517,18 @@ export function createInterviewService(
     });
   }
 
-  function registerCommand(opencodeConfig: Record<string, unknown>): void {
-    const configCommand = opencodeConfig.command as
+  function registerCommand(kiloConfig: Record<string, unknown>): void {
+    const configCommand = kiloConfig.command as
       | Record<string, unknown>
       | undefined;
     if (!configCommand?.[COMMAND_NAME]) {
-      if (!opencodeConfig.command) {
-        opencodeConfig.command = {};
+      if (!kiloConfig.command) {
+        kiloConfig.command = {};
       }
-      (opencodeConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
+      (kiloConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
         template: 'Start an interview and write a live markdown spec',
         description:
-          'Open a localhost interview UI linked to the current OpenCode session',
+          'Open a localhost interview UI linked to the current KiloCode session',
       };
     }
   }

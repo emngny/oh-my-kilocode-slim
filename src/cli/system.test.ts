@@ -12,27 +12,27 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   fetchLatestVersion,
-  getOpenCodeVersion,
-  isOpenCodeInstalled,
+  getKiloCodeVersion,
+  isKiloCodeInstalled,
   isTmuxInstalled,
 } from './system';
 
 describe('system', () => {
-  test('isOpenCodeInstalled detects opencode in ~/.opencode/bin', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'opencode-system-test-'));
+  test('isKiloCodeInstalled detects kilo in ~/.kilo/bin', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'kilo-system-test-'));
     const originalPath = process.env.PATH;
     const originalHome = process.env.HOME;
 
     try {
-      const opencodePath = join(dir, '.opencode', 'bin', 'opencode');
-      mkdirSync(join(dir, '.opencode', 'bin'), { recursive: true });
-      writeFileSync(opencodePath, '#!/bin/sh\necho 1.2.3\n');
-      chmodSync(opencodePath, 0o755);
+      const kiloPath = join(dir, '.kilo', 'bin', 'kilo');
+      mkdirSync(join(dir, '.kilo', 'bin'), { recursive: true });
+      writeFileSync(kiloPath, '#!/bin/sh\necho 1.2.3\n');
+      chmodSync(kiloPath, 0o755);
       process.env.HOME = dir;
       process.env.PATH = '/usr/bin:/bin:/usr/sbin:/sbin';
 
       const system = await import(`./system?test=home-detect-${Date.now()}`);
-      expect(await system.isOpenCodeInstalled()).toBe(true);
+      expect(await system.isKiloCodeInstalled()).toBe(true);
     } finally {
       process.env.PATH = originalPath;
       process.env.HOME = originalHome;
@@ -40,10 +40,10 @@ describe('system', () => {
     }
   });
 
-  test('isOpenCodeInstalled returns boolean', async () => {
+  test('isKiloCodeInstalled returns boolean', async () => {
     // We don't necessarily want to depend on the host system
     // but for a basic test we can just check it returns a boolean
-    const result = await isOpenCodeInstalled();
+    const result = await isKiloCodeInstalled();
     expect(typeof result).toBe('boolean');
   });
 
@@ -86,8 +86,8 @@ describe('system', () => {
     }
   });
 
-  test('getOpenCodeVersion returns string or null', async () => {
-    const version = await getOpenCodeVersion();
+  test('getKiloCodeVersion returns string or null', async () => {
+    const version = await getKiloCodeVersion();
     if (version !== null) {
       expect(typeof version).toBe('string');
     } else {

@@ -1,4 +1,4 @@
-import type { AgentConfig as SDKAgentConfig } from '@opencode-ai/sdk/v2';
+import type { AgentConfig as SDKAgentConfig } from '@kilocode/sdk/v2';
 import { getSkillPermissionsForAgent } from '../cli/skills';
 import {
   AGENT_ALIASES,
@@ -15,7 +15,7 @@ import {
   SUBAGENT_NAMES,
 } from '../config';
 import { getAgentMcpList } from '../config/agent-mcps';
-
+import { type AgentDefinition, createChiefAgent, resolvePrompt } from './chief';
 import { createCouncilAgent } from './council';
 import { createCouncillorAgent } from './councillor';
 import { createDesignerAgent } from './designer';
@@ -24,13 +24,8 @@ import { createFixerAgent } from './fixer';
 import { createLibrarianAgent } from './librarian';
 import { createObserverAgent } from './observer';
 import { createOracleAgent } from './oracle';
-import {
-  type AgentDefinition,
-  createOrchestratorAgent,
-  resolvePrompt,
-} from './orchestrator';
 
-export type { AgentDefinition } from './orchestrator';
+export type { AgentDefinition } from './chief';
 
 type AgentFactory = (
   model: string,
@@ -39,7 +34,7 @@ type AgentFactory = (
 ) => AgentDefinition;
 
 const COUNCIL_TOOL_ALLOWED_AGENTS = new Set(['council']);
-const CANCEL_TASK_ALLOWED_AGENTS = new Set(['orchestrator']);
+const CANCEL_TASK_ALLOWED_AGENTS = new Set(['chief']);
 const SAFE_AGENT_ALIAS_RE = /^[a-z][a-z0-9_-]*$/i;
 
 function normalizeDisplayName(displayName: string): string {
@@ -71,11 +66,9 @@ function getActivePresetPrimaryModel(
     return undefined;
   }
 
-  const orchestratorModel = getPrimaryModelFromOverride(
-    activePreset.orchestrator,
-  );
-  if (orchestratorModel) {
-    return orchestratorModel;
+  const chiefModel = getPrimaryModelFromOverride(activePreset.chief);
+  if (chiefModel) {
+    return chiefModel;
   }
 
   for (const name of SUBAGENT_NAMES) {
@@ -108,7 +101,7 @@ function buildAcpAgentDefinition(
       '',
       'Your only job is to send the user task to the configured external ACP agent using the acp_run tool, then return the ACP agent result.',
       `Always call acp_run with agent: ${JSON.stringify(name)} and pass the full user task as prompt.`,
-      'Do not edit files yourself unless the ACP result explicitly asks you to report a local follow-up to the orchestrator.',
+      'Do not edit files yourself unless the ACP result explicitly asks you to report a local follow-up to the chief.',
     ].join('\n');
 
   return {
@@ -149,7 +142,7 @@ function escapeRegExp(value: string): string {
  * Apply user-provided overrides to an agent's configuration.
  * Supports overriding model (string or priority array), variant, and temperature.
  * When model is an array, stores it as _modelArray for runtime fallback resolution
- * and clears config.model so OpenCode does not pre-resolve a stale value.
+ * and clears config.model so KiloCode does not pre-resolve a stale value.
  */
 function applyOverrides(
   agent: AgentDefinition,
@@ -226,11 +219,11 @@ function buildCustomAgentDefinition(
 }
 
 function injectDisplayNames(
-  orchestrator: AgentDefinition,
+  chief: AgentDefinition,
   nameMap: Map<string, string>,
 ): void {
   if (nameMap.size === 0) return;
-  let prompt = orchestrator.config.prompt;
+  let prompt = chief.config.prompt;
   if (!prompt) return;
 
   for (const [internalName, displayName] of nameMap) {
@@ -240,7 +233,7 @@ function injectDisplayNames(
     );
   }
 
-  orchestrator.config.prompt = prompt;
+  chief.config.prompt = prompt;
 }
 
 /**
@@ -315,10 +308,10 @@ const SUBAGENT_FACTORIES: Record<SubagentName, AgentFactory> = {
 
 /**
  * Create all agent definitions with optional configuration overrides.
- * Instantiates the orchestrator and all subagents, applying user config and defaults.
+ * Instantiates the chief and all subagents, applying user config and defaults.
  *
  * @param config - Optional plugin configuration with agent overrides
- * @returns Array of agent definitions (orchestrator first, then subagents)
+ * @returns Array of agent definitions (chief first, then subagents)
  */
 export function createAgents(
   config?: PluginConfig,
@@ -397,7 +390,7 @@ export function createAgents(
     const override = getAgentOverride(config, name);
     if (!hasCustomAgentModel(override)) {
       console.warn(
-        `[oh-my-opencode] Custom agent '${name}' skipped: 'model' is required`,
+        `[oh-my-kilocode] Custom agent '${name}' skipped: 'model' is required`,
       );
       return [];
     }
@@ -457,7 +450,7 @@ export function createAgents(
 
   // 2b. Backward compat: if council has no preset override and still uses the
   // hardcoded default model, fall back to the deprecated council.master.model.
-  // See https://github.com/alvinunreal/oh-my-opencode-slim/issues/369
+  // See https://github.com/alvinunreal/oh-my-kilocode-slim/issues/369
   const legacyMasterModel = config?.council?._legacyMasterModel;
   if (legacyMasterModel) {
     const councilAgent = builtInSubAgents.find((a) => a.name === 'council');
@@ -490,49 +483,41 @@ export function createAgents(
     ...acpSubAgents,
   ];
 
-  // 3. Create Orchestrator (with its own overrides and custom prompts)
-  // DEFAULT_MODELS.orchestrator is undefined; model is resolved via override or
+  // 3. Create Chief (with its own overrides and custom prompts)
+  // DEFAULT_MODELS.chief is undefined; model is resolved via override or
   // left unset so the runtime chat.message hook can pick it from _modelArray.
-  const orchestratorOverride = getAgentOverride(config, 'orchestrator');
-  const orchestratorModel =
-    orchestratorOverride?.model ?? DEFAULT_MODELS.orchestrator;
-  const orchestratorPrompts = loadAgentPrompt('orchestrator', {
+  const chiefOverride = getAgentOverride(config, 'chief');
+  const chiefModel = chiefOverride?.model ?? DEFAULT_MODELS.chief;
+  const chiefPrompts = loadAgentPrompt('chief', {
     preset: config?.preset,
     projectDirectory: options?.projectDirectory,
   });
-  const orchestrator = createOrchestratorAgent(
-    orchestratorModel,
-    undefined,
-    undefined,
-    disabled,
-  );
+  const chief = createChiefAgent(chiefModel, undefined, undefined, disabled);
 
-  const inlineOrchestratorPrompt = orchestratorOverride?.prompt;
-  const defaultOrchestratorPrompt = orchestrator.config.prompt ?? '';
+  const inlineChiefPrompt = chiefOverride?.prompt;
+  const defaultChiefPrompt = chief.config.prompt ?? '';
 
-  const baseOrchestratorPrompt =
-    inlineOrchestratorPrompt !== undefined
-      ? inlineOrchestratorPrompt
-      : defaultOrchestratorPrompt;
-  orchestrator.config.prompt = resolvePrompt(
-    baseOrchestratorPrompt,
-    orchestratorPrompts.prompt,
-    orchestratorPrompts.appendPrompt,
+  const baseChiefPrompt =
+    inlineChiefPrompt !== undefined ? inlineChiefPrompt : defaultChiefPrompt;
+  chief.config.prompt = resolvePrompt(
+    baseChiefPrompt,
+    chiefPrompts.prompt,
+    chiefPrompts.appendPrompt,
   );
 
   applyDefaultPermissions(
-    orchestrator,
-    orchestratorOverride?.skills,
+    chief,
+    chiefOverride?.skills,
     config?.disabled_skills,
   );
-  if (orchestratorOverride) {
-    applyOverrides(orchestrator, orchestratorOverride);
+  if (chiefOverride) {
+    applyOverrides(chief, chiefOverride);
   }
 
-  // Collect all display names from orchestrator and all subagents
+  // Collect all display names from chief and all subagents
   const displayNameMap = new Map<string, string>();
-  if (orchestrator.displayName) {
-    displayNameMap.set('orchestrator', orchestrator.displayName);
+  if (chief.displayName) {
+    displayNameMap.set('chief', chief.displayName);
   }
   for (const agent of allSubAgents) {
     if (agent.displayName) {
@@ -540,22 +525,22 @@ export function createAgents(
     }
   }
 
-  // 3b. Append custom orchestrator hints from built-in and custom agent overrides.
-  const extraOrchestratorPromptsList = [...builtInSubAgents, ...customSubAgents]
+  // 3b. Append custom chief hints from built-in and custom agent overrides.
+  const extraChiefPromptsList = [...builtInSubAgents, ...customSubAgents]
     .map((agent) => {
       const override = getAgentOverride(config, agent.name);
-      return override?.orchestratorPrompt;
+      return override?.chiefPrompt;
     })
     .filter((prompt): prompt is string => Boolean(prompt));
 
-  const acpOrchestratorPrompts = acpSubAgents.map((agent) => {
+  const acpChiefPrompts = acpSubAgents.map((agent) => {
     const acp = config?.acpAgents?.[agent.name];
-    if (acp?.orchestratorPrompt) return acp.orchestratorPrompt;
+    if (acp?.chiefPrompt) return acp.chiefPrompt;
     return [
       `@${agent.name}`,
       `- Lane: External ACP-connected agent (${acp?.command ?? 'unknown command'})`,
       `- Role: ${agent.description ?? `External ACP agent ${agent.name}`}`,
-      '- **Delegate when:** The user explicitly asks for this ACP-backed agent, or the task matches its role and benefits from software/subscription-specific capabilities outside OpenCode.',
+      '- **Delegate when:** The user explicitly asks for this ACP-backed agent, or the task matches its role and benefits from software/subscription-specific capabilities outside KiloCode.',
       '- **Do not delegate when:** The built-in specialists can handle the task more directly or local file ownership would conflict with another writer lane.',
       '- **Result handling:** Treat returned output as external-agent work. Reconcile any reported file changes before continuing.',
     ].join('\n');
@@ -589,8 +574,8 @@ export function createAgents(
     }
   }
 
-  // Inject display names into orchestrator prompt (complete map)
-  injectDisplayNames(orchestrator, displayNameMap);
+  // Inject display names into chief prompt (complete map)
+  injectDisplayNames(chief, displayNameMap);
 
   const rewritePrompt = (promptText: string) => {
     let text = promptText;
@@ -603,10 +588,10 @@ export function createAgents(
     return text;
   };
 
-  const rewrittenOverrides = extraOrchestratorPromptsList.map(rewritePrompt);
-  const rewrittenAcps = acpOrchestratorPrompts.map(rewritePrompt);
+  const rewrittenOverrides = extraChiefPromptsList.map(rewritePrompt);
+  const rewrittenAcps = acpChiefPrompts.map(rewritePrompt);
 
-  let updatedPrompt = orchestrator.config.prompt ?? '';
+  let updatedPrompt = chief.config.prompt ?? '';
 
   if (rewrittenOverrides.length > 0) {
     updatedPrompt = `${updatedPrompt}\n\n# Project-specific routing guidance\n\n${rewrittenOverrides.join(
@@ -618,13 +603,13 @@ export function createAgents(
     updatedPrompt = `${updatedPrompt}\n\n${rewrittenAcps.join('\n\n')}`;
   }
 
-  orchestrator.config.prompt = updatedPrompt;
+  chief.config.prompt = updatedPrompt;
 
-  return [orchestrator, ...allSubAgents];
+  return [chief, ...allSubAgents];
 }
 
 /**
- * Get agent configurations formatted for the OpenCode SDK.
+ * Get agent configurations formatted for the KiloCode SDK.
  * Converts agent definitions to SDK config format and applies classification metadata.
  *
  * @param config - Optional plugin configuration with agent overrides
@@ -647,7 +632,7 @@ export function getAgentConfigs(
   ): void => {
     if (name === 'council') {
       // Council is callable both as a primary agent (user-facing)
-      // and as a subagent (orchestrator can delegate to it)
+      // and as a subagent (chief can delegate to it)
       sdkConfig.mode = 'all';
     } else if (name === 'councillor') {
       // Internal agent - subagent mode, hidden from @ autocomplete
@@ -655,7 +640,7 @@ export function getAgentConfigs(
       sdkConfig.hidden = true;
     } else if (isSubagent(name)) {
       sdkConfig.mode = 'subagent';
-    } else if (name === 'orchestrator') {
+    } else if (name === 'chief') {
       sdkConfig.mode = 'primary';
     } else {
       sdkConfig.mode = 'subagent';

@@ -1,7 +1,7 @@
 /**
  * Runtime model fallback for foreground (interactive) agent sessions.
  *
- * When OpenCode fires a session.error, message.updated, or session.status
+ * When KiloCode fires a session.error, message.updated, or session.status
  * event containing a rate-limit signal, this manager:
  *   1. Looks up the next untried model in the agent's configured chain
  *   2. Aborts the rate-limited prompt via client.session.abort()
@@ -14,7 +14,7 @@
  * try/catch, which is not possible for interactive (foreground) sessions.
  */
 
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import { ALL_AGENT_NAMES } from '../../config/constants';
 import { log } from '../../utils/logger';
 import {
@@ -104,7 +104,7 @@ export class ForegroundFallbackManager {
     private readonly client: OpencodeClient,
     /**
      * Ordered fallback chains per agent.
-     * e.g. { orchestrator: ['anthropic/claude-opus-4-5', 'openai/gpt-4o'] }
+     * e.g. { chief: ['anthropic/claude-opus-4-5', 'openai/gpt-4o'] }
      * The first model that hasn't been tried yet is selected on each fallback.
      */
     private readonly chains: Record<string, string[]>,
@@ -112,7 +112,7 @@ export class ForegroundFallbackManager {
   ) {}
 
   /**
-   * Process an OpenCode plugin event.
+   * Process an KiloCode plugin event.
    * Call this from the plugin's `event` hook for every event received.
    */
   async handleEvent(rawEvent: unknown): Promise<void> {
@@ -128,7 +128,7 @@ export class ForegroundFallbackManager {
         if (!info) break;
         const sessionID = info.sessionID as string | undefined;
         if (!sessionID) break;
-        // Capture agent name when available (OpenCode includes it on subagent messages)
+        // Capture agent name when available (KiloCode includes it on subagent messages)
         if (typeof info.agent === 'string') {
           this.sessionAgent.set(sessionID, info.agent);
         }
@@ -169,7 +169,7 @@ export class ForegroundFallbackManager {
         if (!props?.sessionID || !props.status?.message) break;
         const msg = props.status.message.toLowerCase();
         // Check for rate-limit signals in the status message regardless of
-        // status type. OpenCode proxies may emit monthly/weekly/5-hour usage
+        // status type. KiloCode proxies may emit monthly/weekly/5-hour usage
         // limit errors with type 'error' instead of 'retry' on fresh sessions
         // where no retry is attempted - the retry-type guard would miss them.
         if (
@@ -189,7 +189,7 @@ export class ForegroundFallbackManager {
       }
 
       case 'subagent.session.created': {
-        // Some builds of OpenCode include the agent name here.
+        // Some builds of KiloCode include the agent name here.
         const props = event.properties as
           | { sessionID?: string; agentName?: unknown }
           | undefined;
@@ -202,7 +202,7 @@ export class ForegroundFallbackManager {
       case 'session.deleted': {
         // Clean up all per-session state to prevent unbounded memory growth
         // in long-running instances with many subagent sessions.
-        // OpenCode emits two shapes depending on context:
+        // KiloCode emits two shapes depending on context:
         //   { properties: { sessionID } }   - subagent / task sessions
         //   { properties: { info: { id } } } - top-level session deletion
         // Mirror the same dual-shape lookup used elsewhere in the plugin.
@@ -323,7 +323,7 @@ export class ForegroundFallbackManager {
         path: { id: sessionID },
       });
       // result.data may contain partial/streaming messages whose `info` is
-      // undefined at runtime (OpenCode violates its own declared type), so
+      // undefined at runtime (KiloCode violates its own declared type), so
       // guard each entry instead of dereferencing `info` directly.
       const messages = (result.data ?? []) as unknown[];
       const lastUser = [...messages].reverse().find(isUserMessageWithParts);
@@ -335,8 +335,8 @@ export class ForegroundFallbackManager {
       // promptAsync queues the prompt and returns immediately - this avoids
       // blocking the event handler while waiting for a full LLM response.
       // Cast required: promptAsync is not in the plugin TypeScript types for
-      // oh-my-opencode-slim but IS present on the real OpenCode client at
-      // runtime (verified by opencode-rate-limit-fallback reference impl).
+      // oh-my-kilocode-slim but IS present on the real KiloCode client at
+      // runtime (verified by kilo-rate-limit-fallback reference impl).
       const sessionClient = this.client.session as unknown as {
         promptAsync?: (args: {
           path: { id: string };
@@ -417,7 +417,7 @@ export class ForegroundFallbackManager {
       // agents' chains (preserves the cross-agent isolation contract
       // from PR #199).
       if ((ALL_AGENT_NAMES as readonly string[]).includes(agentName)) return [];
-      // Unknown agent (e.g. OpenCode built-in "compaction" or "title"
+      // Unknown agent (e.g. KiloCode built-in "compaction" or "title"
       // that don't appear in the user preset): fall through to
       // model-matching so they can inherit a chain from a configured
       // agent that shares their model.

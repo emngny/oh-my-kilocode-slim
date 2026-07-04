@@ -4,7 +4,7 @@ Repository understanding and hierarchical codemap generation.
 
 ## Overview
 
-Codemap helps orchestrators map and understand codebases by:
+Codemap helps chiefs map and understand codebases by:
 
 1. Selecting relevant code/config files using LLM judgment
 2. Creating `.slim/codemap.json` for change tracking
@@ -56,4 +56,4 @@ Empty templates created in each folder for fixers to fill with:
 
 ## Installation
 
-Installed automatically via oh-my-opencode-slim installer when custom skills are enabled.
+Installed automatically via oh-my-kilocode-slim installer when custom skills are enabled.

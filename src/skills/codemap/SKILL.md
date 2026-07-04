@@ -40,7 +40,7 @@ If neither file exists: Continue to Step 2 (Initialize).
 3. **Run codemap.mjs init**:
 
 ```bash
-node ~/.config/opencode/skills/codemap/scripts/codemap.mjs init \
+node ~/.config/kilo/skills/codemap/scripts/codemap.mjs init \
   --root ./ \
   --include "src/**/*.ts" \
   --exclude "**/*.test.ts" --exclude "dist/**" --exclude "node_modules/**"
@@ -57,7 +57,7 @@ This creates:
 1. **Run codemap.mjs changes** to see what changed:
 
 ```bash
-node ~/.config/opencode/skills/codemap/scripts/codemap.mjs changes \
+node ~/.config/kilo/skills/codemap/scripts/codemap.mjs changes \
   --root ./
 ```
 
@@ -71,13 +71,13 @@ node ~/.config/opencode/skills/codemap/scripts/codemap.mjs changes \
 4. **Run update** to save new state:
 
 ```bash
-node ~/.config/opencode/skills/codemap/scripts/codemap.mjs update \
+node ~/.config/kilo/skills/codemap/scripts/codemap.mjs update \
   --root ./
 ```
 
 ### Step 4: Finalize Repository Atlas (Root Codemap)
 
-Once all specific directories are mapped, the Orchestrator must create or update the root `codemap.md`. This file serves as the **Master Entry Point** for any agent or human entering the repository.
+Once all specific directories are mapped, the Chief must create or update the root `codemap.md`. This file serves as the **Master Entry Point** for any agent or human entering the repository.
 
 1.  **Map Root Assets**: Document the root-level files (e.g., `package.json`, `index.ts`, `plugin.json`) and the project's overall purpose.
 2.  **Aggregate Sub-Maps**: Create a "Repository Directory Map" section. For every folder that has a `codemap.md`, extract its **Responsibility** summary and include it in a table or list in the root map.
@@ -85,7 +85,7 @@ Once all specific directories are mapped, the Orchestrator must create or update
 
 ### Step 5: Register Codemap in AGENTS.md
 
-**OpenCode auto-loads `AGENTS.md` into agent context on every session.** To ensure agents automatically discover and use the codemap, update (or create) `AGENTS.md` at the repo root:
+**KiloCode auto-loads `AGENTS.md` into agent context on every session.** To ensure agents automatically discover and use the codemap, update (or create) `AGENTS.md` at the repo root:
 
 1. If `AGENTS.md` already exists and already contains a `## Repository Map` section, **skip this step** - the reference is already set up.
 2. If `AGENTS.md` exists but has no `## Repository Map` section, **append** the section below.
@@ -125,8 +125,8 @@ Defines agent personalities and manages their configuration lifecycle.
 
 ## Design
 Each agent is a prompt + permission set. Config system uses:
-- Default prompts (orchestrator.ts, explorer.ts, etc.)
-- User overrides from ~/.config/opencode/oh-my-opencode-slim.json
+- Default prompts (chief.ts, explorer.ts, etc.)
+- User overrides from ~/.config/kilo/oh-my-kilocode-slim.json
 - Permission wildcards for skill/MCP access control
 
 ## Flow
@@ -134,7 +134,7 @@ Each agent is a prompt + permission set. Config system uses:
 2. Reads user config preset
 3. Merges defaults with overrides
 4. Applies permission rules (wildcard expansion)
-5. Returns agent configs to OpenCode
+5. Returns agent configs to KiloCode
 
 ## Integration
 - Consumed by: Main plugin (src/index.ts)
@@ -144,20 +144,20 @@ Each agent is a prompt + permission set. Config system uses:
 Example **Root Codemap (Atlas)**:
 
 ```markdown
-# Repository Atlas: oh-my-opencode-slim
+# Repository Atlas: oh-my-kilocode-slim
 
 ## Project Responsibility
-A high-performance, low-latency agent orchestration plugin for OpenCode, focusing on specialized sub-agent delegation and multiplexer-assisted child sessions.
+A high-performance, low-latency agent orchestration plugin for KiloCode, focusing on specialized sub-agent delegation and multiplexer-assisted child sessions.
 
 ## System Entry Points
-- `src/index.ts`: Plugin initialization and OpenCode integration.
+- `src/index.ts`: Plugin initialization and KiloCode integration.
 - `package.json`: Dependency manifest and build scripts.
-- `oh-my-opencode-slim.json`: User configuration schema.
+- `oh-my-kilocode-slim.json`: User configuration schema.
 
 ## Directory Map (Aggregated)
 | Directory | Responsibility Summary | Detailed Map |
 |-----------|------------------------|--------------|
-| `src/agents/` | Defines agent personalities (Orchestrator, Explorer) and manages model routing. | [View Map](src/agents/codemap.md) |
+| `src/agents/` | Defines agent personalities (Chief, Explorer) and manages model routing. | [View Map](src/agents/codemap.md) |
 | `src/features/` | Core logic for tmux integration and session state. | [View Map](src/features/codemap.md) |
 | `src/config/` | Implements the configuration loading pipeline and environment variable injection. | [View Map](src/config/codemap.md) |
 ```

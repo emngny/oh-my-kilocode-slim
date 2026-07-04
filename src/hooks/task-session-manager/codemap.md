@@ -2,13 +2,13 @@
 
 ## Responsibility
 
-Manages V2 background job-board state for task execution and injected completion messages, enabling the orchestrator to track active jobs and reuse only completed, reconciled child sessions by short aliases (e.g., `exp-1`, `ora-2`). This module was recently split into three focused submodules to improve separation of concerns and maintainability.
+Manages V2 background job-board state for task execution and injected completion messages, enabling the chief to track active jobs and reuse only completed, reconciled child sessions by short aliases (e.g., `exp-1`, `ora-2`). This module was recently split into three focused submodules to improve separation of concerns and maintainability.
 
 ## Design
 
 The directory follows a **Facade + Strategy** pattern where `index.ts` acts as the facade that composes and orchestrates behavior across three specialized strategy modules:
 
-- **index.ts**: Main facade that wires hooks into OpenCode's lifecycle and coordinates between the job board, pending calls, and task context tracking. Implements the plugin hook interface (`tool.execute.before`, `tool.execute.after`, `experimental.chat.messages.transform`, `event`).
+- **index.ts**: Main facade that wires hooks into KiloCode's lifecycle and coordinates between the job board, pending calls, and task context tracking. Implements the plugin hook interface (`tool.execute.before`, `tool.execute.after`, `experimental.chat.messages.transform`, `event`).
 - **pending-call-tracker.ts**: Tracks in-flight task calls using a capped ordered map (`MAX_PENDING_TASK_CALLS`) to correlate launch output safely. Provides call ID generation, storage, retrieval, and cleanup for pending task invocations.
 - **task-context-tracker.ts**: Manages read context from child sessions with line-count and file caps. Stores context per task ID and provides pruning to prevent unbounded growth.
 
@@ -68,7 +68,7 @@ User task call → tool.execute.before → PendingTaskCall created → task ID r
 
 ### Consumers
 
-- **Main Plugin (`src/index.ts`)**: Wires the task session manager hook into OpenCode's lifecycle via `createTaskSessionManagerHook()`.
+- **Main Plugin (`src/index.ts`)**: Wires the task session manager hook into KiloCode's lifecycle via `createTaskSessionManagerHook()`.
 
 ### Dependencies
 

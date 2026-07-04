@@ -1,6 +1,6 @@
 # Configuration Reference
 
-Complete reference for all configuration files and options in oh-my-opencode-slim. For repository-specific configurations, custom agents, and prompt directory lookups, see the [Project-local Customization Guide](project-local-customization.md).
+Complete reference for all configuration files and options in oh-my-kilocode-slim. For repository-specific configurations, custom agents, and prompt directory lookups, see the [Project-local Customization Guide](project-local-customization.md).
 
 ---
 
@@ -8,31 +8,31 @@ Complete reference for all configuration files and options in oh-my-opencode-sli
 
 | File | Purpose |
 |------|---------|
-| `~/.config/opencode/opencode.json` | OpenCode core settings (plugin registration, providers) |
-| `~/.config/opencode/oh-my-opencode-slim.json` | Plugin settings - agents, multiplexer, MCPs, council |
-| `~/.config/opencode/oh-my-opencode-slim.jsonc` | Same, but with JSONC (comments + trailing commas). Takes precedence over `.json` if both exist |
-| `.opencode/oh-my-opencode-slim.json` | Project-local overrides (optional, higher precedence than user config) |
+| `~/.config/kilo/kilo.json` | KiloCode core settings (plugin registration, providers) |
+| `~/.config/kilo/oh-my-kilocode-slim.json` | Plugin settings - agents, multiplexer, MCPs, council |
+| `~/.config/kilo/oh-my-kilocode-slim.jsonc` | Same, but with JSONC (comments + trailing commas). Takes precedence over `.json` if both exist |
+| `.kilo/oh-my-kilocode-slim.json` | Project-local overrides (optional, higher precedence than user config) |
 
 > **💡 JSONC recommended:** Use the `.jsonc` extension to add comments and trailing commas. If both `.jsonc` and `.json` exist, `.jsonc` takes precedence.
 
-Set `OPENCODE_CONFIG_DIR` to use a custom user config directory instead of
-`~/.config/opencode`; install and runtime config discovery both honor it.
+Set `KILOCODE_CONFIG_DIR` to use a custom user config directory instead of
+`~/.config/kilo`; install and runtime config discovery both honor it.
 
-Set `OH_MY_OPENCODE_SLIM_DISABLE` to `1`, `true`, `yes`, or `on` to make
-oh-my-opencode-slim return during startup without registering agents, tools,
+Set `OH_MY_KILOCODE_SLIM_DISABLE` to `1`, `true`, `yes`, or `on` to make
+oh-my-kilocode-slim return during startup without registering agents, tools,
 MCPs, hooks, Companion, or the TUI sidebar. This is a temporary escape hatch:
 
 ```bash
-OH_MY_OPENCODE_SLIM_DISABLE=1 opencode
+OH_MY_KILOCODE_SLIM_DISABLE=1 kilo
 ```
 
-If OmO-slim detects an invalid plugin config for the current project, the TUI sidebar shows a warning. Run `oh-my-opencode-slim doctor` from your project root for full diagnostics.
+If OmO-slim detects an invalid plugin config for the current project, the TUI sidebar shows a warning. Run `oh-my-kilocode-slim doctor` from your project root for full diagnostics.
 
 ---
 
 ## Prompt Overriding
 
-Customize agent prompts without modifying source code. Create markdown files in `~/.config/opencode/oh-my-opencode-slim/`:
+Customize agent prompts without modifying source code. Create markdown files in `~/.config/kilo/oh-my-kilocode-slim/`:
 
 | File | Effect |
 |------|--------|
@@ -44,12 +44,12 @@ When a `preset` is active, the plugin checks preset directories before falling b
 **Example directory structure:**
 
 ```
-~/.config/opencode/oh-my-opencode-slim/
+~/.config/kilo/oh-my-kilocode-slim/
   ├── best/
-  │   ├── orchestrator.md        # Preset-specific override (used when preset=best)
+  │   ├── chief.md        # Preset-specific override (used when preset=best)
   │   └── explorer_append.md
-  ├── orchestrator.md            # Fallback override
-  ├── orchestrator_append.md
+  ├── chief.md            # Fallback override
+  ├── chief_append.md
   ├── explorer.md
   └── ...
 ```
@@ -111,16 +111,16 @@ Presets can also be switched at runtime without restarting using the `/preset` c
 | `presets.<name>.<agent>.options` | object | - | Provider-specific model options passed to the AI SDK (e.g., `textVerbosity`, `thinking` budget) |
 | `agents.<customAgent>.model` | string\|array | - | Required for custom agents inferred from unknown `agents` keys |
 | `agents.<customAgent>.prompt` | string | - | Full execution prompt for a custom agent |
-| `agents.<customAgent>.orchestratorPrompt` | string | - | Exact `@agent` block injected into the orchestrator prompt; must start with `@<agent-name>` |
+| `agents.<customAgent>.chiefPrompt` | string | - | Exact `@agent` block injected into the chief prompt; must start with `@<agent-name>` |
 | `agents.<agent>.displayName` | string | - | Custom user-facing alias for the agent in the active config |
 | `acpAgents.<name>.command` | string | - | Command for an external ACP-compatible agent; creates a wrapper subagent named `<name>` |
 | `acpAgents.<name>.args` | string[] | `[]` | Arguments for the ACP agent command |
 | `acpAgents.<name>.env` | object | `{}` | Extra environment variables for the ACP subprocess |
 | `acpAgents.<name>.cwd` | string | session directory | Working directory override for this ACP subprocess; protocol paths should be absolute |
-| `acpAgents.<name>.description` | string | - | Description shown to OpenCode and injected into the orchestrator routing prompt |
+| `acpAgents.<name>.description` | string | - | Description shown to KiloCode and injected into the chief routing prompt |
 | `acpAgents.<name>.prompt` | string | generated wrapper prompt | Optional full prompt for the lightweight wrapper subagent |
-| `acpAgents.<name>.orchestratorPrompt` | string | generated routing block | Optional exact routing block injected into the orchestrator prompt |
-| `acpAgents.<name>.wrapperModel` | string | fixer default | Cheap OpenCode model used by the wrapper subagent that calls `acp_run` |
+| `acpAgents.<name>.chiefPrompt` | string | generated routing block | Optional exact routing block injected into the chief prompt |
+| `acpAgents.<name>.wrapperModel` | string | fixer default | Cheap KiloCode model used by the wrapper subagent that calls `acp_run` |
 | `acpAgents.<name>.permissionMode` | string | `ask` | How ACP permission requests are handled: `ask`, `allow`, or `reject` |
 | `acpAgents.<name>.timeoutMs` | integer | `0` | Timeout for a single ACP run in milliseconds. `0` disables the timeout so external agents can run indefinitely. Finite values can be up to `2147483647`ms (~24.8 days) |
 | `disabled_agents` | string[] | `["observer"]` | Agent names to disable globally. Set to `[]` to enable Observer; this is global, not per-preset |
@@ -128,11 +128,11 @@ Presets can also be switched at runtime without restarting using the `/preset` c
 | `multiplexer.type` | string | `"none"` | Multiplexer mode: `auto`, `tmux`, `zellij`, `herdr`, or `none` |
 | `multiplexer.layout` | string | `"main-vertical"` | Layout preset: `main-vertical`, `main-horizontal`, `tiled`, `even-horizontal`, `even-vertical`. Tmux applies full layouts; Zellij and Herdr map `main-vertical` to right and `main-horizontal` to down |
 | `multiplexer.main_pane_size` | number | `60` | Main pane size as percentage (20–80) for tmux main layouts; ignored by Zellij and Herdr |
-| `multiplexer.zellij_pane_mode` | string | `"agent-tab"` | Zellij pane placement: `agent-tab` creates/reuses a dedicated `opencode-agents` tab; `current-tab` opens subagents as panes in the tab containing the parent OpenCode pane, falling back to the focused tab if the parent pane cannot be resolved |
+| `multiplexer.zellij_pane_mode` | string | `"agent-tab"` | Zellij pane placement: `agent-tab` creates/reuses a dedicated `kilo-agents` tab; `current-tab` opens subagents as panes in the tab containing the parent KiloCode pane, falling back to the focused tab if the parent pane cannot be resolved |
 | `tmux.enabled` | boolean | `false` | Legacy alias for `multiplexer.type = "tmux"` |
 | `tmux.layout` | string | `"main-vertical"` | Legacy alias for `multiplexer.layout` |
 | `tmux.main_pane_size` | number | `60` | Legacy alias for `multiplexer.main_pane_size` |
-| `backgroundJobs.maxSessionsPerAgent` | integer | `2` | Maximum completed/reconciled reusable child sessions per specialist type in the current orchestrator session (1–10). See [Session Management](session-management.md) |
+| `backgroundJobs.maxSessionsPerAgent` | integer | `2` | Maximum completed/reconciled reusable child sessions per specialist type in the current chief session (1–10). See [Session Management](session-management.md) |
 | `backgroundJobs.readContextMinLines` | integer | `10` | Minimum number of lines read from a file before it appears in reusable background-job context (0–1000) |
 | `backgroundJobs.readContextMaxFiles` | integer | `8` | Maximum number of recent read-context files shown per reusable child session (0–50) |
 | `disabled_mcps` | string[] | `[]` | MCP server IDs to disable globally |
@@ -160,12 +160,12 @@ Presets can also be switched at runtime without restarting using the `/preset` c
 
 > **niri note:** `companion-v0.1.3` includes the fixed native companion release.
 > To make it open as a bottom-right overlay, add a niri rule matching its stable
-> `app-id`/title (`oh-my-opencode-slim-companion`), for example:
+> `app-id`/title (`oh-my-kilocode-slim-companion`), for example:
 >
 > ```kdl
 > window-rule {
->     match app-id=r"^oh-my-opencode-slim-companion$"
->     match title=r"^oh-my-opencode-slim-companion$"
+>     match app-id=r"^oh-my-kilocode-slim-companion$"
+>     match title=r"^oh-my-kilocode-slim-companion$"
 >     open-floating true
 >     open-focused false
 >     default-floating-position x=16 y=16 relative-to="bottom-right"
@@ -175,7 +175,7 @@ Presets can also be switched at runtime without restarting using the `/preset` c
 ### ACP-connected agents
 
 Use `acpAgents` to expose external Agent Client Protocol servers as optional
-OpenCode subagents. The plugin creates a lightweight wrapper agent for each
+KiloCode subagents. The plugin creates a lightweight wrapper agent for each
 entry. The wrapper calls the built-in `acp_run` tool, which starts the ACP
 process, creates a session, sends the task, and returns the streamed result.
 `command` is only the executable; put flags and subcommands in `args`.
@@ -203,7 +203,7 @@ and troubleshooting.
 }
 ```
 
-After restart, the orchestrator can delegate to `@claude-research` or
+After restart, the chief can delegate to `@claude-research` or
 `@gemini-acp`. Use safe names matching `^[a-z][a-z0-9_-]*$`; names cannot
 conflict with built-in or custom agents. `permissionMode` controls ACP
 permission requests, but the plugin still asks before launching the configured
@@ -237,8 +237,8 @@ Auto-update never crosses major versions. For example, a 1.x install can
 auto-update to a newer 1.x release, but it won't auto-install 2.x. When a newer
 major is available, the plugin shows a migration command instead.
 
-> Pinned plugin entries in `opencode.json` (for example
-> `"oh-my-opencode-slim@1.0.1"`) are the true version lock. Those stay pinned
+> Pinned plugin entries in `kilo.json` (for example
+> `"oh-my-kilocode-slim@1.0.1"`) are the true version lock. Those stay pinned
 > regardless of `autoUpdate`.
 
 ### Background Job Management
@@ -280,8 +280,8 @@ Notes:
 ### Custom Agents
 
 Unknown keys under `agents` are treated as custom subagents. A custom agent needs
-its own `model`, a normal `prompt`, and optionally an `orchestratorPrompt` that
-teaches the orchestrator exactly when to delegate to it.
+its own `model`, a normal `prompt`, and optionally an `chiefPrompt` that
+teaches the chief exactly when to delegate to it.
 
 ```jsonc
 {
@@ -289,7 +289,7 @@ teaches the orchestrator exactly when to delegate to it.
     "janitor": {
       "model": "github-copilot/gpt-5.5",
       "prompt": "You are Janitor. Audit codebase entropy, dead code, docs drift, naming inconsistencies, and unnecessary complexity. Prefer analysis and plans over direct edits.",
-      "orchestratorPrompt": "@janitor\n- Role: Maintenance specialist for codebase cleanup and entropy reduction\n- **Delegate when:** after large refactors • cleanup/technical-debt review • dead code or docs drift is suspected\n- **Don't delegate when:** feature implementation • urgent debugging • UI/UX work"
+      "chiefPrompt": "@janitor\n- Role: Maintenance specialist for codebase cleanup and entropy reduction\n- **Delegate when:** after large refactors • cleanup/technical-debt review • dead code or docs drift is suspected\n- **Don't delegate when:** feature implementation • urgent debugging • UI/UX work"
     }
   }
 }
@@ -299,13 +299,13 @@ Notes:
 
 - Custom agent names must be safe identifiers such as `janitor` or `security-reviewer`
 - Custom agents without a `model` are skipped with a warning
-- Disabled custom agents are not registered or injected into the orchestrator prompt
+- Disabled custom agents are not registered or injected into the chief prompt
 
 ### Desktop Companion App
 
 The desktop companion app provides a visual status overlay showing running and active agents. For quick installation instructions, binary paths, config defaults, and release information, see the full **[Desktop Companion Guide](companion.md)**.
 
-Once installed, configure it in your `oh-my-opencode-slim` settings:
+Once installed, configure it in your `oh-my-kilocode-slim` settings:
 
 ```jsonc
 {

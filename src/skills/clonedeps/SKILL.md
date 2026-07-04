@@ -1,16 +1,16 @@
 ---
 name: clonedeps
-description: Clone important project dependency source code into an ignored local workspace so OpenCode can inspect library internals. Use when the user asks to clone dependencies, inspect dependency/source internals, understand SDK/framework behavior from source, debug library implementation details, or make core dependency repos locally readable. Do not use for ordinary API/docs questions where @librarian is enough.
+description: Clone important project dependency source code into an ignored local workspace so KiloCode can inspect library internals. Use when the user asks to clone dependencies, inspect dependency/source internals, understand SDK/framework behavior from source, debug library implementation details, or make core dependency repos locally readable. Do not use for ordinary API/docs questions where @librarian is enough.
 ---
 
 # Clonedeps Skill
 
 You help users make a small set of important dependency source repositories
-locally readable to OpenCode.
+locally readable to KiloCode.
 
 This is a workflow skill, not a command wrapper. Do not use a helper script for
 dependency detection, ref validation, cloning, status, or cleanup. The
-orchestrator and `@librarian` do the repo-specific thinking; the orchestrator
+chief and `@librarian` do the repo-specific thinking; the chief
 performs the approved filesystem/git operations directly.
 
 ## Workflow
@@ -87,7 +87,7 @@ are directly relevant to the active task.
 
 ### Step 3: Verify and Confirm the Plan
 
-The orchestrator owns final approval. Before cloning:
+The chief owns final approval. Before cloning:
 
 1. Verify refs manually where possible with `git ls-remote`.
 2. Prefer pinned tags or commit SHAs. If no exact tag exists, ask librarian to
@@ -109,8 +109,8 @@ Create one folder per source repository under:
 ```
 
 Derive the safe name from the repository owner/name, not from the package name.
-For example, `https://github.com/opencode-ai/opencode.git` becomes
-`opencode-ai__opencode`. Replace `/` with `__`, strip common `.git` suffixes,
+For example, `https://github.com/kilo-ai/kilo.git` becomes
+`kilo-ai__kilo`. Replace `/` with `__`, strip common `.git` suffixes,
 and replace other unsafe path characters with `_`.
 
 If multiple packages come from the same monorepo, clone the repository once and
@@ -145,20 +145,20 @@ Write `.slim/clonedeps.json` so future agents know what exists:
   "updatedAt": "2026-05-12T00:00:00.000Z",
   "dependencies": [
     {
-      "name": "@opencode-ai/plugin",
+      "name": "@kilocode/plugin",
       "resolvedVersion": "1.3.17",
-      "repoUrl": "https://github.com/opencode-ai/opencode.git",
+      "repoUrl": "https://github.com/kilo-ai/kilo.git",
       "ref": "v1.3.17",
-      "path": ".slim/clonedeps/repos/opencode-ai__opencode",
+      "path": ".slim/clonedeps/repos/kilo-ai__kilo",
       "packagePath": "packages/plugin",
       "reason": "Plugin API source used by the project"
     },
     {
-      "name": "@opencode-ai/sdk",
+      "name": "@kilocode/sdk",
       "resolvedVersion": "1.3.17",
-      "repoUrl": "https://github.com/opencode-ai/opencode.git",
+      "repoUrl": "https://github.com/kilo-ai/kilo.git",
       "ref": "v1.3.17",
-      "path": ".slim/clonedeps/repos/opencode-ai__opencode",
+      "path": ".slim/clonedeps/repos/kilo-ai__kilo",
       "packagePath": "packages/sdk/js",
       "reason": "Core SDK source used to inspect runtime behavior"
     }
@@ -178,16 +178,16 @@ under `.slim/clonedeps/repos/` should be ignored.
 Update `.gitignore` with an idempotent marker block:
 
 ```gitignore
-# BEGIN oh-my-opencode-slim clonedeps
+# BEGIN oh-my-kilocode-slim clonedeps
 .slim/clonedeps/repos/
-# END oh-my-opencode-slim clonedeps
+# END oh-my-kilocode-slim clonedeps
 ```
 
-Update `.ignore` so OpenCode can read the cloned source while git still ignores
+Update `.ignore` so KiloCode can read the cloned source while git still ignores
 it:
 
 ```ignore
-# BEGIN oh-my-opencode-slim clonedeps
+# BEGIN oh-my-kilocode-slim clonedeps
 !.slim/
 !.slim/clonedeps.json
 !.slim/clonedeps/
@@ -195,7 +195,7 @@ it:
 !.slim/clonedeps/repos/**
 .slim/clonedeps/repos/**/.git/
 .slim/clonedeps/repos/**/.git/**
-# END oh-my-opencode-slim clonedeps
+# END oh-my-kilocode-slim clonedeps
 ```
 
 Only edit content inside these marker blocks.

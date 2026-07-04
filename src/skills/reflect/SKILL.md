@@ -5,7 +5,7 @@ description: Review recent work, find repeated workflow patterns, and suggest re
 
 # Reflect
 
-Reflect is an orchestrator-only workflow for learning from repeated work. It
+Reflect is an chief-only workflow for learning from repeated work. It
 looks back over recent sessions, project notes, and existing agent assets, then
 recommends the smallest useful improvement: a skill, custom agent, command,
 configuration change, prompt rule, documentation playbook, or no change.
@@ -20,7 +20,7 @@ Use Reflect when the user asks to:
 - run `/reflect --sessions` for session archaeology;
 - learn from recent sessions or repeated workflows;
 - find work they keep doing manually;
-- improve their oh-my-opencode-slim setup based on actual usage using oh-my-opencode-slim skill;
+- improve their oh-my-kilocode-slim setup based on actual usage using oh-my-kilocode-slim skill;
 - review whether a recurring process should become a reusable playbook;
 - turn repeated workflow friction into a safer future default.
 
@@ -30,14 +30,14 @@ architecture review, or speculative agent creation without workflow evidence.
 ## Session Mode
 
 When the user includes `--sessions` in their reflect command, shift to session
-archaeology: analyze historical OpenCode sessions across all repos to find
+archaeology: analyze historical KiloCode sessions across all repos to find
 repeated patterns, friction, and improvement opportunities.
 
 ### Session Discovery
 
 1. **Load recent sessions** - Query the SQLite database directly:
    ```bash
-   bun -e "import Database from 'bun:sqlite'; const db = new Database('/home/mhenke/.local/share/opencode/opencode.db'); console.log(db.query('SELECT id, directory, title, agent, model, time_created, cost, tokens_input, tokens_output FROM session ORDER BY time_created DESC LIMIT 50').all())"
+   bun -e "import Database from 'bun:sqlite'; const db = new Database('/home/mhenke/.local/share/kilo/kilo.db'); console.log(db.query('SELECT id, directory, title, agent, model, time_created, cost, tokens_input, tokens_output FROM session ORDER BY time_created DESC LIMIT 50').all())"
    ```
    Adjust `LIMIT 50` to `--last N` if specified.
 
@@ -45,7 +45,7 @@ repeated patterns, friction, and improvement opportunities.
 
 2. **Load session messages** - For each session ID, query the message table:
    ```bash
-   bun -e "import Database from 'bun:sqlite'; const db = new Database('/home/mhenke/.local/share/opencode/opencode.db'); console.log(db.query('SELECT data FROM message WHERE session_id = ?').all('ses_14de9c68effegtZtlATm42wnz7'))"
+   bun -e "import Database from 'bun:sqlite'; const db = new Database('/home/mhenke/.local/share/kilo/kilo.db'); console.log(db.query('SELECT data FROM message WHERE session_id = ?').all('ses_14de9c68effegtZtlATm42wnz7'))"
    ```
 
    **Message table columns:** `id, session_id, time_created, time_updated, data` (data is JSON with role, agent, model, summary, etc.)
@@ -57,7 +57,7 @@ For each session, analyze and produce a structured summary:
 ```json
 {
   "session": "ses_14de9c68effegtZtlATm42wnz7",
-  "project": "/home/user/Projects/oh-my-opencode-slim",
+  "project": "/home/user/Projects/oh-my-kilocode-slim",
   "timestamp": "2026-06-10T15:08:45.427Z",
   "goal": "Fix CI failure",
   "success": true,
@@ -69,8 +69,8 @@ For each session, analyze and produce a structured summary:
     "Create /test-ci command"
   ],
   "duration_minutes": 18,
-  "models_used": ["opencode/mimo-v2.5-free"],
-  "agents_used": ["orchestrator", "fixer", "explorer"],
+  "models_used": ["kilo/mimo-v2.5-free"],
+  "agents_used": ["chief", "fixer", "explorer"],
   "tools_used": ["Read", "Edit", "Bash"],
   "confidence": 0.85
 }
@@ -84,7 +84,7 @@ For each session, analyze and produce a structured summary:
 
 ### Storage and Caching
 
-Store session summaries in `~/.config/opencode/oh-my-opencode-slim/reflections/sessions/`.
+Store session summaries in `~/.config/kilo/oh-my-kilocode-slim/reflections/sessions/`.
 
 **Cache logic:**
 1. Check if `<session-id>.json` exists in reflections directory
@@ -145,8 +145,8 @@ Needs more evidence
 ### Error Handling
 
 **Log file issues:**
-- Log doesn't exist → "No OpenCode log found at <path>. Run OpenCode in at least one repo first."
-- Log is empty → "OpenCode log is empty. No sessions to analyze."
+- Log doesn't exist → "No KiloCode log found at <path>. Run KiloCode in at least one repo first."
+- Log is empty → "KiloCode log is empty. No sessions to analyze."
 
 **Session loading issues:**
 - Session ID not loadable → Skip with warning: "Session <id> could not be loaded, skipping."
@@ -169,7 +169,7 @@ Required behavior:
 - treat "create nothing" as a successful result when evidence is weak;
 - ask before changing prompts, skills, commands, agents, MCP access, or config;
 - avoid duplicating existing assets;
-- explain restart requirements for OpenCode config, prompt, agent, skill, MCP, or
+- explain restart requirements for KiloCode config, prompt, agent, skill, MCP, or
   plugin changes.
 
 ## Evidence Sources
@@ -177,11 +177,11 @@ Required behavior:
 Use available evidence in this order:
 
 1. Current conversation and explicit user instructions.
-2. Project-local guidance and memories, such as `AGENTS.md`, `.opencode/`,
+2. Project-local guidance and memories, such as `AGENTS.md`, `.kilo/`,
    `.slim/`, notes, checkpoints, task progress files, and codemaps.
 3. Existing skills, commands, agents, prompt overrides, MCP permissions, and
-   oh-my-opencode-slim configuration.
-4. Recent OpenCode logs or session artifacts if they are available and safe to
+   oh-my-kilocode-slim configuration.
+4. Recent KiloCode logs or session artifacts if they are available and safe to
    inspect.
 5. External docs only when a proposed workflow depends on a third-party tool or
    library whose behavior needs confirmation.
@@ -210,10 +210,10 @@ it.
 Before proposing anything, identify what already exists:
 
 - bundled and user-installed skills;
-- custom agents and their `orchestratorPrompt` guidance;
+- custom agents and their `chiefPrompt` guidance;
 - custom commands;
 - prompt overrides and append files;
-- active oh-my-opencode-slim preset, model routing, skills, and MCP permissions;
+- active oh-my-kilocode-slim preset, model routing, skills, and MCP permissions;
 - project playbooks, docs, codemaps, and local workflow notes.
 
 If an existing asset already covers the candidate, recommend extending or using
@@ -274,7 +274,7 @@ before writing files or changing config:
 Found 2 strong repeated workflows and 1 weak candidate.
 
 Recommended:
-- Add a small orchestrator prompt rule for <workflow> because <evidence>.
+- Add a small chief prompt rule for <workflow> because <evidence>.
 - Extend existing <skill> instead of creating a new one because <overlap>.
 
 Skip:
@@ -322,5 +322,5 @@ yet.
   exact reusable workflow.
 - Do not use private or sensitive material as examples in generated assets.
 - When config, prompt, agent, skill, MCP, or plugin files change, tell the user:
-  "This should apply on the next OpenCode run; restart OpenCode if you need it
+  "This should apply on the next KiloCode run; restart KiloCode if you need it
   immediately."

@@ -31,9 +31,9 @@ export interface Multiplexer {
 
   /**
    * Spawn a new pane running the given command
-   * @param sessionId - The OpenCode session ID to attach to
+   * @param sessionId - The KiloCode session ID to attach to
    * @param description - Human-readable description for the pane
-   * @param serverUrl - The OpenCode server URL to attach to
+   * @param serverUrl - The KiloCode server URL to attach to
    * @param directory - The project directory to attach from
    */
   spawnPane(

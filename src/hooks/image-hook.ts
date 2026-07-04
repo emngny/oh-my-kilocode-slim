@@ -177,16 +177,16 @@ export function processImageAttachments(args: {
     }
   }
 
-  // Save images inside the project's .opencode/images/ directory.
+  // Save images inside the project's .kilo/images/ directory.
   // This is within the workspace so the read tool won't require extra permissions.
-  const saveDir = join(workDir, '.opencode', 'images');
+  const saveDir = join(workDir, '.kilo', 'images');
 
   if (messagesWithImages.length === 0) {
     if (existsSync(saveDir)) cleanupAllSessions(saveDir);
     return;
   }
 
-  const gitignorePath = join(workDir, '.opencode', '.gitignore');
+  const gitignorePath = join(workDir, '.kilo', '.gitignore');
   try {
     mkdirSync(saveDir, { recursive: true });
     if (!existsSync(gitignorePath)) writeFileSync(gitignorePath, '*\n');
@@ -207,7 +207,7 @@ export function processImageAttachments(args: {
       log(`[image-hook] failed to create target image directory: ${e}`);
     }
 
-    // Save each image to .opencode/images/ and collect paths
+    // Save each image to .kilo/images/ and collect paths
     const savedPaths: string[] = [];
     for (const p of imageParts) {
       const url = p.url as string | undefined;

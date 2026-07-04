@@ -20,7 +20,7 @@ describe('displayName', () => {
     );
   });
 
-  test('injects configured displayName into orchestrator prompt mentions', () => {
+  test('injects configured displayName into chief prompt mentions', () => {
     const config: PluginConfig = {
       agents: {
         explorer: { displayName: 'researcher' },
@@ -28,8 +28,8 @@ describe('displayName', () => {
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    const prompt = orchestrator?.config.prompt ?? '';
+    const chief = agents.find((a) => a.name === 'chief');
+    const prompt = chief?.config.prompt ?? '';
 
     expect(prompt).toContain('@researcher');
     expect(prompt).not.toMatch(/@explorer\b/);
@@ -43,8 +43,8 @@ describe('displayName', () => {
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    const prompt = orchestrator?.config.prompt ?? '';
+    const chief = agents.find((a) => a.name === 'chief');
+    const prompt = chief?.config.prompt ?? '';
 
     expect(prompt).toContain('@researcher');
     expect(prompt).not.toContain('@@researcher');
@@ -59,8 +59,8 @@ describe('displayName', () => {
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    const prompt = orchestrator?.config.prompt ?? '';
+    const chief = agents.find((a) => a.name === 'chief');
+    const prompt = chief?.config.prompt ?? '';
 
     expect(prompt).toContain('@researcher');
     expect(prompt).not.toContain('@ researcher ');
@@ -117,10 +117,10 @@ describe('displayName', () => {
     );
   });
 
-  test('throws when orchestrator displayName conflicts with internal agent name', () => {
+  test('throws when chief displayName conflicts with internal agent name', () => {
     const config: PluginConfig = {
       agents: {
-        orchestrator: { displayName: 'oracle' },
+        chief: { displayName: 'oracle' },
       },
     };
 
@@ -175,10 +175,10 @@ describe('displayName', () => {
     expect(sdkConfigs.oracle.hidden).toBe(true);
   });
 
-  test('uses orchestrator displayName as host-facing key with hidden internal alias', () => {
+  test('uses chief displayName as host-facing key with hidden internal alias', () => {
     const config: PluginConfig = {
       agents: {
-        orchestrator: { displayName: 'engineer' },
+        chief: { displayName: 'engineer' },
       },
     };
 
@@ -191,9 +191,9 @@ describe('displayName', () => {
     expect(sdkConfigs.engineer.mode).toBe('primary');
     expect(sdkConfigs.engineer.hidden).toBeUndefined();
 
-    expect(sdkConfigs.orchestrator).toBeDefined();
-    expect(sdkConfigs.orchestrator.mode).toBe('primary');
-    expect(sdkConfigs.orchestrator.hidden).toBe(true);
+    expect(sdkConfigs.chief).toBeDefined();
+    expect(sdkConfigs.chief.mode).toBe('primary');
+    expect(sdkConfigs.chief.hidden).toBe(true);
   });
 
   test('keeps internal-only council agents hidden even with displayName configured', () => {

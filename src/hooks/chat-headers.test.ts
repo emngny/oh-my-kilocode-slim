@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import { createInternalAgentTextPart } from '../utils';
 import {
   __resetInternalMarkerCacheForTesting,
@@ -32,7 +32,7 @@ function createInput(
   const sessionID = overrides?.sessionID ?? 'session-1';
   return {
     sessionID,
-    agent: 'orchestrator',
+    agent: 'chief',
     model: {
       id: 'github-copilot/claude',
       providerID: overrides?.providerID ?? 'github-copilot',
@@ -85,7 +85,7 @@ function createInput(
       sessionID,
       role: 'user' as const,
       time: { created: Date.now() },
-      agent: 'orchestrator',
+      agent: 'chief',
       model: {
         providerID: 'github-copilot',
         modelID: 'claude',

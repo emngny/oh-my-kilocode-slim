@@ -62,13 +62,13 @@ async function spawnSecondAgentTabPane(
   const zellij = new ZellijMultiplexer(layout, 60, 'agent-tab');
 
   crossSpawnMock.mockImplementation((command: string[]) => {
-    if (command[0] === 'which') {
+    if (command[0] === 'which' || command[0] === 'where') {
       return createSpawnResult(0, '/usr/bin/zellij\n');
     }
     if (command.includes('list-tabs')) {
       return createSpawnResult(
         0,
-        JSON.stringify([{ name: 'opencode-agents', tab_id: 5 }]),
+        JSON.stringify([{ name: 'kilo-agents', tab_id: 5 }]),
       );
     }
     if (command.includes('current-tab-info')) {
@@ -110,7 +110,7 @@ describe('ZellijMultiplexer', () => {
 
     crossSpawnMock.mockReset();
     crossSpawnMock.mockImplementation((command: string[]) => {
-      if (command[0] === 'which') {
+      if (command[0] === 'which' || command[0] === 'where') {
         return createSpawnResult(0, '/usr/bin/zellij\n');
       }
       if (command.includes('list-panes')) {
@@ -128,7 +128,7 @@ describe('ZellijMultiplexer', () => {
     process.env.ZELLIJ_PANE_ID = originalZellijPaneId;
   });
 
-  test('current-tab mode spawns a pane in the parent OpenCode tab', async () => {
+  test('current-tab mode spawns a pane in the parent KiloCode tab', async () => {
     const { ZellijMultiplexer } = await importFreshZellij();
     const zellij = new ZellijMultiplexer('main-vertical', 60, 'current-tab');
 
@@ -160,7 +160,7 @@ describe('ZellijMultiplexer', () => {
       '--',
       'sh',
       '-lc',
-      "opencode attach 'http://localhost:4096' --session 'session-1' --dir '/repo'",
+      "kilo attach 'http://localhost:4096' --session 'session-1' --dir '/repo'",
     ]);
     expect(allCommands.some((command) => command.includes('new-tab'))).toBe(
       false,
@@ -197,12 +197,12 @@ describe('ZellijMultiplexer', () => {
     expect(result).toEqual({ success: false });
   });
 
-  test('current-tab mode targets the parent OpenCode tab even when another tab is focused', async () => {
+  test('current-tab mode targets the parent KiloCode tab even when another tab is focused', async () => {
     const { ZellijMultiplexer } = await importFreshZellij();
     const zellij = new ZellijMultiplexer('main-vertical', 60, 'current-tab');
 
     crossSpawnMock.mockImplementation((command: string[]) => {
-      if (command[0] === 'which') {
+      if (command[0] === 'which' || command[0] === 'where') {
         return createSpawnResult(0, '/usr/bin/zellij\n');
       }
       if (command.includes('list-panes')) {
@@ -261,7 +261,7 @@ describe('ZellijMultiplexer', () => {
     const zellij = new ZellijMultiplexer('main-vertical', 60, 'current-tab');
 
     crossSpawnMock.mockImplementation((command: string[]) => {
-      if (command[0] === 'which') {
+      if (command[0] === 'which' || command[0] === 'where') {
         return createSpawnResult(0, '/usr/bin/zellij\n');
       }
       if (command.includes('list-panes')) {
@@ -298,7 +298,7 @@ describe('ZellijMultiplexer', () => {
     let currentTabId = 1;
 
     crossSpawnMock.mockImplementation((command: string[]) => {
-      if (command[0] === 'which') {
+      if (command[0] === 'which' || command[0] === 'where') {
         return createSpawnResult(0, '/usr/bin/zellij\n');
       }
       if (command.includes('list-panes')) {

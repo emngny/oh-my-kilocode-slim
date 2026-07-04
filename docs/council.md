@@ -33,7 +33,7 @@ The **Council agent** runs several **councillors** in parallel, then the
 ### How it works
 
 ```text
-User / Orchestrator
+User / Chief
         |
         v
 Council agent (@council, your configured synthesizer model)
@@ -76,7 +76,7 @@ If you only remember one thing, remember this:
 
 Add a council model and at least one council preset to your plugin config:
 
-`~/.config/opencode/oh-my-opencode-slim.json`
+`~/.config/kilo/oh-my-kilocode-slim.json`
 
 ```jsonc
 {
@@ -335,9 +335,9 @@ The councillor sees:
 @council Should we use a job queue or an outbox pattern here?
 ```
 
-### Via orchestrator delegation
+### Via chief delegation
 
-The orchestrator may delegate to `@council` for high-stakes or ambiguous
+The chief may delegate to `@council` for high-stakes or ambiguous
 decisions, but it does so sparingly because council is usually the most
 expensive path.
 
@@ -466,7 +466,7 @@ Try:
 }
 ```
 
-Also verify the configured model IDs exist in your OpenCode environment.
+Also verify the configured model IDs exist in your KiloCode environment.
 
 ### Subagent depth exceeded
 

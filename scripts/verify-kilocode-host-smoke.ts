@@ -103,7 +103,7 @@ async function waitForHealth(url: string, timeoutMs: number) {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
-  fail(`OpenCode server did not become healthy: ${lastError}`);
+  fail(`KiloCode server did not become healthy: ${lastError}`);
 }
 
 function formatCapturedLogs(stdout: string, stderr: string): string {
@@ -148,7 +148,7 @@ function assertNoPluginLoadErrors(logs: string) {
     .join('\n');
 
   fail(
-    `OpenCode logs contain plugin load errors:${relevantLines ? `\n${relevantLines}` : ''}`,
+    `KiloCode logs contain plugin load errors:${relevantLines ? `\n${relevantLines}` : ''}`,
   );
 }
 
@@ -159,7 +159,7 @@ function omitOpencodeEnv(env: NodeJS.ProcessEnv) {
 }
 
 async function verifyHostSmoke(tarballPath: string) {
-  const tempRoot = mkdtempSync(path.join(tmpdir(), 'omos-opencode-smoke-'));
+  const tempRoot = mkdtempSync(path.join(tmpdir(), 'omos-kilo-smoke-'));
   const homeDir = path.join(tempRoot, 'home');
   const configDir = path.join(tempRoot, 'config');
   const cacheDir = path.join(tempRoot, 'cache');
@@ -191,18 +191,18 @@ async function verifyHostSmoke(tarballPath: string) {
     writeFileSync(
       path.join(hostDir, 'package.json'),
       JSON.stringify(
-        { name: 'verify-opencode-host-smoke', private: true },
+        { name: 'verify-kilo-host-smoke', private: true },
         null,
         2,
       ),
     );
 
-    console.log('Installing opencode-ai into isolated test root...');
-    run('bun', ['add', 'opencode-ai@latest'], { cwd: hostDir });
+    console.log('Installing kilo-ai into isolated test root...');
+    run('bun', ['add', 'kilo-ai@latest'], { cwd: hostDir });
 
-    const opencodeBin = path.join(hostDir, 'node_modules', '.bin', 'opencode');
-    if (!existsSync(opencodeBin)) {
-      fail(`Expected opencode binary at ${opencodeBin}`);
+    const kiloBin = path.join(hostDir, 'node_modules', '.bin', 'kilo');
+    if (!existsSync(kiloBin)) {
+      fail(`Expected kilo binary at ${kiloBin}`);
     }
 
     writeFileSync(
@@ -211,7 +211,7 @@ async function verifyHostSmoke(tarballPath: string) {
         {
           type: 'module',
           dependencies: {
-            'oh-my-opencode-slim': `file:${tarballTarget}`,
+            'oh-my-kilocode-slim': `file:${tarballTarget}`,
           },
         },
         null,
@@ -219,12 +219,12 @@ async function verifyHostSmoke(tarballPath: string) {
       ),
     );
     writeFileSync(
-      path.join(pluginDir, 'load-oh-my-opencode-slim.js'),
-      "export { default } from 'oh-my-opencode-slim';\n",
+      path.join(pluginDir, 'load-oh-my-kilocode-slim.js'),
+      "export { default } from 'oh-my-kilocode-slim';\n",
     );
 
     const config = JSON.stringify({
-      $schema: 'https://opencode.ai/config.json',
+      $schema: 'https://kilo.ai/config.json',
       autoupdate: false,
       share: 'disabled',
       snapshot: false,
@@ -236,16 +236,16 @@ async function verifyHostSmoke(tarballPath: string) {
       XDG_CACHE_HOME: cacheDir,
       XDG_DATA_HOME: dataDir,
       OPENCODE_TEST_HOME: homeDir,
-      OPENCODE_CONFIG_DIR: configDir,
+      KILOCODE_CONFIG_DIR: configDir,
       OPENCODE_CONFIG_CONTENT: config,
       OPENCODE_DISABLE_AUTOUPDATE: 'true',
       OPENCODE_DISABLE_MODELS_FETCH: 'true',
       OPENCODE_DISABLE_DEFAULT_PLUGINS: 'true',
     };
 
-    console.log('Starting opencode serve with packaged plugin...');
+    console.log('Starting kilo serve with packaged plugin...');
     const child = spawn(
-      opencodeBin,
+      kiloBin,
       [
         'serve',
         '--print-logs',
@@ -279,7 +279,7 @@ async function verifyHostSmoke(tarballPath: string) {
       child.once('exit', (code, signal) => {
         reject(
           new Error(
-            `opencode serve exited before smoke test completed (code=${code}, signal=${signal})\n${stdout}\n${stderr}`,
+            `kilo serve exited before smoke test completed (code=${code}, signal=${signal})\n${stdout}\n${stderr}`,
           ),
         );
       });
@@ -296,7 +296,7 @@ async function verifyHostSmoke(tarballPath: string) {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       fail(
-        `${message}\nCaptured OpenCode logs:\n${formatCapturedLogs(stdout, stderr)}`,
+        `${message}\nCaptured KiloCode logs:\n${formatCapturedLogs(stdout, stderr)}`,
       );
     }
 
@@ -327,7 +327,7 @@ async function main() {
     cleanupTarball(tarballPath);
   }
 
-  console.log('OpenCode host smoke verification passed.');
+  console.log('KiloCode host smoke verification passed.');
 }
 
 await main();

@@ -15,7 +15,7 @@ Orchestrates multi-LLM council sessions by spawning parallel councillor agents, 
 
 | Component | Purpose | Type |
 |-----------|---------|------|
-| `CouncilManager` | Main orchestrator class | Class |
+| `CouncilManager` | Main chief class | Class |
 | `runCouncil()` | Entry point for council sessions | Method |
 | `runCouncillors()` | Parallel/serial councillor execution | Method |
 | `runAgentSession()` | Single councillor lifecycle management | Method |
@@ -98,7 +98,7 @@ Orchestrates multi-LLM council sessions by spawning parallel councillor agents, 
 - **Session**: `extractSessionResult()`, `promptWithTimeout()` from `../utils/session`
 - **Logger**: `log()` from `../utils/logger`
 - **Depth Tracker**: `SubagentDepthTracker` from `../utils/subagent-depth` (optional)
-- **Client**: `OpencodeClient` from `@opencode-ai/plugin` (session management)
+- **Client**: `OpencodeClient` from `@kilocode/plugin` (session management)
 
 ### Consumers
 - **Main Plugin**: `src/index.ts` - orchestrates council sessions for complex tasks

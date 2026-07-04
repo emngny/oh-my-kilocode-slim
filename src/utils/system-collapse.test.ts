@@ -5,7 +5,7 @@ import { collapseSystemInPlace } from './system-collapse';
  * Regression tests for the system message collapse logic.
  *
  * PR #336's collapse was a silent no-op because it reassigned
- * output.system to a new array, but OpenCode core reads from the
+ * output.system to a new array, but KiloCode core reads from the
  * original array reference. The fix mutates in-place.
  *
  * These tests import the actual shared function used by the hook,

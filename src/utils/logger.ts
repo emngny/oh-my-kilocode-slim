@@ -3,7 +3,7 @@ import { appendFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-const LOG_PREFIX = 'oh-my-opencode-slim.';
+const LOG_PREFIX = 'oh-my-kilocode-slim.';
 const LOG_SUFFIX = '.log';
 const RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -13,7 +13,7 @@ let writeChain: Promise<void> = Promise.resolve();
 function getLogDir(): string {
   return (
     process.env.OPENCODE_LOG_DIR ??
-    path.join(os.homedir(), '.local/share/opencode/log')
+    path.join(os.homedir(), '.local/share/kilo/log')
   );
 }
 

@@ -48,7 +48,7 @@ function makeChains(
   overrides?: Record<string, string[]>,
 ): Record<string, string[]> {
   return {
-    orchestrator: [
+    chief: [
       'anthropic/claude-opus-4-5',
       'openai/gpt-4o',
       'google/gemini-2.5-pro',
@@ -203,7 +203,7 @@ describe('ForegroundFallbackManager session.error', () => {
   });
 
   test('skips malformed messages without info when locating the last user message', async () => {
-    // OpenCode may return partial/streaming messages whose `info` is undefined;
+    // KiloCode may return partial/streaming messages whose `info` is undefined;
     // the fallback must ignore those rather than crash, and still re-submit the
     // real last user message.
     ({ client, mocks } = createMockClient({
@@ -455,7 +455,7 @@ describe('ForegroundFallbackManager chain exhaustion', () => {
     const { client, mocks } = createMockClient();
     const mgr = new ForegroundFallbackManager(
       client,
-      { orchestrator: ['openai/gpt-b'] },
+      { chief: ['openai/gpt-b'] },
       true,
     );
 
@@ -490,11 +490,7 @@ describe('ForegroundFallbackManager chain exhaustion', () => {
     // (each on a distinct session so dedup does not interfere).
     const { client, mocks } = createMockClient();
     const chain = ['openai/model-x', 'openai/model-y'];
-    const mgr = new ForegroundFallbackManager(
-      client,
-      { orchestrator: chain },
-      true,
-    );
+    const mgr = new ForegroundFallbackManager(client, { chief: chain }, true);
 
     // Session A: current model is model-x, which IS in the chain → picks model-y ✓
     await mgr.handleEvent({
@@ -502,7 +498,7 @@ describe('ForegroundFallbackManager chain exhaustion', () => {
       properties: {
         info: {
           sessionID: 'sess-exhaust',
-          agent: 'orchestrator',
+          agent: 'chief',
           providerID: 'openai',
           modelID: 'model-x',
           error: { message: 'rate limit exceeded' },
@@ -516,7 +512,7 @@ describe('ForegroundFallbackManager chain exhaustion', () => {
     const { client: client2, mocks: mocks2 } = createMockClient();
     const mgr2 = new ForegroundFallbackManager(
       client2,
-      { orchestrator: ['openai/model-y'] }, // single-entry chain already in use
+      { chief: ['openai/model-y'] }, // single-entry chain already in use
       true,
     );
     await mgr2.handleEvent({
@@ -524,7 +520,7 @@ describe('ForegroundFallbackManager chain exhaustion', () => {
       properties: {
         info: {
           sessionID: 'sess-exhaust-2',
-          agent: 'orchestrator',
+          agent: 'chief',
           providerID: 'openai',
           modelID: 'model-y',
           error: { message: 'rate limit exceeded' },
@@ -578,7 +574,7 @@ describe('ForegroundFallbackManager deduplication', () => {
     const { client, mocks } = createMockClient();
     const mgr = new ForegroundFallbackManager(client, makeChains(), true);
 
-    // Seed session: current model is first entry in orchestrator chain
+    // Seed session: current model is first entry in chief chain
     await mgr.handleEvent({
       type: 'message.updated',
       properties: {
@@ -682,7 +678,7 @@ describe('ForegroundFallbackManager session.deleted', () => {
       properties: {
         info: {
           sessionID: 'sess-del',
-          agent: 'orchestrator',
+          agent: 'chief',
           providerID: 'anthropic',
           modelID: 'claude-opus-4-5',
         },
@@ -711,7 +707,7 @@ describe('ForegroundFallbackManager session.deleted', () => {
     const call = mocks.promptAsync.mock.calls[0] as [
       { body: { model: { providerID: string; modelID: string } } },
     ];
-    // orchestrator chain: ['anthropic/claude-opus-4-5', 'openai/gpt-4o', 'google/gemini-2.5-pro']
+    // chief chain: ['anthropic/claude-opus-4-5', 'openai/gpt-4o', 'google/gemini-2.5-pro']
     // no current model → first untried = anthropic/claude-opus-4-5
     expect(call[0].body.model.providerID).toBe('anthropic');
     expect(call[0].body.model.modelID).toBe('claude-opus-4-5');
@@ -727,7 +723,7 @@ describe('ForegroundFallbackManager session.deleted', () => {
   });
 
   test('cleans up state using info.id shape (top-level session deletion)', async () => {
-    // OpenCode emits { properties: { info: { id } } } for top-level sessions
+    // KiloCode emits { properties: { info: { id } } } for top-level sessions
     // and { properties: { sessionID } } for subagent sessions. Both must clean up.
     const { client, mocks } = createMockClient();
     const mgr = new ForegroundFallbackManager(client, makeChains(), true);
@@ -738,7 +734,7 @@ describe('ForegroundFallbackManager session.deleted', () => {
       properties: {
         info: {
           sessionID: 'sess-info-del',
-          agent: 'orchestrator',
+          agent: 'chief',
           providerID: 'anthropic',
           modelID: 'claude-opus-4-5',
         },
@@ -773,13 +769,13 @@ describe('ForegroundFallbackManager resolveChain cross-agent isolation', () => {
   test('does not use another agent chain when known agent has no configured chain', async () => {
     // oracle has no chain in runtimeChains; without the fix resolveChain would
     // fall through to the cross-agent "last resort" and pick a model from
-    // orchestrator's chain - re-prompting oracle with an orchestrator model.
+    // chief's chain - re-prompting oracle with an chief model.
     const { client, mocks } = createMockClient();
     const mgr = new ForegroundFallbackManager(
       client,
       {
         // oracle intentionally absent - no chain configured
-        orchestrator: ['openai/gpt-4o', 'google/gemini-2.5-pro'],
+        chief: ['openai/gpt-4o', 'google/gemini-2.5-pro'],
       },
       true,
     );
@@ -807,7 +803,7 @@ describe('ForegroundFallbackManager resolveChain cross-agent isolation', () => {
     const { client, mocks } = createMockClient();
     const mgr = new ForegroundFallbackManager(
       client,
-      { orchestrator: ['openai/gpt-4o'] },
+      { chief: ['openai/gpt-4o'] },
       true,
     );
 
@@ -830,14 +826,14 @@ describe('ForegroundFallbackManager resolveChain cross-agent isolation', () => {
   });
 
   test('falls through to model matching for non-omos agents (e.g. compaction)', async () => {
-    // compaction is an OpenCode built-in agent that is NOT an omos agent,
+    // compaction is an KiloCode built-in agent that is NOT an omos agent,
     // so it has no chain configured. It should fall through to model
     // matching and inherit a chain from a configured agent that shares
     // its model, instead of being silently excluded from fallback.
     const { client, mocks } = createMockClient();
     const mgr = new ForegroundFallbackManager(
       client,
-      { orchestrator: ['openai/gpt-5.4', 'new-api/glm-5.2'] },
+      { chief: ['openai/gpt-5.4', 'new-api/glm-5.2'] },
       true,
     );
 
@@ -854,7 +850,7 @@ describe('ForegroundFallbackManager resolveChain cross-agent isolation', () => {
       },
     });
 
-    // compaction's model (openai/gpt-5.4) matches orchestrator's chain
+    // compaction's model (openai/gpt-5.4) matches chief's chain
     // → should fall back to the next untried model in that chain
     expect(mocks.promptAsync).toHaveBeenCalledTimes(1);
     const call = mocks.promptAsync.mock.calls[0] as [

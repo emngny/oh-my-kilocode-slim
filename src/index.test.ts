@@ -13,7 +13,7 @@ describe('plugin env disable', () => {
   });
 
   test('returns empty hooks without reading plugin context', async () => {
-    process.env.OH_MY_OPENCODE_SLIM_DISABLE = '1';
+    process.env.OH_MY_KILOCODE_SLIM_DISABLE = '1';
 
     const ctx = new Proxy(
       {},

@@ -5,9 +5,9 @@ import { dirname, join } from 'node:path';
 export type BackgroundSubagentsMode = 'ask' | 'yes' | 'no';
 export type ShellKind = 'bash' | 'fish' | 'zsh';
 
-const ENV_NAME = 'OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS';
-const START_MARKER = '# >>> oh-my-opencode-slim background subagents >>>';
-const END_MARKER = '# <<< oh-my-opencode-slim background subagents <<<';
+const ENV_NAME = 'KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS';
+const START_MARKER = '# >>> oh-my-kilocode-slim background subagents >>>';
+const END_MARKER = '# <<< oh-my-kilocode-slim background subagents <<<';
 
 export function isBackgroundSubagentsEnabled(
   value: string | undefined,
@@ -34,12 +34,7 @@ export function detectBackgroundSubagentsTarget(
   if (shell === 'bash') return join(home, '.bashrc');
   if (shell === 'fish') {
     const configHome = env.XDG_CONFIG_HOME || join(home, '.config');
-    return join(
-      configHome,
-      'fish',
-      'conf.d',
-      'opencode-background-subagents.fish',
-    );
+    return join(configHome, 'fish', 'conf.d', 'kilo-background-subagents.fish');
   }
   return undefined;
 }
@@ -65,14 +60,14 @@ export function manualBackgroundSubagentsInstructions(options?: {
   const fishSnippet = `set -gx ${ENV_NAME} true`;
 
   if (shell === 'fish') {
-    return `Start OpenCode with background subagents enabled:\n  env ${ENV_NAME}=true opencode\n\nOr add this to your fish startup file:\n  ${fishSnippet}`;
+    return `Start KiloCode with background subagents enabled:\n  env ${ENV_NAME}=true kilo\n\nOr add this to your fish startup file:\n  ${fishSnippet}`;
   }
 
   if (shell === 'bash' || shell === 'zsh') {
-    return `Start OpenCode with background subagents enabled:\n  ${ENV_NAME}=true opencode\n\nOr add this to your shell startup file:\n  ${bashZshSnippet}`;
+    return `Start KiloCode with background subagents enabled:\n  ${ENV_NAME}=true kilo\n\nOr add this to your shell startup file:\n  ${bashZshSnippet}`;
   }
 
-  return `Start OpenCode with background subagents enabled:\n  ${ENV_NAME}=true opencode\n\nOr add one of these to your shell startup file:\n  bash/zsh: ${bashZshSnippet}\n  fish: ${fishSnippet}`;
+  return `Start KiloCode with background subagents enabled:\n  ${ENV_NAME}=true kilo\n\nOr add one of these to your shell startup file:\n  bash/zsh: ${bashZshSnippet}\n  fish: ${fishSnippet}`;
 }
 
 export function expandHomePath(targetPath: string): string {

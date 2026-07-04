@@ -75,8 +75,8 @@ describe('readConfigInvalid', () => {
   beforeEach(() => {
     originalEnv = { ...process.env };
     // Isolate from real user config and env presets
-    delete process.env.OPENCODE_CONFIG_DIR;
-    delete process.env.OH_MY_OPENCODE_SLIM_PRESET;
+    delete process.env.KILOCODE_CONFIG_DIR;
+    delete process.env.OH_MY_KILOCODE_SLIM_PRESET;
     configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-env-'));
     process.env.XDG_CONFIG_HOME = configHome;
   });
@@ -90,10 +90,10 @@ describe('readConfigInvalid', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-'));
     try {
       const projectDir = path.join(tempDir, 'project');
-      const configDir = path.join(projectDir, '.opencode');
+      const configDir = path.join(projectDir, '.kilo');
       fs.mkdirSync(configDir, { recursive: true });
       fs.writeFileSync(
-        path.join(configDir, 'oh-my-opencode-slim.json'),
+        path.join(configDir, 'oh-my-kilocode-slim.json'),
         JSON.stringify({ agents: { oracle: { temperature: 5 } } }),
       );
 
@@ -107,10 +107,10 @@ describe('readConfigInvalid', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-tui-'));
     try {
       const projectDir = path.join(tempDir, 'project');
-      const configDir = path.join(projectDir, '.opencode');
+      const configDir = path.join(projectDir, '.kilo');
       fs.mkdirSync(configDir, { recursive: true });
       fs.writeFileSync(
-        path.join(configDir, 'oh-my-opencode-slim.json'),
+        path.join(configDir, 'oh-my-kilocode-slim.json'),
         JSON.stringify({ agents: { oracle: { model: 'valid/model' } } }),
       );
 
@@ -133,7 +133,7 @@ describe('tui plugin env disable', () => {
   });
 
   test('does not perform setup when plugin is disabled by env', async () => {
-    process.env.OH_MY_OPENCODE_SLIM_DISABLE = '1';
+    process.env.OH_MY_KILOCODE_SLIM_DISABLE = '1';
 
     let disposeRegistered = false;
     let renderRequested = false;

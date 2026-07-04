@@ -2,12 +2,12 @@
 
 ## Responsibility
 
-Provides an OpenCode hook implementation for managing deepwork sessions - heavy, multi-phase coding tasks that require structured planning, phased execution, and continuous validation.
+Provides an KiloCode hook implementation for managing deepwork sessions - heavy, multi-phase coding tasks that require structured planning, phased execution, and continuous validation.
 
 This hook enables developers to:
 - Initiate deepwork sessions via `/deepwork <task>` command
 - Maintain `.slim/deepwork/` progress tracking files
-- Keep OpenCode todos synchronized with current phase
+- Keep KiloCode todos synchronized with current phase
 - Enforce phased implementation with `@oracle` review gates
 - Execute phases with background specialist agents where appropriate
 - Validate results and incorporate simplification/readability feedback
@@ -15,26 +15,26 @@ This hook enables developers to:
 ## Design
 
 ### Core Abstraction
-The hook follows the OpenCode plugin hook pattern, exposing a factory function `createDeepworkCommandHook()` that returns an object with two methods:
+The hook follows the KiloCode plugin hook pattern, exposing a factory function `createDeepworkCommandHook()` that returns an object with two methods:
 
-- `registerCommand(config)`: Registers the `deepwork` command in OpenCode configuration
+- `registerCommand(config)`: Registers the `deepwork` command in KiloCode configuration
 - `handleCommandExecuteBefore(input, output)`: Intercepts command execution to inject the deepwork activation prompt
 
 ### State Management
-- Uses OpenCode's internal agent text part system (`createInternalAgentTextPart`) for output
+- Uses KiloCode's internal agent text part system (`createInternalAgentTextPart`) for output
 - Clears existing output parts before injecting deepwork prompt
 - Validates task presence before activation
 
 ### Integration Points
-- Consumes OpenCode session context (`sessionID`)
-- Integrates with OpenCode command system via `command` configuration
+- Consumes KiloCode session context (`sessionID`)
+- Integrates with KiloCode command system via `command` configuration
 - Leverages `@oracle` for review and simplification feedback
 - Supports background specialist agents (`@fixer`, `@explorer`, etc.) for phase execution
 
 ## Flow
 
 ### Command Registration Phase
-1. Plugin initialization calls `registerCommand()` with OpenCode configuration
+1. Plugin initialization calls `registerCommand()` with KiloCode configuration
 2. Checks if `deepwork` command already registered
 3. If not, adds command configuration:
    - Template: "Start a deepwork session for a complex coding task"
@@ -42,7 +42,7 @@ The hook follows the OpenCode plugin hook pattern, exposing a factory function `
 
 ### Command Execution Phase
 1. User invokes `/deepwork <task>` command
-2. OpenCode triggers `handleCommandExecuteBefore()` hook
+2. KiloCode triggers `handleCommandExecuteBefore()` hook
 3. Hook validates command name (`deepwork`)
 4. If no task provided:
    - Outputs error message via `createInternalAgentTextPart()`
@@ -56,7 +56,7 @@ The hook follows the OpenCode plugin hook pattern, exposing a factory function `
 ### Deepwork Session Execution
 1. Agent receives activation prompt with task description
 2. Agent creates `.slim/deepwork/` progress file
-3. Agent maintains OpenCode todo synchronization
+3. Agent maintains KiloCode todo synchronization
 4. Agent drafts plan and requests `@oracle` review
 5. Agent creates and reviews phased implementation/delegation plan
 6. Agent executes phases with background specialists as needed
@@ -70,12 +70,12 @@ The hook follows the OpenCode plugin hook pattern, exposing a factory function `
 
 ### Consumers
 - **Main plugin** (`src/index.ts`): Registers the deepwork hook during plugin initialization
-- **OpenCode CLI**: Invokes hook when `/deepwork` command is executed
+- **KiloCode CLI**: Invokes hook when `/deepwork` command is executed
 - **Agents** (`@oracle`, `@fixer`, `@explorer`, etc.): Follow deepwork workflow for complex tasks
 
 ### Dependencies
-- **OpenCode SDK**: Provides `createInternalAgentTextPart` utility and hook interface
-- **Configuration system**: Reads from `opencodeConfig.command` structure
+- **KiloCode SDK**: Provides `createInternalAgentTextPart` utility and hook interface
+- **Configuration system**: Reads from `kiloConfig.command` structure
 - **Session system**: Receives `sessionID` for context tracking
 - **Agent ecosystem**: Leverages specialist agents for phase execution
 
@@ -94,7 +94,7 @@ The hook follows the OpenCode plugin hook pattern, exposing a factory function `
 
 ### File System
 - Creates progress tracking: `.slim/deepwork/<session-id>/` directory and files
-- Maintains synchronization with OpenCode todos
+- Maintains synchronization with KiloCode todos
 
 
 ### Hook Contract

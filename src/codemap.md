@@ -2,8 +2,8 @@
 
 ## Responsibility
 
-Core plugin implementation for **oh-my-opencode-slim**, providing:
-- Main plugin initialization and OpenCode integration (`index.ts`)
+Core plugin implementation for **oh-my-kilocode-slim**, providing:
+- Main plugin initialization and KiloCode integration (`index.ts`)
 - Terminal User Interface (TUI) sidebar plugin for agent status display (`tui.ts`)
 - TUI state persistence and synchronization across sessions (`tui-state.ts`)
 
@@ -13,16 +13,16 @@ This directory serves as the primary entry point for the plugin's runtime behavi
 
 ### Architectural Patterns
 
-- **Plugin Pattern**: The plugin follows OpenCode's plugin architecture with a single exported plugin function that returns agent, tool, and MCP registrations
+- **Plugin Pattern**: The plugin follows KiloCode's plugin architecture with a single exported plugin function that returns agent, tool, and MCP registrations
 - **Facade Pattern**: `index.ts` acts as a facade that composes multiple subsystems (agents, tools, MCPs, hooks, multiplexer)
-- **Observer Pattern**: Event-driven architecture using OpenCode's event system for session lifecycle, message updates, and tool execution
+- **Observer Pattern**: Event-driven architecture using KiloCode's event system for session lifecycle, message updates, and tool execution
 - **Strategy Pattern**: Runtime model selection and fallback via `ForegroundFallbackManager`
 - **Singleton Pattern**: `MultiplexerSessionManager` maintains single instance for task session management
 
 ### Data Flow
 
 ```
-OpenCode Core → Plugin Initialization (index.ts)
+KiloCode Core → Plugin Initialization (index.ts)
   → Agent Registration (createAgents/getAgentConfigs)
   → Tool Registration (createCouncilTool, createCancelTaskTool, etc.)
   → MCP Registration (createBuiltinMcps)
@@ -58,7 +58,7 @@ OpenCode Core → Plugin Initialization (index.ts)
 
 ### TUI Rendering Flow (tui.ts)
 
-1. **Plugin Registration**: TUI plugin registered with OpenCode's TUI system via `tui` export
+1. **Plugin Registration**: TUI plugin registered with KiloCode's TUI system via `tui` export
 2. **Version Detection**: Reads plugin version from package.json or uses 'dev'
 3. **Config Validation**: Checks if current directory has valid plugin config
 4. **Snapshot Loading**: Reads agent models/variants from `tui-state.ts`
@@ -71,7 +71,7 @@ OpenCode Core → Plugin Initialization (index.ts)
 
 ### State Persistence Flow (tui-state.ts)
 
-1. **State Path Resolution**: Determines XDG-compliant state directory (`~/.local/share/opencode/storage/oh-my-opencode-slim/tui-state.json`)
+1. **State Path Resolution**: Determines XDG-compliant state directory (`~/.local/share/kilo/storage/oh-my-kilocode-slim/tui-state.json`)
 2. **Snapshot Operations**:
    - `readTuiSnapshot()`: Reads and parses state file (returns empty snapshot on error)
    - `readTuiSnapshotAsync()`: Async variant for TUI rendering
@@ -98,7 +98,7 @@ Key event flows:
 
 4. **Chat Integration**:
    - `chat.message` → track session → agent mapping
-   - `experimental.chat.system.transform` → inject orchestrator prompt for serve mode
+   - `experimental.chat.system.transform` → inject chief prompt for serve mode
    - `experimental.chat.messages.transform` → phase reminders, skill filtering, image attachment processing
 
 5. **Command Execution**:
@@ -108,11 +108,11 @@ Key event flows:
 
 ### Consumers
 
-- **OpenCode Core**: Main plugin entry point consumed by OpenCode's plugin system
-- **TUI System**: `tui.ts` slot registration consumed by OpenCode's TUI renderer
-- **Agents**: Agent configurations consumed by OpenCode's agent registry
-- **Tools**: Tool definitions consumed by OpenCode's tool system
-- **MCPs**: MCP definitions consumed by OpenCode's MCP registry
+- **KiloCode Core**: Main plugin entry point consumed by KiloCode's plugin system
+- **TUI System**: `tui.ts` slot registration consumed by KiloCode's TUI renderer
+- **Agents**: Agent configurations consumed by KiloCode's agent registry
+- **Tools**: Tool definitions consumed by KiloCode's tool system
+- **MCPs**: MCP definitions consumed by KiloCode's MCP registry
 
 ### Dependencies
 
@@ -130,15 +130,15 @@ Key event flows:
 1. **Plugin Initialization**: `src/index.ts` imports and composes all subsystems
 2. **State Synchronization**: TUI state in `src/tui-state.ts` is updated during plugin init and message events
 3. **UI Integration**: TUI plugin in `src/tui.ts` reads state and renders sidebar
-4. **Event Propagation**: Events flow from OpenCode → plugin handlers → subsystems → state updates
+4. **Event Propagation**: Events flow from KiloCode → plugin handlers → subsystems → state updates
 
 ### Configuration Integration
 
 - Plugin config loaded via `loadPluginConfig()` with support for:
-  - User overrides from `~/.config/opencode/oh-my-opencode-slim.json`
+  - User overrides from `~/.config/kilo/oh-my-kilocode-slim.json`
   - Runtime presets via `/preset` command
-  - Environment-based disablement via `OH_MY_OPENCODE_SLIM_DISABLE`
-- Agent configurations merged with user settings from OpenCode config
+  - Environment-based disablement via `OH_MY_KILOCODE_SLIM_DISABLE`
+- Agent configurations merged with user settings from KiloCode config
 - Model resolution supports both string models and array-based fallback chains
 
 ### Error Handling & Resilience
@@ -160,7 +160,7 @@ Key event flows:
 - **Live Updates**: TUI refreshes every 1000ms (configurable via interval)
 - **Atomic State**: State writes are atomic to prevent corruption
 - **Lazy Initialization**: Some subsystems (e.g., webfetch probe) run async without blocking init
-- **Event-Driven**: Minimal polling; relies on OpenCode's event system
+- **Event-Driven**: Minimal polling; relies on KiloCode's event system
 
 ## Future Extensions
 

@@ -18,19 +18,19 @@ Retries, failures, warnings, error counts, timeouts are **escalation signals**, 
 The engine implements `verify()`. Policy (maxAttempts, escalation targets, human gates) is externalized. This keeps the runtime generic and extensible across domains (code, docs, research, planning).
 
 ```
-Layer 0 (Orchestrator): Trigger, Grill, escalation handling
+Layer 0 (Chief): Trigger, Grill, escalation handling
 Layer 1 (LoopEngine):   Execute dispatch, Verify parsing, State transitions, Circuit breaker
 Layer 2 (Agents/Skill): Execute work, Verify output, Skill instructions
 ```
 
-The orchestrator delegates to the engine. The engine dispatches agents. The skill instructs the orchestrator - it never acts directly.
+The chief delegates to the engine. The engine dispatches agents. The skill instructs the chief - it never acts directly.
 
 ## Architecture
 
 ### Three-Layer Design
 
 ```
-Layer 0: Orchestrator - runtime that runs everything
+Layer 0: Chief - runtime that runs everything
   - Loads and follows skill instructions
   - Delegates to LoopEngine
   - Collects LoopDefinition via Grill interview
@@ -43,7 +43,7 @@ Layer 0: Orchestrator - runtime that runs everything
 Layer 1: LoopEngine - orchestration logic, framework-owned
   - Location: `src/loop/loop-engine.ts` (not src/council/)
   - Event-driven state machine
-  - Dispatches agents via orchestrator-provided callback (not direct SDK access)
+  - Dispatches agents via chief-provided callback (not direct SDK access)
   - Owns phase transitions and verification parsing
   - Manages context compaction via .loop-history-{loopID}.md
   - Manages session artifact directory for visual artifact transfer
@@ -58,7 +58,7 @@ Layer 2: Specialist agents - do the work
   - @observer - visual verification (reads artifacts from session directory)
   - test - automated verification (exit code parsing)
   - @council - Layer 0 escalation ONLY (not inside the loop)
-  - Skill - instructs orchestrator, never "does" anything itself
+  - Skill - instructs chief, never "does" anything itself
 ```
 
 ---
@@ -93,7 +93,7 @@ Transitions:
 - `cancelled` is a distinct terminal state, not an error - no `onEscalated` callback, quiet cleanup.
 - **Same-agent constraint:** `executeAgent` and `verifyAgent` MUST be different. Validation at `startLoop()` throws if equal. This prevents the "student marking their own exam" problem across all loop types (not just code loops).
 
-**God object risk:** Every responsibility in `LoopEngine` must be expressible as **state transition**, **event**, or **policy**. If a responsibility cannot be expressed this way, it belongs elsewhere (orchestrator, external policy store, dedicated service). This keeps the engine testable and maintainable.
+**God object risk:** Every responsibility in `LoopEngine` must be expressible as **state transition**, **event**, or **policy**. If a responsibility cannot be expressed this way, it belongs elsewhere (chief, external policy store, dedicated service). This keeps the engine testable and maintainable.
 
 ### Key Primitives
 
@@ -194,7 +194,7 @@ To prevent `/tmp/` memory leaks across multiple loops:
 - **Terminal states trigger cleanup:** When state transitions to `done`, `escalated`, or `cancelled`, the engine synchronously deletes:
   - `.loop-history-{loopID}.md` (includes loopID to prevent collision across concurrent loops)
 
-- **Artifact cleanup is orchestrator-owned:** The engine does NOT manage artifact directories. Orchestrator tracks artifact paths via `onArtifactWrite` callbacks and handles cleanup independently.
+- **Artifact cleanup is chief-owned:** The engine does NOT manage artifact directories. Chief tracks artifact paths via `onArtifactWrite` callbacks and handles cleanup independently.
 
 - **Cancellation also triggers cleanup:** If user triggers `cancel(loopID)`, the engine transitions to `cancelled`, cleans up, fires `onLoopComplete(false)` (not `onEscalated`). Quiet shutdown - no error escalation.
 
@@ -272,16 +272,16 @@ No orphaned sessions. Dispatch failure → `escalated` + `onEscalated` with syst
 ```
 user invokes /loop
   ↓
-Orchestrator loads Loop Engineering skill
+Chief loads Loop Engineering skill
   ↓
-Orchestrator follows skill's Grill instructions → collects LoopDefinition via conversation
+Chief follows skill's Grill instructions → collects LoopDefinition via conversation
   ↓
-Orchestrator calls loopEngine.startLoop(definition)
+Chief calls loopEngine.startLoop(definition)
   → engine validates: executeAgent !== verifyAgent (throws if equal)
   → engine creates LoopSession (phase: executing, attempts: 1)
   → engine writes empty .loop-history.md
   → engine dispatches executeAgent (execution job)
-  → returns loopID immediately to orchestrator (non-blocking)
+  → returns loopID immediately to chief (non-blocking)
   ↓
 BackgroundJobBoard.runJob(executing)
   ↓
@@ -304,7 +304,7 @@ job completes → LoopEngine.handleTerminalJob()
   ↓
 ... continues event-driven until done/escalated/cancelled ...
   ↓
-On escalated → Orchestrator dispatches @council (Layer 0 escalation) → human reviews → decides next action
+On escalated → Chief dispatches @council (Layer 0 escalation) → human reviews → decides next action
 On cancelled → cleanup → onLoopComplete(false)
 ```
 
@@ -316,21 +316,21 @@ On cancelled → cleanup → onLoopComplete(false)
 
 Location: `src/skills/loop-engineering/SKILL.md`
 
-The skill instructs the orchestrator - it never "does" anything itself.
+The skill instructs the chief - it never "does" anything itself.
 
-**Orchestrator follows skill's Grill instructions:**
+**Chief follows skill's Grill instructions:**
 - Conduct conversation to define `LoopDefinition` fields
 - Questions: goal, success criteria, constraints, preferred agents, max attempts
 - Output structured JSON passed to `loopEngine.startLoop()`
 
-**Orchestrator follows skill's Loop Monitor instructions:**
+**Chief follows skill's Loop Monitor instructions:**
 - Listen to engine callbacks (`onLoopComplete`, `onEscalated`)
 - Display current state, attempt count, verification result to human
 - On `onEscalated` - surface resolution options to human, await instruction
 - On human intervention (cancel, force pass, modify definition) - call appropriate engine method
 
 **Skill does NOT:**
-- Call `loopEngine` directly - orchestrator does that
+- Call `loopEngine` directly - chief does that
 - Dispatch agents - engine does that
 - Evaluate verification - engine does that (via JSON parsing)
 - Manage state - engine does that
@@ -382,19 +382,19 @@ This uses the same dispatch mechanism as oracle/observer. The engine does not ex
 **Oracle is strictly a verifier, not a strategist.** Oracle returns `passed: false, reason: "X"`. The engine takes the failure reason + `compactHistory()` and dispatches `@fixer` to self-correct. No intermediate agent between verification failure and retry.
 
 **`{ type: 'observer' }`:**
-1. Engine signals `onArtifactWrite(loopID, path)` so orchestrator can track artifact locations
+1. Engine signals `onArtifactWrite(loopID, path)` so chief can track artifact locations
 2. Engine includes artifact paths in Observer's `contextFiles` for `verifying`
 3. Observer returns structured JSON via `verifyTool` (same as oracle)
 4. Engine parses result, applies retry logic same as oracle
 
-**Observer artifact transfer:** Orchestrator owns the filesystem artifact lifecycle. Engine only signals when artifacts are written (`onArtifactWrite`). This prevents artifact management from bloating the engine's responsibilities.
+**Observer artifact transfer:** Chief owns the filesystem artifact lifecycle. Engine only signals when artifacts are written (`onArtifactWrite`). This prevents artifact management from bloating the engine's responsibilities.
 
 **`{ type: 'manual' }`:**
 1. Engine transitions to `verifying` phase
 2. Engine fires `onManualReview(loopID, reason)` callback
 3. Engine stops dispatching - session enters a waiting state (phase stays `verifying`, no active job, **no BackgroundJob created**)
-4. Orchestrator surfaces the review request to the human
-5. Human responds with pass/fail via orchestrator → orchestrator calls `engine.resolveManualReview(loopID, passed, reason)`
+4. Chief surfaces the review request to the human
+5. Human responds with pass/fail via chief → chief calls `engine.resolveManualReview(loopID, passed, reason)`
 6. Engine resumes: `passed` → `done`, `!passed` → retry or escalate based on attempt count
 
 **Manual verification is the simplest on-ramp.** No LLM involved. Human decides. Proven by autoresearch - Karpathy's entire loop is manual inspection. Use when automated verification isn't worth the setup cost, or when you want to eyeball results before committing to a verification criteria.
@@ -405,21 +405,21 @@ This uses the same dispatch mechanism as oracle/observer. The engine does not ex
 
 **Council is NOT a verifyAgent inside the loop.** Council with 360s+ latency would stall the rapid `executing ↔ verifying` oscillation.
 
-Council is reserved for Layer 0 escalation: when `escalated` fires, Orchestrator dispatches Council to synthesize all prior failures and devise a macro-strategy. Human reviews Council's output and decides next action (new loop with modified definition, abandon, or manual intervention).
+Council is reserved for Layer 0 escalation: when `escalated` fires, Chief dispatches Council to synthesize all prior failures and devise a macro-strategy. Human reviews Council's output and decides next action (new loop with modified definition, abandon, or manual intervention).
 
 **On `escalated`:**
 1. Engine fires `onEscalated(loopID, reason)`
-2. Orchestrator surfaces options to human:
+2. Chief surfaces options to human:
    - "Modify definition and retry" → start fresh loop (cancel current, call `startLoop(newDefinition)`)
-   - "Escalate to Council" → Orchestrator dispatches @council for macro-strategy
-   - "Abandon" → Orchestrator calls `cancel(loopID)`, cleanup fires, loop ends
+   - "Escalate to Council" → Chief dispatches @council for macro-strategy
+   - "Abandon" → Chief calls `cancel(loopID)`, cleanup fires, loop ends
 
 ---
 
 ## What Exists vs What Needs Building
 
 ### Already Exists (Layer 0)
-- Orchestrator - already runs skills, delegates to components
+- Chief - already runs skills, delegates to components
 - `/loop` command slot - available for registration
 - @council - available for Layer 0 escalation
 
@@ -444,7 +444,7 @@ Council is reserved for Layer 0 escalation: when `escalated` fires, Orchestrator
 6. `writeHistoryFile()` and `compactHistory()` for `.loop-history.md`
 7. `SuccessCriterion` routing - test/build/lint/command/fileExists evaluated directly; oracle/observer dispatched
 8. Structured verification tool for Oracle (with retry-wrapper)
-9. `onArtifactWrite` callback for orchestrator-owned artifact lifecycle
+9. `onArtifactWrite` callback for chief-owned artifact lifecycle
 10. `src/skills/loop-engineering/SKILL.md` (Grill interview + loop monitor)
 11. `/loop` command registration
 12. Tests: state transitions, retry logic, cancellation lifecycle, cleanup, SuccessCriterion routing
@@ -496,7 +496,7 @@ A minimal autonomous research loop that validates our architecture:
 
 ### Comparison with Claude Code and Codex
 
-| Feature | Claude Code | Codex (OpenAI) | OpenCode (our target) |
+| Feature | Claude Code | Codex (OpenAI) | KiloCode (our target) |
 |---|---|---|---|
 | Loop mechanism | `while True` in CLAUDE.md | Agent loop (background tasks) | Background Job Board + LoopEngine |
 | Verification | Manual / `claude-mem` | Task completion signal | `@oracle`/`@observer` structured JSON |
@@ -513,7 +513,7 @@ Our architecture is ahead of both on the verification and trigger fronts, but be
 **Phased roadmap:**
 - **Phase 1**: Runtime loop engine (this PR)
 - **Phase 2**: Loop skill (Grill + Monitor)
-- **Phase 3**: Routine integration - loop engine plugs into existing oh-my-opencode-slim workflow routines
+- **Phase 3**: Routine integration - loop engine plugs into existing oh-my-kilocode-slim workflow routines
 - **Phase 4**: Triggers (cron, webhooks)
 - **Phase 5**: Persistent memory (cross-loop)
 
@@ -560,7 +560,7 @@ These features are deferred. Interfaces will be defined when implementation begi
 ```
 User: /loop
 
-Orchestrator follows skill's Grill instructions:
+Chief follows skill's Grill instructions:
   "What are you trying to accomplish?"
 User: "Fix the auth bug in src/auth/"
   "What does success look like?"
@@ -572,7 +572,7 @@ User: "fixer"
   "Verify agent?"
 User: "oracle"
 
-Orchestrator calls loopEngine.startLoop(definition)
+Chief calls loopEngine.startLoop(definition)
 
 Loop Engine (event-driven):
   Attempt 1:
@@ -585,7 +585,7 @@ Loop Engine (event-driven):
     verifying  → @oracle returns JSON verification → PASS
   → done
 
-Orchestrator receives onLoopComplete → reports to human
+Chief receives onLoopComplete → reports to human
 ```
 
 ### UI Loop (Designer → Observer)
@@ -593,7 +593,7 @@ Orchestrator receives onLoopComplete → reports to human
 ```
 User: /loop
 
-Orchestrator collects definition:
+Chief collects definition:
   goal: "Improve the dashboard header"
   successCriteria: "Header is responsive, centered, no overflow on mobile"
   executeAgent: "designer"
@@ -618,7 +618,7 @@ Loop Engine:
   Attempt 1..3: all FAIL (verification failed each time)
   → attempts >= maxAttempts → phase = 'escalated' → fires onEscalated
 
-Orchestrator receives onEscalated:
+Chief receives onEscalated:
   "Loop reached max attempts. Dispatching @council to analyze failures..."
   → calls council for macro-strategy synthesis
   → human reviews Council output, decides next action

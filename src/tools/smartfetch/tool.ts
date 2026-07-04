@@ -1,10 +1,6 @@
 import os from 'node:os';
 import path from 'node:path';
-import {
-  type PluginInput,
-  type ToolDefinition,
-  tool,
-} from '@opencode-ai/plugin';
+import { type PluginInput, type ToolDefinition, tool } from '@kilocode/plugin';
 import { buildBinaryResultMessage, saveBinary } from './binary';
 import {
   buildCacheKey,
@@ -70,7 +66,7 @@ export function createWebfetchTool(
   options: SmartfetchOptions = {},
 ): ToolDefinition {
   const binaryDir =
-    options.binaryDir || path.join(os.tmpdir(), 'opencode-smartfetch');
+    options.binaryDir || path.join(os.tmpdir(), 'kilo-smartfetch');
 
   return tool({
     description: WEBFETCH_DESCRIPTION,

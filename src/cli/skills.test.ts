@@ -2,8 +2,8 @@ import { describe, expect, it } from 'bun:test';
 import { getSkillPermissionsForAgent } from './skills';
 
 describe('skills permissions', () => {
-  it('should allow all skills for orchestrator by default', () => {
-    const permissions = getSkillPermissionsForAgent('orchestrator');
+  it('should allow all skills for chief by default', () => {
+    const permissions = getSkillPermissionsForAgent('chief');
     expect(permissions['*']).toBe('allow');
   });
 
@@ -13,7 +13,7 @@ describe('skills permissions', () => {
   });
 
   it('should allow bundled skills for specific agents', () => {
-    // Designer should only inherit the default non-orchestrator deny rule
+    // Designer should only inherit the default non-chief deny rule
     const designerPerms = getSkillPermissionsForAgent('designer');
     expect(Object.keys(designerPerms)).toEqual(['*']);
 
@@ -21,18 +21,18 @@ describe('skills permissions', () => {
     const oraclePerms = getSkillPermissionsForAgent('oracle');
     expect(oraclePerms.simplify).toBe('allow');
 
-    const orchestratorPerms = getSkillPermissionsForAgent('orchestrator');
-    expect(orchestratorPerms.clonedeps).toBe('allow');
-    expect(orchestratorPerms.deepwork).toBe('allow');
-    expect(orchestratorPerms.reflect).toBe('allow');
-    expect(orchestratorPerms['release-smoke-test']).toBe('allow');
-    expect(orchestratorPerms.worktrees).toBe('allow');
-    expect(orchestratorPerms['oh-my-opencode-slim']).toBe('allow');
+    const chiefPerms = getSkillPermissionsForAgent('chief');
+    expect(chiefPerms.clonedeps).toBe('allow');
+    expect(chiefPerms.deepwork).toBe('allow');
+    expect(chiefPerms.reflect).toBe('allow');
+    expect(chiefPerms['release-smoke-test']).toBe('allow');
+    expect(chiefPerms.worktrees).toBe('allow');
+    expect(chiefPerms['oh-my-kilocode-slim']).toBe('allow');
   });
 
   it('should honor explicit skill list overrides', () => {
     // Override with empty list
-    const emptyPerms = getSkillPermissionsForAgent('orchestrator', []);
+    const emptyPerms = getSkillPermissionsForAgent('chief', []);
     expect(emptyPerms['*']).toBe('deny');
     expect(Object.keys(emptyPerms).length).toBe(1);
 

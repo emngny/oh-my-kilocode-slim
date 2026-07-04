@@ -14,7 +14,7 @@ export function getCustomSkillsDir(): string {
 }
 
 /**
- * Install a custom skill by copying from src/skills/ to the OpenCode skills directory
+ * Install a custom skill by copying from src/skills/ to the KiloCode skills directory
  * @param skill - The custom skill to install
  * @returns True if installation succeeded, false otherwise
  * @deprecated Use syncBundledSkillsFromPackage instead.

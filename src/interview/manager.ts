@@ -1,4 +1,4 @@
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import type { PluginConfig } from '../config';
 import { DEFAULT_DASHBOARD_PORT } from './dashboard';
 import { createDashboardManager } from './dashboard-manager';

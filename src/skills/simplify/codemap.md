@@ -16,7 +16,7 @@
   - incremental transformation and verification
   - final review checklist.
 - Documentation layer: `README.md` explains intent, source provenance, and plugin install behavior.
-- Policy model is declarative (`description`, allowed usage, checklist) consumed by the OpenCode skill executor,
+- Policy model is declarative (`description`, allowed usage, checklist) consumed by the KiloCode skill executor,
   without helper scripts or plugin code dependencies.
 
 ## Flow

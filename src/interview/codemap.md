@@ -65,7 +65,7 @@
 - `dashboard.ts`
   - Implements a shared dashboard server and state cache.
   - Auth path:
-    - random token written to `${XDG_DATA_HOME}/opencode/.dashboard-<port>.json`,
+    - random token written to `${XDG_DATA_HOME}/kilo/.dashboard-<port>.json`,
     - validated via cookie, query token, or Bearer header.
   - In-memory state/cache contracts:
     - `sessions` registry,
@@ -124,7 +124,7 @@
 ## Integration
 
 - Used by `src/index.ts` as the interview plugin module.
-- Uses OpenCode SDK session APIs for messages, prompts, and status events.
+- Uses KiloCode SDK session APIs for messages, prompts, and status events.
 - Uses local HTTP server contracts for:
   - dashboard browsing,
   - browser ↔ session sync endpoints,

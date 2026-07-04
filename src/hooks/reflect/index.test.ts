@@ -95,7 +95,7 @@ describe('reflect command hook', () => {
     expect(output.parts[0].text).toContain('Session Reflection Mode:');
     expect(output.parts[0].text).toContain('Analyze the last 50 sessions');
     expect(output.parts[0].text).toContain(
-      '- Extract session IDs from OpenCode logs',
+      '- Extract session IDs from KiloCode logs',
     );
     expect(output.parts[0].text).toContain(
       '- Load session content from SQLite database',

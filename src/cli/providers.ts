@@ -3,55 +3,20 @@ import { CUSTOM_SKILLS } from './custom-skills';
 import type { InstallConfig } from './types';
 
 const SCHEMA_URL =
-  'https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json';
+  'https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json';
 
-export const GENERATED_PRESETS = ['openai', 'opencode-go'] as const;
+export const GENERATED_PRESETS = ['custom'] as const;
 
 // Model mappings by provider/preset.
 export const MODEL_MAPPINGS = {
-  openai: {
-    orchestrator: { model: 'openai/gpt-5.5', variant: 'medium' },
-    oracle: { model: 'openai/gpt-5.5', variant: 'high' },
-    librarian: { model: 'openai/gpt-5.4-mini', variant: 'low' },
-    explorer: { model: 'openai/gpt-5.4-mini', variant: 'low' },
-    designer: { model: 'openai/gpt-5.4-mini', variant: 'medium' },
-    fixer: { model: 'openai/gpt-5.5', variant: 'low' },
-  },
-  kimi: {
-    orchestrator: { model: 'kimi-for-coding/k2p5' },
-    oracle: { model: 'kimi-for-coding/k2p5', variant: 'high' },
-    librarian: { model: 'kimi-for-coding/k2p5', variant: 'low' },
-    explorer: { model: 'kimi-for-coding/k2p5', variant: 'low' },
-    designer: { model: 'kimi-for-coding/k2p5', variant: 'medium' },
-    fixer: { model: 'kimi-for-coding/k2p5', variant: 'low' },
-  },
-  copilot: {
-    orchestrator: { model: 'github-copilot/claude-opus-4.6' },
-    oracle: { model: 'github-copilot/claude-opus-4.6', variant: 'high' },
-    librarian: { model: 'github-copilot/grok-code-fast-1', variant: 'low' },
-    explorer: { model: 'github-copilot/grok-code-fast-1', variant: 'low' },
-    designer: {
-      model: 'github-copilot/gemini-3.1-pro-preview',
-      variant: 'medium',
-    },
-    fixer: { model: 'github-copilot/claude-sonnet-4.6', variant: 'low' },
-  },
-  'zai-plan': {
-    orchestrator: { model: 'zai-coding-plan/glm-5' },
-    oracle: { model: 'zai-coding-plan/glm-5', variant: 'high' },
-    librarian: { model: 'zai-coding-plan/glm-5', variant: 'low' },
-    explorer: { model: 'zai-coding-plan/glm-5', variant: 'low' },
-    designer: { model: 'zai-coding-plan/glm-5', variant: 'medium' },
-    fixer: { model: 'zai-coding-plan/glm-5', variant: 'low' },
-  },
-  'opencode-go': {
-    orchestrator: { model: 'opencode-go/glm-5.2' },
-    oracle: { model: 'opencode-go/qwen3.7-max', variant: 'max' },
-    librarian: { model: 'opencode-go/deepseek-v4-flash' },
-    explorer: { model: 'opencode-go/deepseek-v4-flash' },
-    designer: { model: 'opencode-go/kimi-k2.7-code', variant: 'medium' },
-    fixer: { model: 'opencode-go/deepseek-v4-flash', variant: 'high' },
-    observer: { model: 'opencode-go/kimi-k2.6' },
+  custom: {
+    chief: { model: '' },
+    oracle: { model: '' },
+    librarian: { model: '' },
+    explorer: { model: '' },
+    designer: { model: '' },
+    fixer: { model: '' },
+    observer: { model: '' },
   },
 } as const;
 
@@ -79,7 +44,7 @@ export function getGeneratedPresetNames(): GeneratedPresetName[] {
 export function generateLiteConfig(
   installConfig: InstallConfig,
 ): Record<string, unknown> {
-  const preset = installConfig.preset ?? 'openai';
+  const preset = installConfig.preset ?? 'custom';
   if (!isGeneratedPresetName(preset)) {
     throw new Error(
       `Unsupported preset "${preset}". Available generated presets: ${getGeneratedPresetNames().join(', ')}`,
@@ -92,17 +57,13 @@ export function generateLiteConfig(
     presets: {},
   };
 
-  if (preset === 'opencode-go') {
-    config.disabled_agents = [];
-  }
-
   const createAgentConfig = (
     agentName: string,
     modelInfo: { model: string; variant?: string },
   ) => {
-    const isOrchestrator = agentName === 'orchestrator';
+    const isChief = agentName === 'chief';
 
-    const skills = isOrchestrator
+    const skills = isChief
       ? ['*']
       : [
           ...CUSTOM_SKILLS.filter(

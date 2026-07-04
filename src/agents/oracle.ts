@@ -1,5 +1,5 @@
 import { READONLY_FILE_OPERATIONS_RULES } from '../config';
-import type { AgentDefinition } from './orchestrator';
+import type { AgentDefinition } from './chief';
 
 const ORACLE_PROMPT = `You are Oracle - a strategic technical advisor and code reviewer.
 

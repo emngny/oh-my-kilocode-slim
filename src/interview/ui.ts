@@ -8,8 +8,7 @@ interface DashboardInterviewItem extends InterviewListItem {
   directory?: string;
 }
 
-const BRAND_LOGO_URL =
-  'https://ohmyopencodeslim.com/android-chrome-512x512.png';
+const BRAND_LOGO_URL = 'https://ohmykiloslim.com/android-chrome-512x512.png';
 
 export function escapeHtml(value: string): string {
   return value
@@ -194,7 +193,7 @@ export function renderDashboardPage(
   const totalCount = interviews.length + unrecoveredFiles.length;
   const emptyState =
     totalCount === 0
-      ? '<p class="muted" style="text-align:center;padding:48px 0">No interviews yet. Start one with <code>/interview</code> in your OpenCode session.</p>'
+      ? '<p class="muted" style="text-align:center;padding:48px 0">No interviews yet. Start one with <code>/interview</code> in your KiloCode session.</p>'
       : '';
 
   const activeSection =
@@ -202,7 +201,7 @@ export function renderDashboardPage(
 
   const fileSection =
     unrecoveredFiles.length > 0
-      ? `<h2>Files without session</h2><p class="muted file-hint">Resume with the command in any OpenCode session.</p>${filesHtml}`
+      ? `<h2>Files without session</h2><p class="muted file-hint">Resume with the command in any KiloCode session.</p>${filesHtml}`
       : '';
 
   return `<!doctype html>
@@ -375,7 +374,7 @@ export function renderDashboardPage(
         <p class="muted">${totalCount} item${totalCount === 1 ? '' : 's'}</p>
       </div>
       <div class="info-box">
-        <strong>Interviews</strong> - live sessions and recovered files. State is pushed from OpenCode sessions to this dashboard.<br>
+        <strong>Interviews</strong> - live sessions and recovered files. State is pushed from KiloCode sessions to this dashboard.<br>
         <strong>Files without session</strong> - <code>.md</code> files in <code>${escapeHtml(outputFolder)}</code> with no frontmatter. Resume with <code>/interview &lt;name&gt;</code>.
       </div>
       <details style="margin-bottom:24px">

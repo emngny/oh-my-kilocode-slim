@@ -1,7 +1,7 @@
 # src/hooks/foreground-fallback/
 
 ## Responsibility
-Runtime model fallback system for foreground (interactive) agent sessions. When OpenCode emits rate-limit signals via `message.updated`, `session.error`, or `session.status` events, this manager:
+Runtime model fallback system for foreground (interactive) agent sessions. When KiloCode emits rate-limit signals via `message.updated`, `session.error`, or `session.status` events, this manager:
 - Detects rate-limit conditions using pattern matching against error messages and status codes
 - Aborts the rate-limited prompt via `client.session.abort()`
 - Retrieves the last user message from the session history
@@ -29,7 +29,7 @@ Runtime model fallback system for foreground (interactive) agent sessions. When 
 
 ### Rate-Limit Detection
 - **Pattern matching**: Comprehensive regex patterns for rate-limit error messages (429, "rate limit", "too many requests", "quota exceeded", etc.)
-- **Event coverage**: Handles three OpenCode event types:
+- **Event coverage**: Handles three KiloCode event types:
   - `message.updated`: Error in message metadata
   - `session.error`: Session-level error event
   - `session.status`: Status message containing rate-limit indicators
@@ -43,7 +43,7 @@ Runtime model fallback system for foreground (interactive) agent sessions. When 
 
 ### Event Processing Pipeline
 ```
-OpenCode Event (message.updated/session.error/session.status)
+KiloCode Event (message.updated/session.error/session.status)
     ↓
 ForegroundFallbackManager.handleEvent()
     ↓
@@ -74,10 +74,10 @@ Log fallback event
 
 ### Consumers
 - **Primary**: Main plugin initialization (`src/index.ts`) creates ForegroundFallbackManager instance
-- **Event source**: OpenCode plugin event system provides `message.updated`, `session.error`, `session.status`, `session.deleted` events
+- **Event source**: KiloCode plugin event system provides `message.updated`, `session.error`, `session.status`, `session.deleted` events
 
 ### Dependencies
-- **OpenCode SDK**: `PluginInput['client']` for session management and event handling
+- **KiloCode SDK**: `PluginInput['client']` for session management and event handling
 - **Utilities**:
   - `abortSessionWithTimeout()`: Graceful session termination
   - `parseModelReference()`: Model string parsing ("providerID/modelID")
@@ -86,7 +86,7 @@ Log fallback event
 
 ### Configuration Schema
 Fallback chains are provided as `Record<string, string[]>` where:
-- Key: Agent name (e.g., "orchestrator", "explorer")
+- Key: Agent name (e.g., "chief", "explorer")
 - Value: Ordered list of model strings (e.g., `["anthropic/claude-opus-4-5", "openai/gpt-4o"]`)
 
 ### Memory Management

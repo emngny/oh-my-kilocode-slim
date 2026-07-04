@@ -1,6 +1,6 @@
 # Maintainer Guide
 
-This document is the source of truth for issue triage and lightweight repo maintenance in `oh-my-opencode-slim`.
+This document is the source of truth for issue triage and lightweight repo maintenance in `oh-my-kilocode-slim`.
 
 ## Goals
 
@@ -39,8 +39,8 @@ Bug reports should include:
 - what was expected
 - steps to reproduce
 - relevant config
-- OpenCode version
-- `oh-my-opencode-slim` version
+- KiloCode version
+- `oh-my-kilocode-slim` version
 - operating system
 - logs, screenshots, or extra context if relevant
 

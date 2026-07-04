@@ -2,20 +2,20 @@
 
 ## Responsibility
 
-Centralized tool factory and registry for the OpenCode plugin system. This directory defines all executable tools exposed to OpenCode agents, including:
+Centralized tool factory and registry for the KiloCode plugin system. This directory defines all executable tools exposed to KiloCode agents, including:
 
 - **Agent orchestration tools**: Multi-LLM council sessions, task cancellation, and ACP agent execution
 - **Code intelligence tools**: AST-grep pattern matching and transformation across languages
 - **Web capabilities**: Smart web fetching with caching and secondary model processing
 - **Runtime configuration**: Preset management for dynamic agent configuration switching
 
-These tools enable agents to perform file operations, orchestrate multi-model consensus, manage background tasks, and interact with external systems while maintaining security boundaries through the OpenCode tool schema.
+These tools enable agents to perform file operations, orchestrate multi-model consensus, manage background tasks, and interact with external systems while maintaining security boundaries through the KiloCode tool schema.
 
 ## Design
 
 ### Architecture Pattern: **Tool Factory Pattern**
 
-Each tool is implemented as a factory function that returns a `ToolDefinition` record compatible with the `@opencode-ai/plugin` SDK. The pattern provides:
+Each tool is implemented as a factory function that returns a `ToolDefinition` record compatible with the `@kilocode/plugin` SDK. The pattern provides:
 
 - **Encapsulation**: Tool creation logic and dependencies are isolated per tool
 - **Composition**: Tools can be selectively exported and composed in `src/tools/index.ts`
@@ -58,14 +58,14 @@ Each tool is implemented as a factory function that returns a `ToolDefinition` r
    ├─> Accepts PluginInput context and domain-specific dependencies
    ├─> Validates configuration and environment
    ├─> Returns ToolDefinition record with execute() handler
-   └─> Registers tool with OpenCode via plugin API
+   └─> Registers tool with KiloCode via plugin API
 
 3. Tool Invocation
    ├─> Agent calls tool with validated arguments
    ├─> Tool executes business logic
    ├─> May call ctx.ask() for user permission
    ├─> Returns structured result or error
-   └─> OpenCode presents result to agent
+   └─> KiloCode presents result to agent
 ```
 
 ### Council Session Flow (Multi-LLM Orchestration)
@@ -84,8 +84,8 @@ Each tool is implemented as a factory function that returns a `ToolDefinition` r
 ### Task Cancellation Flow
 
 ```
-1. Orchestrator invokes cancel_task tool
-   ├─> Validates calling agent is 'orchestrator'
+1. Chief invokes cancel_task tool
+   ├─> Validates calling agent is 'chief'
    ├─> Resolves task_id to BackgroundJobBoard entry
    ├─> Calls abortSessionWithTimeout() to signal cancellation
    ├─> Verifies session stopped via status polling
@@ -135,7 +135,7 @@ Each tool is implemented as a factory function that returns a `ToolDefinition` r
 ### Consumers
 
 - **Main Plugin** (`src/index.ts`):
-  - `registerTools()` - Registers all exported tools with OpenCode
+  - `registerTools()` - Registers all exported tools with KiloCode
   - `getToolDefinitions()` - Composes tool set for plugin initialization
   
 - **Agents** (`src/agents/`):
@@ -151,7 +151,7 @@ Each tool is implemented as a factory function that returns a `ToolDefinition` r
 
 | Dependency | Purpose |
 |------------|---------|
-| `@opencode-ai/plugin` | Tool schema and execution framework |
+| `@kilocode/plugin` | Tool schema and execution framework |
 | `CouncilManager` (`src/council/`) | Multi-LLM orchestration engine |
 | `BackgroundJobBoard` (`src/utils/`) | Background task tracking and cleanup |
 | `Config System` (`src/config/`) | ACP agent configurations and presets |
@@ -186,7 +186,7 @@ Tools Layer → Web Layer
 ### Configuration Integration
 
 - **ACP Agents**: Defined in `src/config/agents.ts`, consumed by `acp_run.ts`
-- **Presets**: Defined in plugin config (`oh-my-opencode-slim.jsonc`), managed by `preset-manager.ts`
+- **Presets**: Defined in plugin config (`oh-my-kilocode-slim.jsonc`), managed by `preset-manager.ts`
 - **Council**: Configured via council presets, validated by `council.ts`
 
 
@@ -231,7 +231,7 @@ export { createWebfetchTool } from './smartfetch';
 
 #### Council Sessions (council.ts)
 - Configured via council presets in plugin config
-- Requires council agent to be registered in OpenCode
+- Requires council agent to be registered in KiloCode
 - Supports preset-specific councillor configurations
 
 #### Presets (preset-manager.ts)
@@ -252,7 +252,7 @@ export { createWebfetchTool } from './smartfetch';
 ## Testing Strategy
 
 - **Unit Tests**: Individual tool factories tested in `*.test.ts` files
-- **Integration Tests**: Tools tested with mock dependencies and OpenCode context
+- **Integration Tests**: Tools tested with mock dependencies and KiloCode context
 - **E2E Tests**: Council and ACP tools tested with real external services
 - **Binary Tests**: AST-grep CLI availability and functionality verified
 

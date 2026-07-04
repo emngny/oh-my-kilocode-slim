@@ -54,9 +54,9 @@ export function stateFilePath(): string {
       : path.join(os.homedir(), '.local', 'share');
   return path.join(
     base,
-    'opencode',
+    'kilo',
     'storage',
-    'oh-my-opencode-slim',
+    'oh-my-kilocode-slim',
     'companion-state.json',
   );
 }
@@ -69,13 +69,13 @@ function defaultBinaryPath(): string {
       : path.join(os.homedir(), '.local', 'share');
   const binaryName =
     os.platform() === 'win32'
-      ? 'oh-my-opencode-slim-companion.exe'
-      : 'oh-my-opencode-slim-companion';
+      ? 'oh-my-kilocode-slim-companion.exe'
+      : 'oh-my-kilocode-slim-companion';
   return path.join(
     base,
-    'opencode',
+    'kilo',
     'storage',
-    'oh-my-opencode-slim',
+    'oh-my-kilocode-slim',
     'bin',
     binaryName,
   );
@@ -140,7 +140,7 @@ function acquireStateLock(file: string): () => void {
 
 /**
  * Tracks live agent activity per session and mirrors it to the companion
- * state file. Source of truth is OpenCode's session.status events: every
+ * state file. Source of truth is KiloCode's session.status events: every
  * spawned specialist (foreground or background) runs in its own session,
  * which reports busy/idle independently. Tool-call lifecycles are NOT used
  * because background Task launches return immediately while the agent keeps
@@ -181,7 +181,7 @@ export class CompanionManager {
 
   /**
    * Register this manager behind a single process `exit` listener. Re-inits for
-   * the same OpenCode session dispose the superseded manager immediately so its
+   * the same KiloCode session dispose the superseded manager immediately so its
    * detached child does not survive until process exit.
    */
   private registerActiveManager(): void {
@@ -207,7 +207,7 @@ export class CompanionManager {
 
   /**
    * Feed every session.status event here, with the agent name resolved
-   * from sessionAgentMap. Orchestrator sessions drive overall status;
+   * from sessionAgentMap. Chief sessions drive overall status;
    * specialist sessions drive the per-agent GIF grid.
    */
   onSessionStatus(input: {
@@ -219,8 +219,8 @@ export class CompanionManager {
     const { sessionId, agent, status } = input;
     if (!sessionId || (status !== 'busy' && status !== 'idle')) return;
 
-    if (agent === 'orchestrator') {
-      // Orchestrator going idle does NOT clear specialists: with background
+    if (agent === 'chief') {
+      // Chief going idle does NOT clear specialists: with background
       // orchestration it idles while dispatched agents are still running.
       // Specialists are removed only by their own idle/deleted events.
       this.status = status;
@@ -284,7 +284,7 @@ export class CompanionManager {
     const agents = Array.from(this.busyAgentSessions.values());
     if (agents.length > 0) return agents.slice(0, 9);
     if (this.status === 'waiting-input') return ['input'];
-    if (this.status === 'busy') return ['orchestrator'];
+    if (this.status === 'busy') return ['chief'];
     return ['intro'];
   }
 

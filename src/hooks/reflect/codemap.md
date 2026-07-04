@@ -1,24 +1,24 @@
 # src/hooks/reflect/
 
 ## Responsibility
-Implements a reflection hook that enables OpenCode to analyze repeated workflow patterns and suggest reusable improvements. This hook provides a `/reflect` command that generates contextual prompts for reviewing recent work and identifying workflow friction points worth improving.
+Implements a reflection hook that enables KiloCode to analyze repeated workflow patterns and suggest reusable improvements. This hook provides a `/reflect` command that generates contextual prompts for reviewing recent work and identifying workflow friction points worth improving.
 
 ## Design
 
 ### Core Components
-- **Command Registration**: Dynamically registers the `reflect` command in OpenCode's configuration system
+- **Command Registration**: Dynamically registers the `reflect` command in KiloCode's configuration system
 - **Activation Prompt Generation**: Creates context-aware reflection prompts based on user-provided focus areas
 - **Command Interception**: Intercepts command execution to replace default behavior with reflection-focused output
 
 ### Architecture Pattern
-- **Hook Pattern**: Follows OpenCode's hook system for extending plugin functionality
+- **Hook Pattern**: Follows KiloCode's hook system for extending plugin functionality
 - **Template Method Pattern**: Uses command templates with dynamic content generation
 - **Observer Pattern**: Reacts to command execution lifecycle events
 
 ## Flow
 
 ### Command Registration Flow
-1. Plugin initialization calls `registerCommand()` with OpenCode configuration
+1. Plugin initialization calls `registerCommand()` with KiloCode configuration
 2. Checks if `reflect` command already exists in config
 3. If not, registers the command with:
    - Template: "Review repeated work and suggest workflow improvements"
@@ -65,19 +65,19 @@ function activationPrompt(focus: string): string {
 ## Integration
 
 ### Dependencies
-- **OpenCode Plugin System**: Uses `registerCommand` and `handleCommandExecuteBefore` hook interfaces
-- **Configuration System**: Reads and writes to OpenCode configuration object
-- **Command Lifecycle**: Integrates with OpenCode's command execution pipeline
+- **KiloCode Plugin System**: Uses `registerCommand` and `handleCommandExecuteBefore` hook interfaces
+- **Configuration System**: Reads and writes to KiloCode configuration object
+- **Command Lifecycle**: Integrates with KiloCode's command execution pipeline
 
 
 ### Consumers
-- **OpenCode Core**: Consumed by OpenCode's plugin system during initialization
-- **Users**: Invoked via `/reflect` command in OpenCode sessions
+- **KiloCode Core**: Consumed by KiloCode's plugin system during initialization
+- **Users**: Invoked via `/reflect` command in KiloCode sessions
 
 ### Integration Points
 - `registerCommand()`: Called during plugin initialization to register the reflect command
 - `handleCommandExecuteBefore()`: Hook that intercepts command execution and transforms output
-- OpenCode configuration object: Receives the registered command configuration
+- KiloCode configuration object: Receives the registered command configuration
 
 ### Configuration Schema
 ```json

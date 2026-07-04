@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import type { PluginConfig } from '../config';
 import { log } from '../utils';
 import {
@@ -380,7 +380,7 @@ export function createDashboardManager(
       await service.handleEvent(input);
 
       // Event hook: Session is idle. Check for any pending user submissions
-      // queued on the dashboard and deliver them to OpenCode.
+      // queued on the dashboard and deliver them to KiloCode.
       if (event.type === 'session.status' || event.type === 'session.idle') {
         const status = properties.status as { type?: string } | undefined;
         const isIdleEvent =

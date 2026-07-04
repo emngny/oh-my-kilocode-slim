@@ -3,12 +3,12 @@ import { SLIM_INTERNAL_INITIATOR_MARKER } from '../../utils';
 import { createPhaseReminderHook, PHASE_REMINDER } from './index';
 
 describe('createPhaseReminderHook', () => {
-  test('appends reminder as a separate part for orchestrator sessions', async () => {
+  test('appends reminder as a separate part for chief sessions', async () => {
     const hook = createPhaseReminderHook();
     const output = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator' },
+          info: { role: 'user', agent: 'chief' },
           parts: [{ type: 'text', text: 'hello' }],
         },
       ],
@@ -22,7 +22,7 @@ describe('createPhaseReminderHook', () => {
     expect(output.messages[0].parts[1].text).toBe(PHASE_REMINDER);
   });
 
-  test('skips non-orchestrator sessions', async () => {
+  test('skips non-chief sessions', async () => {
     const hook = createPhaseReminderHook();
     const output = {
       messages: [
@@ -62,7 +62,7 @@ describe('createPhaseReminderHook', () => {
     const output = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator' },
+          info: { role: 'user', agent: 'chief' },
           parts: [
             { type: 'text', text: 'hello' },
             { type: 'text', text: PHASE_REMINDER },
@@ -83,7 +83,7 @@ describe('createPhaseReminderHook', () => {
     const output = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator' },
+          info: { role: 'user', agent: 'chief' },
           parts: [{ type: 'text', text: originalText }],
         },
       ],
@@ -101,7 +101,7 @@ describe('createPhaseReminderHook', () => {
     const output = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator' },
+          info: { role: 'user', agent: 'chief' },
           parts: [{ type: 'image', url: 'http://example.com/img.png' }],
         },
       ],
@@ -156,7 +156,7 @@ describe('createPhaseReminderHook', () => {
         { info: { role: 'assistant' } },
         { parts: [{ type: 'text', text: 'missing info' }] },
         {
-          info: { role: 'user', agent: 'orchestrator' },
+          info: { role: 'user', agent: 'chief' },
           parts: [{ type: 'text', text: 'hello' }],
         },
       ],

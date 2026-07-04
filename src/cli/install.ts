@@ -12,16 +12,16 @@ import {
 } from './background-subagents';
 import { installCompanion } from './companion';
 import {
-  addPluginToOpenCodeConfig,
-  addPluginToOpenCodeTuiConfig,
+  addPluginToKiloCodeConfig,
+  addPluginToKiloCodeTuiConfig,
   detectCurrentConfig,
   disableDefaultAgents,
   enableLspByDefault,
   generateLiteConfig,
-  getOpenCodePath,
-  getOpenCodeVersion,
-  isOpenCodeInstalled,
-  warmOpenCodePluginCache,
+  getKiloCodePath,
+  getKiloCodeVersion,
+  isKiloCodeInstalled,
+  warmKiloCodePluginCache,
   writeLiteConfig,
 } from './config-manager';
 import { CUSTOM_SKILLS } from './custom-skills';
@@ -47,13 +47,13 @@ const SYMBOLS = {
   star: `${YELLOW}★${RESET}`,
 };
 
-const GITHUB_REPO = 'alvinunreal/oh-my-opencode-slim';
+const GITHUB_REPO = 'alvinunreal/oh-my-kilocode-slim';
 const GITHUB_URL = `https://github.com/${GITHUB_REPO}`;
 
 function printHeader(isUpdate: boolean): void {
   console.log();
   console.log(
-    `${BOLD}oh-my-opencode-slim ${isUpdate ? 'Update' : 'Install'}${RESET}`,
+    `${BOLD}oh-my-kilocode-slim ${isUpdate ? 'Update' : 'Install'}${RESET}`,
   );
   console.log('='.repeat(30));
   console.log();
@@ -119,29 +119,29 @@ async function askToStarRepo(config: InstallConfig): Promise<void> {
   }
 }
 
-async function checkOpenCodeInstalled(): Promise<{
+async function checkKiloCodeInstalled(): Promise<{
   ok: boolean;
   version?: string;
   path?: string;
 }> {
-  const installed = await isOpenCodeInstalled();
+  const installed = await isKiloCodeInstalled();
   if (!installed) {
-    printError('OpenCode is not installed on this system.');
+    printError('KiloCode is not installed on this system.');
     printInfo('Install it with:');
     console.log(
-      `     ${BLUE}curl -fsSL https://opencode.ai/install | bash${RESET}`,
+      `     ${BLUE}curl -fsSL https://kilo.ai/install | bash${RESET}`,
     );
     console.log();
     printInfo('Or if already installed, add it to your PATH:');
     console.log(`     ${BLUE}export PATH="$HOME/.local/bin:$PATH"${RESET}`);
-    console.log(`     ${BLUE}export PATH="$HOME/.opencode/bin:$PATH"${RESET}`);
+    console.log(`     ${BLUE}export PATH="$HOME/.kilo/bin:$PATH"${RESET}`);
     return { ok: false };
   }
-  const version = await getOpenCodeVersion();
-  const path = getOpenCodePath();
+  const version = await getKiloCodeVersion();
+  const path = getKiloCodePath();
   const detectedVersion = version ?? '';
   const pathInfo = path ? ` (${DIM}${path}${RESET})` : '';
-  printSuccess(`OpenCode ${detectedVersion} detected${pathInfo}`);
+  printSuccess(`KiloCode ${detectedVersion} detected${pathInfo}`);
   return { ok: true, version: version ?? undefined, path: path ?? undefined };
 }
 
@@ -150,11 +150,11 @@ export async function configureBackgroundSubagents(
 ): Promise<{ enabledNow: boolean; configuredTarget?: string }> {
   if (
     isBackgroundSubagentsEnabled(
-      process.env.OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS,
+      process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS,
     )
   ) {
     printSuccess(
-      'OpenCode background subagents already enabled in environment',
+      'KiloCode background subagents already enabled in environment',
     );
     return { enabledNow: true };
   }
@@ -165,7 +165,7 @@ export async function configureBackgroundSubagents(
       : detectBackgroundSubagentsTarget();
 
   if (config.backgroundSubagents === 'no') {
-    printInfo('OpenCode background subagents shell setup skipped.');
+    printInfo('KiloCode background subagents shell setup skipped.');
     console.log(manualBackgroundSubagentsInstructions({ targetPath: target }));
     return { enabledNow: false };
   }
@@ -198,13 +198,13 @@ export async function configureBackgroundSubagents(
 
     console.log();
     printInfo(
-      'V2 requires OpenCode background subagents for default orchestration.',
+      'V2 requires KiloCode background subagents for default orchestration.',
     );
     printInfo(
       `The installer can add the required environment export to ${target}.`,
     );
     const shouldWrite = await confirm(
-      'Add OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true now?',
+      'Add KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true now?',
       true,
     );
     if (!shouldWrite) {
@@ -314,18 +314,18 @@ async function runInstall(config: InstallConfig): Promise<number> {
 
   let step = 1;
 
-  printStep(step++, totalSteps, 'Checking OpenCode installation...');
+  printStep(step++, totalSteps, 'Checking KiloCode installation...');
   if (config.dryRun) {
-    printInfo('Dry run mode - skipping OpenCode check');
+    printInfo('Dry run mode - skipping KiloCode check');
   } else {
-    const { ok } = await checkOpenCodeInstalled();
+    const { ok } = await checkKiloCodeInstalled();
     if (!ok) return 1;
   }
-  printStep(step++, totalSteps, 'Adding oh-my-opencode-slim plugin...');
+  printStep(step++, totalSteps, 'Adding oh-my-kilocode-slim plugin...');
   if (config.dryRun) {
     printInfo('Dry run mode - skipping plugin installation');
   } else {
-    const pluginResult = await addPluginToOpenCodeConfig();
+    const pluginResult = await addPluginToKiloCodeConfig();
     if (!handleStepResult(pluginResult, 'Plugin added')) return 1;
   }
 
@@ -333,7 +333,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
   if (config.dryRun) {
     printInfo('Dry run mode - skipping TUI plugin installation');
   } else {
-    const tuiResult = await addPluginToOpenCodeTuiConfig();
+    const tuiResult = await addPluginToKiloCodeTuiConfig();
     if (!tuiResult.success) {
       printInfo(`Skipped TUI badge: ${tuiResult.error}`);
     } else {
@@ -341,21 +341,21 @@ async function runInstall(config: InstallConfig): Promise<number> {
     }
   }
 
-  printStep(step++, totalSteps, 'Warming OpenCode plugin cache...');
+  printStep(step++, totalSteps, 'Warming KiloCode plugin cache...');
   if (config.dryRun) {
     printInfo('Dry run mode - skipping cache warm-up');
   } else {
-    const cacheResult = await warmOpenCodePluginCache();
+    const cacheResult = await warmKiloCodePluginCache();
     if (cacheResult === null) {
       printInfo('Local development install - cache warm-up not required');
     } else if (!cacheResult.success) {
       printInfo(`Skipped cache warm-up: ${cacheResult.error}`);
     } else {
-      handleStepResult(cacheResult, 'OpenCode cache warmed');
+      handleStepResult(cacheResult, 'KiloCode cache warmed');
     }
   }
 
-  printStep(step++, totalSteps, 'Disabling OpenCode default agents...');
+  printStep(step++, totalSteps, 'Disabling KiloCode default agents...');
   if (config.dryRun) {
     printInfo('Dry run mode - skipping agent disabling');
   } else {
@@ -363,7 +363,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
     if (!handleStepResult(agentResult, 'Default agents disabled')) return 1;
   }
 
-  printStep(step++, totalSteps, 'Enabling OpenCode LSP integration...');
+  printStep(step++, totalSteps, 'Enabling KiloCode LSP integration...');
   if (config.dryRun) {
     printInfo('Dry run mode - skipping LSP configuration');
   } else {
@@ -371,7 +371,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
     if (!handleStepResult(lspResult, 'LSP enabled')) return 1;
   }
 
-  printStep(step++, totalSteps, 'Configuring OpenCode background subagents...');
+  printStep(step++, totalSteps, 'Configuring KiloCode background subagents...');
   const backgroundSubagents = await configureBackgroundSubagents(config);
 
   if (companionInstall) {
@@ -381,7 +381,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
     if (!companionResult.success) config.companion = 'no';
   }
 
-  printStep(step++, totalSteps, 'Writing oh-my-opencode-slim configuration...');
+  printStep(step++, totalSteps, 'Writing oh-my-kilocode-slim configuration...');
   if (config.dryRun) {
     const liteConfig = generateLiteConfig(config);
     printInfo('Dry run mode - configuration that would be written:');
@@ -497,28 +497,28 @@ async function runInstall(config: InstallConfig): Promise<number> {
   const configPath = getExistingLiteConfigPath();
 
   console.log('  1. Log in to the provider(s) you want to use:');
-  console.log(`     ${BLUE}$ opencode auth login${RESET}`);
+  console.log(`     ${BLUE}$ kilo auth login${RESET}`);
   console.log();
-  console.log('  2. Refresh the models OpenCode can see:');
-  console.log(`     ${BLUE}$ opencode models --refresh${RESET}`);
+  console.log('  2. Refresh the models KiloCode can see:');
+  console.log(`     ${BLUE}$ kilo models --refresh${RESET}`);
   console.log();
   console.log('  3. Review your generated config:');
   console.log(`     ${BLUE}${configPath}${RESET}`);
   console.log();
-  console.log('  4. Start OpenCode:');
+  console.log('  4. Start KiloCode:');
   if (backgroundSubagents.enabledNow) {
-    console.log(`     ${BLUE}$ opencode${RESET}`);
+    console.log(`     ${BLUE}$ kilo${RESET}`);
   } else if (backgroundSubagents.configuredTarget) {
     console.log(
       `     ${BLUE}$ source ${backgroundSubagents.configuredTarget}${RESET}`,
     );
-    console.log(`     ${BLUE}$ opencode${RESET}`);
+    console.log(`     ${BLUE}$ kilo${RESET}`);
     console.log(
-      `     ${DIM}Or restart your terminal before running opencode.${RESET}`,
+      `     ${DIM}Or restart your terminal before running kilo.${RESET}`,
     );
   } else {
     console.log(
-      `     ${BLUE}$ OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true opencode${RESET}`,
+      `     ${BLUE}$ KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true kilo${RESET}`,
     );
   }
   console.log();
@@ -528,13 +528,13 @@ async function runInstall(config: InstallConfig): Promise<number> {
 
   const modelsInfo =
     config.preset && config.preset !== 'openai'
-      ? `Generated OpenAI and OpenCode Go presets; ${config.preset} is active.`
-      : 'Generated OpenAI and OpenCode Go presets; OpenAI is active by default.';
+      ? `Generated OpenAI and KiloCode Go presets; ${config.preset} is active.`
+      : 'Generated OpenAI and KiloCode Go presets; OpenAI is active by default.';
   console.log(`${modelsInfo}`);
   const altProviders = 'For the full configuration reference, see:';
   console.log(altProviders);
   const docsUrl =
-    'https://github.com/alvinunreal/oh-my-opencode-slim/' +
+    'https://github.com/alvinunreal/oh-my-kilocode-slim/' +
     'blob/master/docs/configuration.md';
   console.log(`  ${BLUE}${docsUrl}${RESET}`);
   console.log();

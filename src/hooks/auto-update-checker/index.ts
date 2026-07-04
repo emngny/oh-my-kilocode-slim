@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import {
   ensureCompanionVersion,
   loadCompanionManifestFromPackageRoot,
@@ -20,7 +20,7 @@ import { syncBundledSkillsFromPackage } from './skill-sync';
 import type { AutoUpdateCheckerOptions } from './types';
 
 /**
- * Creates an OpenCode hook that checks for plugin updates when a new session is created.
+ * Creates an KiloCode hook that checks for plugin updates when a new session is created.
  * @param ctx The plugin input context.
  * @param options Configuration options for the update checker.
  * @returns A hook object for the session.created event.
@@ -282,7 +282,7 @@ async function runBackgroundUpdateCheck(
     } else if (companionWillRetry) {
       messageLines.push('Companion update will retry on restart.');
     }
-    messageLines.push('Restart OpenCode to apply.');
+    messageLines.push('Restart KiloCode to apply.');
 
     showToast(
       ctx,
@@ -309,8 +309,8 @@ async function runBackgroundUpdateCheck(
 function showMajorUpgradeToast(ctx: PluginInput, version: string): void {
   showToast(
     ctx,
-    `oh-my-opencode-slim v${version} is available.`,
-    'It requires OpenCode background subagents.\nRun: bunx oh-my-opencode-slim@latest install',
+    `oh-my-kilocode-slim v${version} is available.`,
+    'It requires KiloCode background subagents.\nRun: bunx oh-my-kilocode-slim@latest install',
     'info',
     12_000,
   );
@@ -322,7 +322,7 @@ export function getAutoUpdateInstallDir(): string {
 
 /**
  * Spawns a background process to run 'bun install'.
- * Includes a 60-second timeout to prevent stalling OpenCode.
+ * Includes a 60-second timeout to prevent stalling KiloCode.
  * @param installDir The directory whose package manager context should be refreshed.
  * @returns True if the installation succeeded within the timeout.
  */
@@ -357,7 +357,7 @@ async function runBunInstallSafe(installDir: string): Promise<boolean> {
 }
 
 /**
- * Helper to display a toast notification in the OpenCode TUI.
+ * Helper to display a toast notification in the KiloCode TUI.
  * @param ctx The plugin input context.
  * @param title The toast title.
  * @param message The toast message.

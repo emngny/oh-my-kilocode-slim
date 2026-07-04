@@ -8,7 +8,7 @@ function activationPrompt(task: string): string {
     '',
     'Deepwork requirements:',
     '- create/update a `.slim/deepwork/` progress file;',
-    '- keep OpenCode todos synced with the current phase;',
+    '- keep KiloCode todos synced with the current phase;',
     '- draft a plan and get `@oracle` review before implementation;',
     '- create and review a phased implementation/delegation plan;',
     '- execute phase by phase with background specialists where useful;',
@@ -29,13 +29,13 @@ export function createDeepworkCommandHook(): {
   ) => Promise<void>;
 } {
   return {
-    registerCommand: (opencodeConfig) => {
-      const commandConfig = opencodeConfig.command as
+    registerCommand: (kiloConfig) => {
+      const commandConfig = kiloConfig.command as
         | Record<string, unknown>
         | undefined;
       if (commandConfig?.[COMMAND_NAME]) return;
-      if (!opencodeConfig.command) opencodeConfig.command = {};
-      (opencodeConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
+      if (!kiloConfig.command) kiloConfig.command = {};
+      (kiloConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
         template: 'Start a deepwork session for a complex coding task',
         description:
           'Use the deepwork workflow for heavy multi-phase coding work',

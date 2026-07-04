@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Provides a concrete Tmux-based implementation of the Multiplexer interface for managing child session panes within a Tmux session. Handles pane spawning, graceful shutdown, and layout management for OpenCode's multiplexer system.
+Provides a concrete Tmux-based implementation of the Multiplexer interface for managing child session panes within a Tmux session. Handles pane spawning, graceful shutdown, and layout management for KiloCode's multiplexer system.
 
 ## Design
 
@@ -32,8 +32,8 @@ Implements the `Multiplexer` interface contract defined in `src/multiplexer/type
 
 2. spawnPane(sessionId, description, serverUrl, directory)
    ├─ Validates tmux binary availability
-   ├─ Constructs opencode attach command with quoted arguments
-   ├─ Executes: tmux split-window -h -d -P -F '#{pane_id}' <opencode-cmd>
+   ├─ Constructs kilo attach command with quoted arguments
+   ├─ Executes: tmux split-window -h -d -P -F '#{pane_id}' <kilo-cmd>
    ├─ Captures stdout to extract pane_id
    ├─ Renames pane with description (truncated to 30 chars)
    └─ Schedules layout rebalance via scheduleLayout()
@@ -91,7 +91,7 @@ Implements the `Multiplexer` interface contract defined in `src/multiplexer/type
 
 - **Tmux binary**: Must be installed and available in PATH
 - **Tmux session**: Operates within an existing Tmux session (detected via TMUX environment variable)
-- **OpenCode CLI**: Requires `opencode` command for attach operations
+- **KiloCode CLI**: Requires `kilo` command for attach operations
 
 ### Error Handling & Recovery
 

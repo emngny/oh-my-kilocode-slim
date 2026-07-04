@@ -3,7 +3,7 @@
 ## Responsibility
 
 - Provide a command-style skill package that standardizes repository mapping workflows for unfamiliar codebases.
-- Define the task contract used by Orchestrator/fixer agents via `SKILL.md` and operational guidance via `README.md`.
+- Define the task contract used by Chief/fixer agents via `SKILL.md` and operational guidance via `README.md`.
 - Generate and evolve change-aware codemap state artifacts (`.slim/codemap.json`) and scaffold placeholders (`codemap.md`).
 
 ## Design
@@ -30,7 +30,7 @@
 
 ## Integration
 
-- Installed under OpenCode through `src/cli/custom-skills.ts` as `name: 'codemap'`, `sourcePath: 'src/skills/codemap'`.
-- `src/cli/install.ts` copies this directory into the user skill directory; OpenCode executes `scripts/codemap.mjs` from that context.
+- Installed under KiloCode through `src/cli/custom-skills.ts` as `name: 'codemap'`, `sourcePath: 'src/skills/codemap'`.
+- `src/cli/install.ts` copies this directory into the user skill directory; KiloCode executes `scripts/codemap.mjs` from that context.
 - `src/hooks/filter-available-skills/index.ts` applies agent-level skill gating via names from `getSkillPermissionsForAgent()`.
 - `scripts/verify-release-artifact.ts` includes codemap skill metadata and runtime checks as required packaged files.

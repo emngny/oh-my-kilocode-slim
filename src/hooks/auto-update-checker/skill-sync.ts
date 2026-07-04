@@ -70,7 +70,7 @@ interface SkillSyncOptions {
  * from the published npm package tarballs to allow upgrading existing users.
  *
  * How to populate:
- * 1. Download previous releases of the npm package: `npm pack oh-my-opencode-slim@<version>`
+ * 1. Download previous releases of the npm package: `npm pack oh-my-kilocode-slim@<version>`
  * 2. Compute directory hash for each legacy skill directory inside the unpacked tarball:
  *    `import { computeDirectoryHash } from './skill-sync';`
  *    `const hash = computeDirectoryHash('path/to/extracted/package/src/skills/<skill-name>');`
@@ -219,7 +219,7 @@ function isPidRunning(pid: number): boolean {
 const CROSS_HOST_LOCK_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
- * Acquires a simple lock under .oh-my-opencode-slim.
+ * Acquires a simple lock under .oh-my-kilocode-slim.
  * Avoids stealing active locks purely by time; writes owner metadata
  * and only steals dead same-host pid if detectable.
  */
@@ -546,7 +546,7 @@ function removeManagedStagedPath(
 }
 
 /**
- * Synchronizes bundled skills from the newly installed package root to OpenCode config skills directory.
+ * Synchronizes bundled skills from the newly installed package root to KiloCode config skills directory.
  */
 export function syncBundledSkillsFromPackage(
   packageRoot: string,
@@ -607,7 +607,7 @@ export function syncBundledSkillsFromPackage(
     );
   }
 
-  const manifestDir = path.join(getConfigDir(), '.oh-my-opencode-slim');
+  const manifestDir = path.join(getConfigDir(), '.oh-my-kilocode-slim');
   const lockDir = path.join(manifestDir, 'skills.lock');
 
   try {

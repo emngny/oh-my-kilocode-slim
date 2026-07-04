@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import { stripJsonComments } from '../cli/config-io';
 import type {
   AgentOverrideConfig,
@@ -22,9 +22,9 @@ const COMMAND_NAME = 'preset';
  * Creates a preset manager for the /preset slash command.
  *
  * Stores the requested runtime preset in plugin memory and updates the
- * plugin-facing TUI snapshot. It deliberately does not call OpenCode's
+ * plugin-facing TUI snapshot. It deliberately does not call KiloCode's
  * client.config.update() or instance.dispose() from command hooks because
- * OpenCode continues the same command into the prompt loop after
+ * KiloCode continues the same command into the prompt loop after
  * command.execute.before, which can break the active conversation while
  * the agent registry is changing.
  */
@@ -52,7 +52,7 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
       return;
     }
 
-    // Clear the template so OpenCode doesn't send it to the LLM
+    // Clear the template so KiloCode doesn't send it to the LLM
     output.parts.length = 0;
 
     const arg = input.arguments.trim();
@@ -80,17 +80,17 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
   }
 
   /**
-   * Register the /preset command in the OpenCode config.
+   * Register the /preset command in the KiloCode config.
    */
-  function registerCommand(opencodeConfig: Record<string, unknown>): void {
-    const configCommand = opencodeConfig.command as
+  function registerCommand(kiloConfig: Record<string, unknown>): void {
+    const configCommand = kiloConfig.command as
       | Record<string, unknown>
       | undefined;
     if (!configCommand?.[COMMAND_NAME]) {
-      if (!opencodeConfig.command) {
-        opencodeConfig.command = {};
+      if (!kiloConfig.command) {
+        kiloConfig.command = {};
       }
-      (opencodeConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
+      (kiloConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
         template: 'List available presets and switch between them',
         description:
           'Switch agent presets at runtime (e.g., /preset cheap, /preset powerful)',
@@ -100,8 +100,8 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
 
   /**
    * Save the given preset name for the plugin runtime without mutating the
-   * active OpenCode instance. The preset is applied by the plugin config path
-   * when OpenCode reloads the plugin in a safe lifecycle boundary.
+   * active KiloCode instance. The preset is applied by the plugin config path
+   * when KiloCode reloads the plugin in a safe lifecycle boundary.
    */
   async function switchPreset(
     presetName: string,
@@ -114,7 +114,7 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
       const hint =
         available.length > 0
           ? `Available presets: ${available.join(', ')}`
-          : 'No presets configured. Define presets in oh-my-opencode-slim.jsonc.';
+          : 'No presets configured. Define presets in oh-my-kilocode-slim.jsonc.';
       output.parts.push(
         createInternalAgentTextPart(
           `Preset "${presetName}" not found. ${hint}`,
@@ -207,7 +207,7 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
 
     output.parts.push(
       createInternalAgentTextPart(
-        `Saved preset "${presetName}". Restart or reload OpenCode to apply it to agent configuration. The current session was not reloaded to avoid interrupting the active conversation.\n${summaryParts.join('\n')}`,
+        `Saved preset "${presetName}". Restart or reload KiloCode to apply it to agent configuration. The current session was not reloaded to avoid interrupting the active conversation.\n${summaryParts.join('\n')}`,
       ),
     );
   }
@@ -217,7 +217,7 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
    * Agent config fields shown in the saved preset summary.
    *
    * Excluded fields and why:
-   * - prompt, orchestratorPrompt: require restart (resolved at init by config() hook)
+   * - prompt, chiefPrompt: require restart (resolved at init by config() hook)
    * - skills, mcps: plugin-level concern, not part of SDK AgentConfig
    * - displayName: plugin-level concern, not part of SDK AgentConfig
    */
@@ -272,7 +272,7 @@ export function createPresetManager(ctx: PluginInput, config: PluginConfig) {
   function formatPresetList(presets: Record<string, Preset>): string {
     const names = Object.keys(presets);
     if (names.length === 0) {
-      return 'No presets configured. Define presets in oh-my-opencode-slim.jsonc under the "presets" field.';
+      return 'No presets configured. Define presets in oh-my-kilocode-slim.jsonc under the "presets" field.';
     }
 
     const lines = ['Available presets:'];

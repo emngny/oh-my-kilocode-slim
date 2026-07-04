@@ -2,7 +2,7 @@
 
 ![Clonedeps dependency source workspace](../img/clonedeps.jpg)
 
-`clonedeps` is a bundled Orchestrator skill for cloning a small set of important
+`clonedeps` is a bundled Chief skill for cloning a small set of important
 dependency source repositories into a local, ignored workspace so agents can
 inspect library internals while working on your project.
 
@@ -13,7 +13,7 @@ runtime, SDK, framework, plugin API, or other core dependency actually behaves.
 
 ## What It Does
 
-When you ask for cloned dependency source, the Orchestrator:
+When you ask for cloned dependency source, the Chief:
 
 1. Checks `.slim/clonedeps.json` first and reuses existing clones when possible.
 2. Asks `@librarian` for source-repo recommendations only if more context is
@@ -22,7 +22,7 @@ When you ask for cloned dependency source, the Orchestrator:
 4. Clones each approved source repository once into
    `.slim/clonedeps/repos/<safe-repo-name>/`.
 5. Writes `.slim/clonedeps.json` as trackable project metadata.
-6. Updates ignore files so git ignores clone contents while OpenCode can read
+6. Updates ignore files so git ignores clone contents while KiloCode can read
    them.
 7. Updates root `AGENTS.md` with a concise list of cloned repos and why each one
    exists.
@@ -34,7 +34,7 @@ source selection and normal git/filesystem operations for cloning.
 
 ## How To Use It
 
-Ask the Orchestrator directly:
+Ask the Chief directly:
 
 ```text
 Use clonedeps to clone the key dependency source repos for this project.
@@ -43,10 +43,10 @@ Use clonedeps to clone the key dependency source repos for this project.
 Or for a specific dependency/debugging task:
 
 ```text
-Use clonedeps for the OpenCode SDK so you can inspect its plugin API internals.
+Use clonedeps for the KiloCode SDK so you can inspect its plugin API internals.
 ```
 
-The Orchestrator should show you what it wants to clone before running network
+The Chief should show you what it wants to clone before running network
 git operations, unless you explicitly ask it to clone immediately.
 
 ---
@@ -62,8 +62,8 @@ Ignored local clones live here, one folder per source repository:
 ```
 
 The safe folder name is derived from the repository owner/name, not the package
-name. For example, `https://github.com/opencode-ai/opencode.git` becomes
-`.slim/clonedeps/repos/opencode-ai__opencode/`.
+name. For example, `https://github.com/kilo-ai/kilo.git` becomes
+`.slim/clonedeps/repos/kilo-ai__kilo/`.
 
 If multiple packages come from the same monorepo, they share one cloned repo path
 and use different `packagePath` values in the manifest.
@@ -80,20 +80,20 @@ This is the structured manifest. It is intentionally small and committable:
   "updatedAt": "2026-05-12T00:00:00.000Z",
   "dependencies": [
     {
-      "name": "@opencode-ai/plugin",
+      "name": "@kilocode/plugin",
       "resolvedVersion": "1.3.17",
-      "repoUrl": "https://github.com/opencode-ai/opencode.git",
+      "repoUrl": "https://github.com/kilo-ai/kilo.git",
       "ref": "v1.3.17",
-      "path": ".slim/clonedeps/repos/opencode-ai__opencode",
+      "path": ".slim/clonedeps/repos/kilo-ai__kilo",
       "packagePath": "packages/plugin",
       "reason": "Plugin API source used by the project"
     },
     {
-      "name": "@opencode-ai/sdk",
+      "name": "@kilocode/sdk",
       "resolvedVersion": "1.3.17",
-      "repoUrl": "https://github.com/opencode-ai/opencode.git",
+      "repoUrl": "https://github.com/kilo-ai/kilo.git",
       "ref": "v1.3.17",
-      "path": ".slim/clonedeps/repos/opencode-ai__opencode",
+      "path": ".slim/clonedeps/repos/kilo-ai__kilo",
       "packagePath": "packages/sdk/js",
       "reason": "Core SDK source used to inspect runtime behavior"
     }
@@ -117,8 +117,8 @@ Example:
 Read-only dependency source repositories are available under
 `.slim/clonedeps/repos/` for inspection. Do not edit these clones.
 
-- `.slim/clonedeps/repos/opencode-ai__opencode/` - `opencode-ai/opencode` at
-  `v1.3.17`; inspect `packages/sdk/js` for OpenCode SDK internals.
+- `.slim/clonedeps/repos/kilo-ai__kilo/` - `kilo-ai/kilo` at
+  `v1.3.17`; inspect `packages/sdk/js` for KiloCode SDK internals.
 ```
 
 ---

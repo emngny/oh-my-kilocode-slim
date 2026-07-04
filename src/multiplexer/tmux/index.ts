@@ -57,8 +57,8 @@ export class TmuxMultiplexer implements Multiplexer {
       const quotedUrl = quoteShellArg(serverUrl);
       const quotedSessionId = quoteShellArg(sessionId);
 
-      const opencodeCmd = [
-        'opencode',
+      const kiloCmd = [
+        'kilo',
         'attach',
         quotedUrl,
         '--session',
@@ -76,7 +76,7 @@ export class TmuxMultiplexer implements Multiplexer {
         '-F',
         '#{pane_id}', // Format: just the pane ID
         ...this.targetArgs(),
-        opencodeCmd,
+        kiloCmd,
       ];
 
       log('[tmux] spawnPane: executing', { tmux, args });

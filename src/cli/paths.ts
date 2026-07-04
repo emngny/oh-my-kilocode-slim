@@ -1,78 +1,78 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, normalize } from 'node:path';
 
-function getDefaultOpenCodeConfigDir(): string {
+function getDefaultKiloCodeConfigDir(): string {
   const userConfigDir = process.env.XDG_CONFIG_HOME
     ? process.env.XDG_CONFIG_HOME
     : join(homedir(), '.config');
 
-  return join(userConfigDir, 'opencode');
+  return join(userConfigDir, 'kilo');
 }
 
-function getCustomOpenCodeConfigDir(): string | undefined {
-  const configDir = process.env.OPENCODE_CONFIG_DIR?.trim();
+function getCustomKiloCodeConfigDir(): string | undefined {
+  const configDir = process.env.KILOCODE_CONFIG_DIR?.trim();
   return configDir || undefined;
 }
 
 function getCustomTuiConfigPath(): string | undefined {
-  const configPath = process.env.OPENCODE_TUI_CONFIG?.trim();
+  const configPath = process.env.KILOCODE_TUI_CONFIG?.trim();
   return configPath || undefined;
 }
 
 /**
- * Get the OpenCode plugin config directory.
+ * Get the KiloCode plugin config directory.
  *
  * Resolution order:
- * 1. OPENCODE_CONFIG_DIR (custom OpenCode directory)
- * 2. XDG_CONFIG_HOME/opencode
- * 3. ~/.config/opencode
+ * 1. KILOCODE_CONFIG_DIR (custom KiloCode directory)
+ * 2. XDG_CONFIG_HOME/kilo
+ * 3. ~/.config/kilo
  */
 export function getConfigDir(): string {
-  const customConfigDir = getCustomOpenCodeConfigDir();
+  const customConfigDir = getCustomKiloCodeConfigDir();
   if (customConfigDir) {
     return customConfigDir;
   }
 
-  return getDefaultOpenCodeConfigDir();
+  return getDefaultKiloCodeConfigDir();
 }
 
 /**
- * Get OpenCode config directories in read/search order.
+ * Get KiloCode config directories in read/search order.
  *
  * Resolution order:
- * 1. OPENCODE_CONFIG_DIR (if set)
- * 2. XDG_CONFIG_HOME/opencode or ~/.config/opencode
+ * 1. KILOCODE_CONFIG_DIR (if set)
+ * 2. XDG_CONFIG_HOME/kilo or ~/.config/kilo
  *
  * Duplicate entries are removed.
  */
 export function getConfigSearchDirs(): string[] {
-  const dirs = [getCustomOpenCodeConfigDir(), getDefaultOpenCodeConfigDir()];
+  const dirs = [getCustomKiloCodeConfigDir(), getDefaultKiloCodeConfigDir()]
+    .filter((dir): dir is string => Boolean(dir))
+    .map((dir) => normalize(dir));
 
-  return dirs.filter((dir, index): dir is string => {
-    return Boolean(dir) && dirs.indexOf(dir) === index;
-  });
+  return dirs.filter((dir, index) => dirs.indexOf(dir) === index);
 }
 
-export function getOpenCodeConfigPaths(): string[] {
+export function getKiloCodeConfigPaths(): string[] {
   const configDir = getConfigDir();
-  return [join(configDir, 'opencode.json'), join(configDir, 'opencode.jsonc')];
+  return [join(configDir, 'kilo.json'), join(configDir, 'kilo.jsonc')];
 }
 
 export function getConfigJson(): string {
-  return getOpenCodeConfigPaths()[0];
+  return getKiloCodeConfigPaths()[0];
 }
 
 export function getConfigJsonc(): string {
-  return getOpenCodeConfigPaths()[1];
+  return getKiloCodeConfigPaths()[1];
 }
 
 export function getLiteConfig(): string {
-  return join(getConfigDir(), 'oh-my-opencode-slim.json');
+  return join(getConfigDir(), 'oh-my-kilocode-slim.json');
 }
 
 export function getLiteConfigJsonc(): string {
-  return join(getConfigDir(), 'oh-my-opencode-slim.jsonc');
+  return join(getConfigDir(), 'oh-my-kilocode-slim.jsonc');
 }
 
 export function getTuiConfig(): string {
@@ -134,9 +134,9 @@ export function ensureTuiConfigDir(): void {
 }
 
 /**
- * Ensure the directory for OpenCode's main config file exists.
+ * Ensure the directory for KiloCode's main config file exists.
  */
-export function ensureOpenCodeConfigDir(): void {
+export function ensureKiloCodeConfigDir(): void {
   const configDir = dirname(getConfigJson());
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true });

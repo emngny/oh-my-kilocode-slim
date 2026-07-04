@@ -5,7 +5,7 @@ const COMMAND_NAME = 'loop';
 function historyDir(): string {
   const shortID = Math.random().toString(36).slice(2, 8);
   const timestamp = Date.now().toString(36);
-  return `.opencode/loop-history/loop-${timestamp}-${shortID}`;
+  return `.kilo/loop-history/loop-${timestamp}-${shortID}`;
 }
 
 function activationPrompt(text: string): string {
@@ -51,11 +51,11 @@ export function createLoopCommandHook(): {
   ) => Promise<void>;
 } {
   return {
-    registerCommand: (opencodeConfig) => {
-      const cfg = opencodeConfig.command as Record<string, unknown> | undefined;
+    registerCommand: (kiloConfig) => {
+      const cfg = kiloConfig.command as Record<string, unknown> | undefined;
       if (cfg?.[COMMAND_NAME]) return;
-      if (!opencodeConfig.command) opencodeConfig.command = {};
-      (opencodeConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
+      if (!kiloConfig.command) kiloConfig.command = {};
+      (kiloConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
         template: 'Run an automated execute-verify loop',
         description:
           'Dispatch fixer, verify, iterate with file-based history on disk.',

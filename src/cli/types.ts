@@ -13,7 +13,7 @@ export interface InstallArgs {
   companion?: CompanionArg;
 }
 
-export interface OpenCodeConfig {
+export interface KiloCodeConfig {
   plugin?: unknown[];
   provider?: Record<string, unknown>;
   agent?: Record<string, unknown>;

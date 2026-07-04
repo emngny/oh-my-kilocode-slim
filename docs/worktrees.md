@@ -1,6 +1,6 @@
 # Worktrees
 
-`worktrees` is a bundled Orchestrator skill that manages Git worktrees as safe,
+`worktrees` is a bundled Chief skill that manages Git worktrees as safe,
 isolated coding lanes under `.slim/worktrees/<slug>/`. It lets agents work on
 parallel, complex, or high-risk tasks in separate checkouts without polluting
 your current workspace.
@@ -13,7 +13,7 @@ integrating changes, and cleaning up without losing user work.
 
 ## What It Does
 
-When managing worktree coding lanes, the Orchestrator:
+When managing worktree coding lanes, the Chief:
 
 1. **Checks workspace state:** confirms the repo, branch, dirty state, and
    existing `git worktree list` output.
@@ -31,7 +31,7 @@ When managing worktree coding lanes, the Orchestrator:
 
 ## How To Use It
 
-Ask the Orchestrator directly to isolate a complex or parallel task:
+Ask the Chief directly to isolate a complex or parallel task:
 
 ```text
 Create a worktree lane to refactor the auth logic.
@@ -43,7 +43,7 @@ Or for risky operations:
 Let's use an isolated worktree to test upgrading the database packages.
 ```
 
-The Orchestrator will analyze the work, present a lane plan (with slug, path, base branch, and purpose), and ask for your permission before initializing the worktree.
+The Chief will analyze the work, present a lane plan (with slug, path, base branch, and purpose), and ask for your permission before initializing the worktree.
 
 ---
 
@@ -72,7 +72,7 @@ A local metadata registry mapping active worktree lanes.
       "path": ".slim/worktrees/refactor-auth",
       "base": "main",
       "purpose": "Refactor token parsing module",
-      "owner": "orchestrator",
+      "owner": "chief",
       "status": "active",
       "areas": ["src/auth"],
       "createdAt": "2026-06-14T12:00:00.000Z"
@@ -85,34 +85,34 @@ A local metadata registry mapping active worktree lanes.
 
 ## Safety Guidelines
 
-- **Orchestrator control:** The orchestrator owns worktree coordination.
+- **Chief control:** The chief owns worktree coordination.
   Specialists can work inside lanes but should not run lane-management Git
   commands unless explicitly instructed.
 - **Strict Confirmations:** No git mutating commands (e.g. `worktree add`, `worktree remove`, `branch`, `merge`, `rebase`, `cherry-pick`, `prune`) are run without manual prompt agreement.
 - **No force operations:** Destructive git operations such as `reset --hard`,
   `clean`, force-push, or branch deletion must not be executed automatically.
 - **Git exclusions:** `.slim/worktrees/` is git-ignored. `.ignore` is updated so
-  OpenCode can still read lane contents. `.slim/worktrees.json` is git-ignored
+  KiloCode can still read lane contents. `.slim/worktrees.json` is git-ignored
   by default because it is local workflow metadata.
 
 Managed `.gitignore` block:
 
 ```gitignore
-# BEGIN oh-my-opencode-slim worktrees
+# BEGIN oh-my-kilocode-slim worktrees
 .slim/worktrees/
 .slim/worktrees.json
-# END oh-my-opencode-slim worktrees
+# END oh-my-kilocode-slim worktrees
 ```
 
 Managed `.ignore` block:
 
 ```ignore
-# BEGIN oh-my-opencode-slim worktrees
+# BEGIN oh-my-kilocode-slim worktrees
 !.slim/
 !.slim/worktrees.json
 !.slim/worktrees/
 !.slim/worktrees/**
-# END oh-my-opencode-slim worktrees
+# END oh-my-kilocode-slim worktrees
 ```
 
 ---

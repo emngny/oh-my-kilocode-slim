@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import type { InterviewConfig } from '../config';
 import { createInterviewServer } from './server';
 import { createInterviewService } from './service';

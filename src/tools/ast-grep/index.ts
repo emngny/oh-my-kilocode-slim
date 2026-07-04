@@ -1,4 +1,4 @@
-import type { ToolDefinition } from '@opencode-ai/plugin';
+import type { ToolDefinition } from '@kilocode/plugin';
 import { ast_grep_replace, ast_grep_search } from './tools';
 
 export const builtinTools: Record<string, ToolDefinition> = {

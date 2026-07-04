@@ -1,6 +1,6 @@
 # Multiplexer Integration Guide
 
-Use tmux, Zellij, or Herdr to watch subagents work in live panes while OpenCode keeps running in your main session.
+Use tmux, Zellij, or Herdr to watch subagents work in live panes while KiloCode keeps running in your main session.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Use tmux, Zellij, or Herdr to watch subagents work in live panes while OpenCode 
 
 ## Overview
 
-When OpenCode launches child agent sessions, oh-my-opencode-slim can open panes for those sessions automatically.
+When KiloCode launches child agent sessions, oh-my-kilocode-slim can open panes for those sessions automatically.
 
 - **Real-time visibility** into agent activity
 - **Automatic pane management** while tasks run
@@ -24,11 +24,11 @@ When OpenCode launches child agent sessions, oh-my-opencode-slim can open panes 
 
 ![Tmux multiplexer view](../img/tmux.png)
 
-*OpenCode running in tmux with live subagent panes.*
+*KiloCode running in tmux with live subagent panes.*
 
-> ⚠️ **Current workaround:** Start OpenCode with `--port` to enable multiplexer integration. The port must match the `OPENCODE_PORT` environment variable. This is required until [opencode#9099](https://github.com/anomalyco/opencode/issues/9099) is resolved.
+> ⚠️ **Current workaround:** Start KiloCode with `--port` to enable multiplexer integration. The port must match the `OPENCODE_PORT` environment variable. This is required until [kilo#9099](https://github.com/anomalyco/kilo/issues/9099) is resolved.
 
-If you open multiple OpenCode sessions, use a random high port for each launch instead of hard-coding `4096`.
+If you open multiple KiloCode sessions, use a random high port for each launch instead of hard-coding `4096`.
 
 **Bash helper:**
 
@@ -37,7 +37,7 @@ omos() {
   local port
   port=$(jot -r 1 49152 65535)
   OPENCODE_PORT="$port" \
-  opencode --port "$port" "$@"
+  kilo --port "$port" "$@"
 }
 ```
 
@@ -47,7 +47,7 @@ omos() {
 
 ### 1. Enable the multiplexer
 
-Edit `~/.config/opencode/oh-my-opencode-slim.json` (or `.jsonc`):
+Edit `~/.config/kilo/oh-my-kilocode-slim.json` (or `.jsonc`):
 
 **Auto-detect (recommended):**
 
@@ -93,32 +93,32 @@ Edit `~/.config/opencode/oh-my-opencode-slim.json` (or `.jsonc`):
 }
 ```
 
-### 2. Start OpenCode inside tmux, Zellij, or Herdr
+### 2. Start KiloCode inside tmux, Zellij, or Herdr
 
 **Tmux:**
 
 ```bash
 tmux
-opencode --port 4096
+kilo --port 4096
 ```
 
 **Zellij:**
 
 ```bash
 zellij
-opencode --port 4096
+kilo --port 4096
 ```
 
 **Herdr:**
 
 ```bash
 herdr
-opencode --port 4096
+kilo --port 4096
 ```
 
 ### 3. Trigger delegated work
 
-Ask OpenCode to do something that launches subagents. New panes should appear automatically.
+Ask KiloCode to do something that launches subagents. New panes should appear automatically.
 
 Example:
 
@@ -147,17 +147,17 @@ Please analyze this codebase and create a documentation structure.
 | `type` | string | `"none"` | `"auto"`, `"tmux"`, `"zellij"`, `"herdr"`, or `"none"` |
 | `layout` | string | `"main-vertical"` | Layout preset for tmux; mapped to Zellij/Herdr pane directions where possible |
 | `main_pane_size` | number | `60` | Main pane size percentage for tmux only (`20`-`80`); ignored by Zellij and Herdr |
-| `zellij_pane_mode` | string | `"agent-tab"` | Zellij pane placement: `"agent-tab"` creates/reuses a dedicated tab; `"current-tab"` opens panes in the tab containing the parent OpenCode pane |
+| `zellij_pane_mode` | string | `"agent-tab"` | Zellij pane placement: `"agent-tab"` creates/reuses a dedicated tab; `"current-tab"` opens panes in the tab containing the parent KiloCode pane |
 
 ### Supported Multiplexers
 
 | Multiplexer | Status | Notes |
 |-------------|--------|-------|
 | **Tmux** | ✅ Supported | Full layout control with `main-vertical`, `main-horizontal`, `tiled`, and more |
-| **Zellij** | ✅ Supported | Creates a dedicated `opencode-agents` tab by default; can open panes in the parent OpenCode tab with `zellij_pane_mode: "current-tab"`; maps `main-*` layouts to pane directions |
+| **Zellij** | ✅ Supported | Creates a dedicated `kilo-agents` tab by default; can open panes in the parent KiloCode tab with `zellij_pane_mode: "current-tab"`; maps `main-*` layouts to pane directions |
 | **Herdr** | ✅ Supported | Splits panes in the current Herdr workspace; maps `main-vertical`/`even-horizontal`/`tiled` layouts to right splits and `main-horizontal`/`even-vertical` to down splits; no layout rebalancing (like Zellij) |
 
-**Example: open Zellij subagents in the parent OpenCode tab**
+**Example: open Zellij subagents in the parent KiloCode tab**
 
 ```jsonc
 {
@@ -169,7 +169,7 @@ Please analyze this codebase and create a documentation structure.
 ```
 
 In `current-tab` mode, panes are targeted to the tab that contains the parent
-OpenCode pane, even if another Zellij tab is focused when a subagent starts.
+KiloCode pane, even if another Zellij tab is focused when a subagent starts.
 If the parent pane cannot be resolved, it falls back to the currently focused
 tab.
 

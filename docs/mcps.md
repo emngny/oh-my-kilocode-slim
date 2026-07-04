@@ -1,6 +1,6 @@
 # MCP Servers
 
-Built-in Model Context Protocol (MCP) servers ship with oh-my-opencode-slim and give agents access to external tools - web search, library documentation, and code search.
+Built-in Model Context Protocol (MCP) servers ship with oh-my-kilocode-slim and give agents access to external tools - web search, library documentation, and code search.
 
 ---
 
@@ -18,7 +18,7 @@ Built-in Model Context Protocol (MCP) servers ship with oh-my-opencode-slim and 
 
 | Agent | Default MCPs |
 |-------|-------------|
-| `orchestrator` | `*`, `!context7` |
+| `chief` | `*`, `!context7` |
 | `librarian` | `websearch`, `context7`, `gh_grep` |
 | `designer` | none |
 | `oracle` | none |
@@ -30,7 +30,7 @@ Built-in Model Context Protocol (MCP) servers ship with oh-my-opencode-slim and 
 
 ## Configuring MCP Access
 
-Control which MCPs each agent can use via the `mcps` array in your preset config (`~/.config/opencode/oh-my-opencode-slim.json` or `.jsonc`):
+Control which MCPs each agent can use via the `mcps` array in your preset config (`~/.config/kilo/oh-my-kilocode-slim.json` or `.jsonc`):
 
 | Syntax | Meaning |
 |--------|---------|
@@ -51,7 +51,7 @@ Control which MCPs each agent can use via the `mcps` array in your preset config
 {
   "presets": {
     "my-preset": {
-      "orchestrator": {
+      "chief": {
         "mcps": ["*", "!context7"]
       },
       "librarian": {

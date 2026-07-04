@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Defines Model Context Protocol (MCP) server configurations and integrations for the OpenCode plugin. This module provides built-in MCP servers for web search, code search, and documentation lookup, enabling agents to access external tools and resources via the MCP standard.
+Defines Model Context Protocol (MCP) server configurations and integrations for the KiloCode plugin. This module provides built-in MCP servers for web search, code search, and documentation lookup, enabling agents to access external tools and resources via the MCP standard.
 
 ## Design
 
@@ -73,7 +73,7 @@ Returns record of McpConfig objects to main plugin
 
 - **Primary consumer**: `src/index.ts` - Main plugin entry point
   - Calls `createBuiltinMcps()` during plugin initialization
-  - Receives McpConfig record and registers MCPs with OpenCode
+  - Receives McpConfig record and registers MCPs with KiloCode
 
 - **Configuration layer**: `src/config/` - Provides McpName type and WebsearchConfig schema
   - Defines MCP names and configuration schemas
@@ -104,7 +104,7 @@ The system supports runtime configuration overrides:
 
 
 ```typescript
-// In user configuration (e.g., ~/.config/opencode/oh-my-opencode-slim.json)
+// In user configuration (e.g., ~/.config/kilo/oh-my-kilocode-slim.json)
 {
   "mcp": {
     "disabled": ["websearch"],
@@ -132,7 +132,7 @@ This allows users to:
 ## Testing
 
 - **Unit tests**: `index.test.ts` validates MCP creation and filtering logic
-- **Integration tests**: MCP servers are tested via integration with OpenCode's MCP runtime
+- **Integration tests**: MCP servers are tested via integration with KiloCode's MCP runtime
 
 - **Configuration tests**: Schema validation ensures user configurations match expected types
 

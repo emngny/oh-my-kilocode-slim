@@ -1,10 +1,10 @@
 # Interview
 
-`/interview` opens a local browser UI for refining a feature idea inside the same OpenCode session.
+`/interview` opens a local browser UI for refining a feature idea inside the same KiloCode session.
 
 Use it when chat feels too loose and you want a cleaner question/answer flow plus a markdown spec saved in your repo.
 
-> Tip: `/interview` usually works well with a fast model. If the flow feels slower than it should, switch models in OpenCode with `Ctrl+X`, then `m`, and pick a faster one.
+> Tip: `/interview` usually works well with a fast model. If the flow feels slower than it should, switch models in KiloCode with `Ctrl+X`, then `m`, and pick a faster one.
 
 ## Quick start
 
@@ -16,13 +16,13 @@ Start a new interview:
 
 What happens:
 
-1. OpenCode starts the interview in your current session
+1. KiloCode starts the interview in your current session
 2. a localhost page opens in your browser by default
 3. the UI shows the current questions and suggested answers
 4. answers are submitted back into the same session
 5. a markdown spec is updated in your repo
 
-OpenCode posts a localhost URL like this:
+KiloCode posts a localhost URL like this:
 
 ![Interview URL](../img/interview-url.png)
 
@@ -134,11 +134,11 @@ The interview module has two modes: **per-session** (default) and **dashboard** 
 
 ### Per-session mode (default)
 
-When `port` is `0` (or unset) and `dashboard` is `false` (or unset), each OpenCode process runs its own interview server on a random port. This is the original behavior - no configuration needed.
+When `port` is `0` (or unset) and `dashboard` is `false` (or unset), each KiloCode process runs its own interview server on a random port. This is the original behavior - no configuration needed.
 
 ```jsonc
 {
-  "oh-my-opencode-slim": {
+  "oh-my-kilocode-slim": {
     "interview": {}
     // or explicitly:
     // "interview": { "port": 0 }
@@ -146,14 +146,14 @@ When `port` is `0` (or unset) and `dashboard` is `false` (or unset), each OpenCo
 }
 ```
 
-- one interview server per OpenCode process
+- one interview server per KiloCode process
 - server starts lazily on first `/interview` command
 - random port assigned by the OS
 - all state is local to the session
 
 ### Dashboard mode
 
-When `dashboard` is `true` or `port` is set to a value greater than `0`, interview switches to dashboard mode. A single dashboard server aggregates interviews from **all** OpenCode sessions on the same machine.
+When `dashboard` is `true` or `port` is set to a value greater than `0`, interview switches to dashboard mode. A single dashboard server aggregates interviews from **all** KiloCode sessions on the same machine.
 
 ```jsonc
 // Option A: dashboard on default port (43211)
@@ -169,8 +169,8 @@ When `dashboard` is `true` or `port` is set to a value greater than `0`, intervi
 #### What the dashboard gives you
 
 - **Single URL.** One dashboard page lists all active and past interviews across all sessions.
-- **Multi-session coordination.** Each OpenCode process pushes interview state to the dashboard. The dashboard serves the web UI and relays answers back to the right session.
-- **Failover recovery.** If the dashboard process dies, the next OpenCode process to start claims the port and rebuilds state from `.md` files on disk.
+- **Multi-session coordination.** Each KiloCode process pushes interview state to the dashboard. The dashboard serves the web UI and relays answers back to the right session.
+- **Failover recovery.** If the dashboard process dies, the next KiloCode process to start claims the port and rebuilds state from `.md` files on disk.
 - **File browser.** Scans `interview/` (or your configured output folder) across all known project directories, including your home directory.
 
 #### How it works
@@ -196,7 +196,7 @@ Sessions are smart - they drive LLM interaction locally (parse state, inject pro
 
 #### Auto-failover
 
-Any OpenCode process can become the dashboard. The first process to bind the configured port wins. If it dies:
+Any KiloCode process can become the dashboard. The first process to bind the configured port wins. If it dies:
 
 1. Other sessions detect the dead dashboard (failed state push or health probe)
 2. The next process to start claims the port
@@ -206,7 +206,7 @@ Any OpenCode process can become the dashboard. The first process to bind the con
 
 Sessions register their project directory with the dashboard so it knows where to scan for interview files. This happens automatically on first `/interview` command or session event - no manual setup needed.
 
-The dashboard also scans your home directory's output folder by default, so interviews created from a home-directory OpenCode session are always visible.
+The dashboard also scans your home directory's output folder by default, so interviews created from a home-directory KiloCode session are always visible.
 
 #### Dashboard settings
 
@@ -214,13 +214,13 @@ The dashboard page includes a settings panel for:
 
 - **Scan days** - how far back to look for sessions (default: 30)
 - **Add/remove folders** - manually add project directories to scan
-- **Discover sessions** - re-scan the OpenCode session list for new directories
+- **Discover sessions** - re-scan the KiloCode session list for new directories
 
 ## Configuration
 
 ```jsonc
 {
-  "oh-my-opencode-slim": {
+  "oh-my-kilocode-slim": {
     "interview": {
       "maxQuestions": 2,
       "outputFolder": "interview",

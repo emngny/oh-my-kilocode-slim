@@ -12,8 +12,8 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  addPluginToOpenCodeConfig,
-  addPluginToOpenCodeTuiConfig,
+  addPluginToKiloCodeConfig,
+  addPluginToKiloCodeTuiConfig,
   detectCurrentConfig,
   disableDefaultAgents,
   enableLspByDefault,
@@ -31,9 +31,9 @@ describe('config-io', () => {
   const originalArgv = [...process.argv];
 
   beforeEach(() => {
-    tmpDir = mkdtempSync(join(tmpdir(), 'opencode-io-test-'));
-    delete process.env.OPENCODE_CONFIG_DIR;
-    delete process.env.OPENCODE_TUI_CONFIG;
+    tmpDir = mkdtempSync(join(tmpdir(), 'kilo-io-test-'));
+    delete process.env.KILOCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_TUI_CONFIG;
     process.env.XDG_CONFIG_HOME = tmpDir;
   });
 
@@ -50,7 +50,7 @@ describe('config-io', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(
       join(dir, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
     );
   }
 
@@ -117,72 +117,72 @@ describe('config-io', () => {
     });
   });
 
-  test('addPluginToOpenCodeConfig adds plugin and removes duplicates', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig adds plugin and removes duplicates', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(
       configPath,
-      JSON.stringify({ plugin: ['other', 'oh-my-opencode-slim@1.0.0'] }),
+      JSON.stringify({ plugin: ['other', 'oh-my-kilocode-slim@1.0.0'] }),
     );
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-opencode-slim');
-    expect(saved.plugin).not.toContain('oh-my-opencode-slim@1.0.0');
+    expect(saved.plugin).toContain('oh-my-kilocode-slim');
+    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
     expect(saved.plugin.length).toBe(2);
   });
 
-  test('addPluginToOpenCodeConfig respects OPENCODE_CONFIG_DIR', async () => {
-    const customConfigDir = join(tmpDir, 'custom-opencode');
-    const defaultConfigDir = join(tmpDir, 'opencode');
-    const customConfigPath = join(customConfigDir, 'opencode.jsonc');
-    const defaultConfigPath = join(defaultConfigDir, 'opencode.json');
+  test('addPluginToKiloCodeConfig respects KILOCODE_CONFIG_DIR', async () => {
+    const customConfigDir = join(tmpDir, 'custom-kilo');
+    const defaultConfigDir = join(tmpDir, 'kilo');
+    const customConfigPath = join(customConfigDir, 'kilo.jsonc');
+    const defaultConfigPath = join(defaultConfigDir, 'kilo.json');
 
-    process.env.OPENCODE_CONFIG_DIR = customConfigDir;
+    process.env.KILOCODE_CONFIG_DIR = customConfigDir;
     mkdirSync(customConfigDir, { recursive: true });
     mkdirSync(defaultConfigDir, { recursive: true });
     writeFileSync(
       customConfigPath,
-      JSON.stringify({ plugin: ['other', 'oh-my-opencode-slim@1.0.0'] }),
+      JSON.stringify({ plugin: ['other', 'oh-my-kilocode-slim@1.0.0'] }),
     );
     writeFileSync(defaultConfigPath, JSON.stringify({ plugin: ['default'] }));
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
 
     expect(result.success).toBe(true);
     expect(result.configPath).toBe(customConfigPath);
     const customSaved = JSON.parse(readFileSync(customConfigPath, 'utf-8'));
     const defaultSaved = JSON.parse(readFileSync(defaultConfigPath, 'utf-8'));
-    expect(customSaved.plugin).toEqual(['other', 'oh-my-opencode-slim']);
+    expect(customSaved.plugin).toEqual(['other', 'oh-my-kilocode-slim']);
     expect(defaultSaved.plugin).toEqual(['default']);
   });
 
-  test('addPluginToOpenCodeConfig stores package name for bunx temp paths', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig stores package name for bunx temp paths', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     paths.ensureConfigDir();
     writeFileSync(configPath, JSON.stringify({ plugin: [] }));
     writePackageJson(packageRoot);
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['oh-my-opencode-slim']);
+    expect(saved.plugin).toEqual(['oh-my-kilocode-slim']);
   });
 
-  test('addPluginToOpenCodeConfig stores local repo path for local dev paths', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig stores local repo path for local dev paths', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     const packageRoot = join(tmpDir, 'repo');
     const localCliPath = join(packageRoot, 'dist', 'cli', 'index.js');
     paths.ensureConfigDir();
@@ -190,15 +190,15 @@ describe('config-io', () => {
     writePackageJson(packageRoot);
     process.argv[1] = localCliPath;
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
     expect(saved.plugin).toEqual([packageRoot]);
   });
 
-  test('addPluginToOpenCodeConfig stores local repo path for local paths containing bunx-', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig stores local repo path for local paths containing bunx-', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     const packageRoot = join(tmpDir, 'repo', 'bunx-tools');
     const localCliPath = join(packageRoot, 'dist', 'cli', 'index.js');
     paths.ensureConfigDir();
@@ -206,15 +206,15 @@ describe('config-io', () => {
     writePackageJson(packageRoot);
     process.argv[1] = localCliPath;
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
     expect(saved.plugin).toEqual([packageRoot]);
   });
 
-  test('addPluginToOpenCodeConfig deduplicates existing local repo path entries', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig deduplicates existing local repo path entries', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     const packageRoot = join(tmpDir, 'repo');
     const localCliPath = join(packageRoot, 'dist', 'cli', 'index.js');
     paths.ensureConfigDir();
@@ -225,15 +225,15 @@ describe('config-io', () => {
     );
     process.argv[1] = localCliPath;
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
     expect(saved.plugin).toEqual(['other', packageRoot]);
   });
 
-  test('addPluginToOpenCodeConfig preserves non-string plugin entries when refreshing', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig preserves non-string plugin entries when refreshing', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     process.argv[1] = '';
 
@@ -241,129 +241,129 @@ describe('config-io', () => {
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['other-plugin', objectPlugin, 'oh-my-opencode-slim@1.0.0'],
+        plugin: ['other-plugin', objectPlugin, 'oh-my-kilocode-slim@1.0.0'],
       }),
     );
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-opencode-slim');
+    expect(saved.plugin).toContain('oh-my-kilocode-slim');
     expect(saved.plugin).toContain('other-plugin');
-    expect(saved.plugin).not.toContain('oh-my-opencode-slim@1.0.0');
+    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
     // Non-string entries (objects) must survive the plugin refresh
     expect(saved.plugin).toContainEqual(objectPlugin);
     expect(saved.plugin.length).toBe(3);
   });
 
-  test('addPluginToOpenCodeConfig removes tuple plugin entries', async () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('addPluginToKiloCodeConfig removes tuple plugin entries', async () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['other', ['oh-my-opencode-slim', { enabled: true }]],
+        plugin: ['other', ['oh-my-kilocode-slim', { enabled: true }]],
       }),
     );
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeConfig();
+    const result = await addPluginToKiloCodeConfig();
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(configPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['other', 'oh-my-opencode-slim']);
+    expect(saved.plugin).toEqual(['other', 'oh-my-kilocode-slim']);
   });
 
-  test('addPluginToOpenCodeTuiConfig adds plugin to tui.json and removes duplicates', async () => {
-    const tuiPath = join(tmpDir, 'opencode', 'tui.json');
+  test('addPluginToKiloCodeTuiConfig adds plugin to tui.json and removes duplicates', async () => {
+    const tuiPath = join(tmpDir, 'kilo', 'tui.json');
     paths.ensureConfigDir();
     writeFileSync(
       tuiPath,
-      JSON.stringify({ plugin: ['other', 'oh-my-opencode-slim@1.0.0'] }),
+      JSON.stringify({ plugin: ['other', 'oh-my-kilocode-slim@1.0.0'] }),
     );
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-opencode-slim');
-    expect(saved.plugin).not.toContain('oh-my-opencode-slim@1.0.0');
+    expect(saved.plugin).toContain('oh-my-kilocode-slim');
+    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
     expect(saved.plugin.length).toBe(2);
   });
 
-  test('addPluginToOpenCodeTuiConfig stores package name for bunx temp paths', async () => {
-    const tuiPath = join(tmpDir, 'opencode', 'tui.json');
+  test('addPluginToKiloCodeTuiConfig stores package name for bunx temp paths', async () => {
+    const tuiPath = join(tmpDir, 'kilo', 'tui.json');
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     paths.ensureConfigDir();
     writeFileSync(tuiPath, JSON.stringify({ plugin: [] }));
     writePackageJson(packageRoot);
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['oh-my-opencode-slim']);
+    expect(saved.plugin).toEqual(['oh-my-kilocode-slim']);
   });
 
-  test('addPluginToOpenCodeTuiConfig removes tuple plugin entries', async () => {
-    const tuiPath = join(tmpDir, 'opencode', 'tui.json');
+  test('addPluginToKiloCodeTuiConfig removes tuple plugin entries', async () => {
+    const tuiPath = join(tmpDir, 'kilo', 'tui.json');
     paths.ensureConfigDir();
     writeFileSync(
       tuiPath,
       JSON.stringify({
-        plugin: ['other', ['oh-my-opencode-slim', { enabled: true }]],
+        plugin: ['other', ['oh-my-kilocode-slim', { enabled: true }]],
       }),
     );
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['other', 'oh-my-opencode-slim']);
+    expect(saved.plugin).toEqual(['other', 'oh-my-kilocode-slim']);
   });
 
-  test('addPluginToOpenCodeTuiConfig honors OPENCODE_TUI_CONFIG', async () => {
+  test('addPluginToKiloCodeTuiConfig honors KILOCODE_TUI_CONFIG', async () => {
     const tuiPath = join(tmpDir, 'custom', 'tui.custom.json');
-    process.env.OPENCODE_TUI_CONFIG = tuiPath;
+    process.env.KILOCODE_TUI_CONFIG = tuiPath;
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
     expect(result.success).toBe(true);
     expect(result.configPath).toBe(tuiPath);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toEqual(['oh-my-opencode-slim']);
+    expect(saved.plugin).toEqual(['oh-my-kilocode-slim']);
   });
 
-  test('addPluginToOpenCodeTuiConfig does not bypass OPENCODE_TUI_CONFIG for existing default config', async () => {
-    const defaultTuiPath = join(tmpDir, 'opencode', 'tui.jsonc');
+  test('addPluginToKiloCodeTuiConfig does not bypass KILOCODE_TUI_CONFIG for existing default config', async () => {
+    const defaultTuiPath = join(tmpDir, 'kilo', 'tui.jsonc');
     const customTuiPath = join(tmpDir, 'custom', 'tui.json');
     paths.ensureConfigDir();
     writeFileSync(defaultTuiPath, JSON.stringify({ plugin: ['default'] }));
-    process.env.OPENCODE_TUI_CONFIG = customTuiPath;
+    process.env.KILOCODE_TUI_CONFIG = customTuiPath;
     process.argv[1] = '';
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
     expect(result.success).toBe(true);
     expect(result.configPath).toBe(customTuiPath);
 
     const custom = JSON.parse(readFileSync(customTuiPath, 'utf-8'));
     const original = JSON.parse(readFileSync(defaultTuiPath, 'utf-8'));
-    expect(custom.plugin).toEqual(['oh-my-opencode-slim']);
+    expect(custom.plugin).toEqual(['oh-my-kilocode-slim']);
     expect(original.plugin).toEqual(['default']);
   });
 
-  test('addPluginToOpenCodeTuiConfig stores local repo path for local dev paths', async () => {
-    const tuiPath = join(tmpDir, 'opencode', 'tui.json');
+  test('addPluginToKiloCodeTuiConfig stores local repo path for local dev paths', async () => {
+    const tuiPath = join(tmpDir, 'kilo', 'tui.json');
     const packageRoot = join(tmpDir, 'repo');
     const localCliPath = join(packageRoot, 'dist', 'cli', 'index.js');
     paths.ensureConfigDir();
@@ -371,15 +371,15 @@ describe('config-io', () => {
     writePackageJson(packageRoot);
     process.argv[1] = localCliPath;
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
     expect(saved.plugin).toEqual([packageRoot]);
   });
 
-  test('addPluginToOpenCodeTuiConfig deduplicates existing local repo path entries', async () => {
-    const tuiPath = join(tmpDir, 'opencode', 'tui.json');
+  test('addPluginToKiloCodeTuiConfig deduplicates existing local repo path entries', async () => {
+    const tuiPath = join(tmpDir, 'kilo', 'tui.json');
     const packageRoot = join(tmpDir, 'repo');
     const localCliPath = join(packageRoot, 'dist', 'cli', 'index.js');
     paths.ensureConfigDir();
@@ -387,15 +387,15 @@ describe('config-io', () => {
     writeFileSync(tuiPath, JSON.stringify({ plugin: ['other', packageRoot] }));
     process.argv[1] = localCliPath;
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
 
     expect(result.success).toBe(true);
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
     expect(saved.plugin).toEqual(['other', packageRoot]);
   });
 
-  test('addPluginToOpenCodeTuiConfig preserves non-string plugin entries when refreshing', async () => {
-    const tuiPath = join(tmpDir, 'opencode', 'tui.json');
+  test('addPluginToKiloCodeTuiConfig preserves non-string plugin entries when refreshing', async () => {
+    const tuiPath = join(tmpDir, 'kilo', 'tui.json');
     paths.ensureConfigDir();
     process.argv[1] = '';
 
@@ -403,24 +403,24 @@ describe('config-io', () => {
     writeFileSync(
       tuiPath,
       JSON.stringify({
-        plugin: ['other-plugin', objectPlugin, 'oh-my-opencode-slim@1.0.0'],
+        plugin: ['other-plugin', objectPlugin, 'oh-my-kilocode-slim@1.0.0'],
       }),
     );
 
-    const result = await addPluginToOpenCodeTuiConfig();
+    const result = await addPluginToKiloCodeTuiConfig();
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(tuiPath, 'utf-8'));
-    expect(saved.plugin).toContain('oh-my-opencode-slim');
+    expect(saved.plugin).toContain('oh-my-kilocode-slim');
     expect(saved.plugin).toContain('other-plugin');
-    expect(saved.plugin).not.toContain('oh-my-opencode-slim@1.0.0');
+    expect(saved.plugin).not.toContain('oh-my-kilocode-slim@1.0.0');
     // Non-string entries (objects) must survive the plugin refresh
     expect(saved.plugin).toContainEqual(objectPlugin);
     expect(saved.plugin.length).toBe(3);
   });
 
   test('writeLiteConfig writes lite config with OpenAI preset', () => {
-    const litePath = join(tmpDir, 'opencode', 'oh-my-opencode-slim.json');
+    const litePath = join(tmpDir, 'kilo', 'oh-my-kilocode-slim.json');
     paths.ensureConfigDir();
 
     const result = writeLiteConfig({
@@ -432,40 +432,36 @@ describe('config-io', () => {
 
     const saved = JSON.parse(readFileSync(litePath, 'utf-8'));
     expect(saved.$schema).toBe(
-      'https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json',
+      'https://unpkg.com/oh-my-kilocode-slim@latest/oh-my-kilocode-slim.schema.json',
     );
     expect(saved.preset).toBe('openai');
     expect(saved.presets.openai).toBeDefined();
-    expect(saved.presets['opencode-go']).toBeDefined();
+    expect(saved.presets['kilo-go']).toBeDefined();
     expect(saved.tmux.enabled).toBe(true);
   });
 
   test('writeLiteConfig writes selected preset', () => {
-    const litePath = join(tmpDir, 'opencode', 'oh-my-opencode-slim.json');
+    const litePath = join(tmpDir, 'kilo', 'oh-my-kilocode-slim.json');
     paths.ensureConfigDir();
 
     const result = writeLiteConfig({
       hasTmux: false,
       installCustomSkills: false,
-      preset: 'opencode-go',
+      preset: 'kilo-go',
       reset: false,
     });
     expect(result.success).toBe(true);
 
     const saved = JSON.parse(readFileSync(litePath, 'utf-8'));
-    expect(saved.preset).toBe('opencode-go');
+    expect(saved.preset).toBe('kilo-go');
     expect(saved.disabled_agents).toEqual([]);
     expect(saved.presets.openai).toBeDefined();
-    expect(saved.presets['opencode-go'].orchestrator.model).toBe(
-      'opencode-go/glm-5.2',
-    );
-    expect(saved.presets['opencode-go'].observer.model).toBe(
-      'opencode-go/kimi-k2.6',
-    );
+    expect(saved.presets['kilo-go'].chief.model).toBe('kilo-go/glm-5.2');
+    expect(saved.presets['kilo-go'].observer.model).toBe('kilo-go/kimi-k2.6');
   });
 
-  test('disableDefaultAgents disables conflicting OpenCode built-in agents', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+  test('disableDefaultAgents disables conflicting KiloCode built-in agents', () => {
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(configPath, JSON.stringify({}));
 
@@ -480,7 +476,7 @@ describe('config-io', () => {
   });
 
   test('disableDefaultAgents preserves existing build and plan agent config', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(
       configPath,
@@ -503,7 +499,7 @@ describe('config-io', () => {
   });
 
   test('enableLspByDefault sets lsp true when missing', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(configPath, JSON.stringify({ plugin: ['other'] }));
 
@@ -516,7 +512,7 @@ describe('config-io', () => {
   });
 
   test('enableLspByDefault preserves explicit lsp config', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(configPath, JSON.stringify({ lsp: false }));
 
@@ -528,7 +524,7 @@ describe('config-io', () => {
   });
 
   test('enableLspByDefault does not write when lsp exists', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     paths.ensureConfigDir();
     writeFileSync(configPath, JSON.stringify({ lsp: false }));
 
@@ -539,14 +535,14 @@ describe('config-io', () => {
   });
 
   test('detectCurrentConfig detects installed status', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
-    const litePath = join(tmpDir, 'opencode', 'oh-my-opencode-slim.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
+    const litePath = join(tmpDir, 'kilo', 'oh-my-kilocode-slim.json');
     paths.ensureConfigDir();
 
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['oh-my-opencode-slim'],
+        plugin: ['oh-my-kilocode-slim'],
         provider: {
           kimi: {
             npm: '@ai-sdk/openai-compatible',
@@ -560,7 +556,7 @@ describe('config-io', () => {
         preset: 'openai',
         presets: {
           openai: {
-            orchestrator: { model: 'openai/gpt-4' },
+            chief: { model: 'openai/gpt-4' },
             oracle: { model: 'anthropic/claude-opus-4-6' },
             explorer: { model: 'github-copilot/grok-code-fast-1' },
             librarian: { model: 'zai-coding-plan/glm-4.7' },
@@ -581,13 +577,13 @@ describe('config-io', () => {
   });
 
   test('detectCurrentConfig detects provider models in arrays', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
-    const litePath = join(tmpDir, 'opencode', 'oh-my-opencode-slim.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
+    const litePath = join(tmpDir, 'kilo', 'oh-my-kilocode-slim.json');
     paths.ensureConfigDir();
 
     writeFileSync(
       configPath,
-      JSON.stringify({ plugin: ['oh-my-opencode-slim'] }),
+      JSON.stringify({ plugin: ['oh-my-kilocode-slim'] }),
     );
     writeFileSync(
       litePath,
@@ -595,7 +591,7 @@ describe('config-io', () => {
         preset: 'dev',
         presets: {
           dev: {
-            orchestrator: {
+            chief: {
               model: [
                 'openai/gpt-5.4-mini',
                 { id: 'anthropic/claude-opus-4-6' },
@@ -612,7 +608,7 @@ describe('config-io', () => {
   });
 
   test('detectCurrentConfig treats local repo path entries as installed', () => {
-    const configPath = join(tmpDir, 'opencode', 'opencode.json');
+    const configPath = join(tmpDir, 'kilo', 'kilo.json');
     const packageRoot = join(tmpDir, 'repo');
     paths.ensureConfigDir();
     writePackageJson(packageRoot);

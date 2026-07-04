@@ -1,8 +1,4 @@
-import {
-  type PluginInput,
-  type ToolDefinition,
-  tool,
-} from '@opencode-ai/plugin';
+import { type PluginInput, type ToolDefinition, tool } from '@kilocode/plugin';
 import type { BackgroundJobBoard } from '../utils/background-job-board';
 import { isRecord as isObjectRecord } from '../utils/guards';
 import { log } from '../utils/logger';
@@ -41,13 +37,11 @@ Use only for obsolete, wrong, conflicting, or user-requested cancellation. Accep
     async execute(args, toolContext) {
       const parentSessionID = toolContext?.sessionID;
       if (!parentSessionID) throw new Error('cancel_task requires sessionID');
-      if (toolContext.agent && toolContext.agent !== 'orchestrator') {
-        throw new Error('cancel_task can only be used by orchestrator');
+      if (toolContext.agent && toolContext.agent !== 'chief') {
+        throw new Error('cancel_task can only be used by chief');
       }
       if (!options.shouldManageSession(parentSessionID)) {
-        throw new Error(
-          'cancel_task can only be used in orchestrator sessions',
-        );
+        throw new Error('cancel_task can only be used in chief sessions');
       }
 
       const requested = args.task_id.trim();

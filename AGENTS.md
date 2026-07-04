@@ -4,7 +4,7 @@ This document provides guidelines for AI agents operating in this repository.
 
 ## Project Overview
 
-**oh-my-opencode-slim** - A lightweight agent orchestration plugin for OpenCode, a slimmed-down fork of oh-my-opencode. Built with TypeScript, Bun, and Biome.
+**oh-my-kilocode-slim** - A lightweight agent orchestration plugin for KiloCode, a slimmed-down fork of oh-my-kilocode. Built with TypeScript, Bun, and Biome.
 
 ## Commands
 
@@ -17,7 +17,7 @@ This document provides guidelines for AI agents operating in this repository.
 | `bun run format` | Format entire codebase with Biome |
 | `bun run check` | Run Biome check with auto-fix (lint + format + organize imports) |
 | `bun run check:ci` | Run Biome check without auto-fix (CI mode) |
-| `bun run dev` | Build and run with OpenCode |
+| `bun run dev` | Build and run with KiloCode |
 
 **Running a single test:** Use Bun's test filtering with the `-t` flag:
 ```bash
@@ -63,13 +63,13 @@ bun test -t "test-name-pattern"
 ## Project Structure
 
 ```
-oh-my-opencode-slim/
+oh-my-kilocode-slim/
 ├── src/
-│   ├── agents/       # Agent factories (orchestrator, explorer, oracle, etc.)
+│   ├── agents/       # Agent factories (chief, explorer, oracle, etc.)
 │   ├── cli/          # CLI entry point
 │   ├── config/       # Constants, schemas, MCP defaults
 │   ├── council/      # Council manager (multi-LLM session orchestration)
-│   ├── hooks/        # OpenCode lifecycle hooks
+│   ├── hooks/        # KiloCode lifecycle hooks
 │   ├── mcp/          # MCP server definitions
 │   ├── multiplexer/  # Tmux/Zellij pane integration for child sessions
 │   ├── skills/       # Skill definitions (included in package publish)
@@ -85,7 +85,7 @@ oh-my-opencode-slim/
 ## Key Dependencies
 
 - `@modelcontextprotocol/sdk` - MCP protocol implementation
-- `@opencode-ai/sdk` - OpenCode AI SDK
+- `@kilocode/sdk` - KiloCode AI SDK
 - `zod` - Runtime validation
 
 ## Development Workflow
@@ -155,15 +155,15 @@ After making changes to session management:
 # 1. Build the plugin
 bun run build
 
-# 2. Run from local fork (in ~/.config/opencode/opencode.jsonc):
-# "plugin": ["file:///path/to/oh-my-opencode-slim"]
+# 2. Run from local fork (in ~/.config/kilo/kilo.jsonc):
+# "plugin": ["file:///path/to/oh-my-kilocode-slim"]
 
 # 3. Launch test tasks
 @explorer count files in src/
 @librarian search for Bun documentation
 
 # 4. Verify no orphans
-ps aux | grep "opencode attach" | grep -v grep
+ps aux | grep "kilo attach" | grep -v grep
 # Should return 0 processes after tasks complete
 ```
 
@@ -173,7 +173,7 @@ ps aux | grep "opencode attach" | grep -v grep
 - Check that `session.abort()` is called after result extraction
 - Verify `session.deleted` handler is wired in src/index.ts
 
-**Orphaned opencode attach processes:**
+**Orphaned kilo attach processes:**
 - Ensure graceful shutdown sends Ctrl+C before kill-pane
 - Check that tmux pane closes before process termination
 
@@ -187,7 +187,7 @@ Before pushing changes to the repository, always run a code review to catch issu
 
 ### Using `/review` Command (Recommended)
 
-OpenCode has a built-in `/review` command that automatically performs comprehensive code reviews:
+KiloCode has a built-in `/review` command that automatically performs comprehensive code reviews:
 
 ```bash
 # Review uncommitted changes (default)
@@ -245,7 +245,7 @@ OpenCode has a built-in `/review` command that automatically performs comprehens
 
 ## Common Patterns
 
-- This is an OpenCode plugin - most functionality lives in `src/`
+- This is an KiloCode plugin - most functionality lives in `src/`
 - The CLI entry point is `src/cli/index.ts`
 - The main plugin export is `src/index.ts`
 - Agent factories are in `src/agents/` - each agent has its own file + optional `.test.ts`
@@ -267,21 +267,21 @@ Before working on any task, read `codemap.md` to understand:
 For deep work on a specific folder, also read that folder's `codemap.md`.
 
 ## Debugging Issues
-### OpenCode
+### KiloCode
 Log files are written to:
-macOS/Linux: ~/.local/share/opencode/log/
-Windows: Press WIN+R and paste %USERPROFILE%\.local\share\opencode\log
+macOS/Linux: ~/.local/share/kilo/log/
+Windows: Press WIN+R and paste %USERPROFILE%\.local\share\kilo\log
 Log files are named with timestamps (e.g., 2025-01-09T123456.log) and the most recent 10 log files are kept.
-You can set the log level with the --log-level command-line option to get more detailed debug information. For example, opencode --log-level DEBUG.
+You can set the log level with the --log-level command-line option to get more detailed debug information. For example, kilo --log-level DEBUG.
 ### Plugin
-~/.local/share/opencode/log/oh-my-opencode-slim.<timestamp>.log
+~/.local/share/kilo/log/oh-my-kilocode-slim.<timestamp>.log
 
 ## Cloned Dependency Source
 
 Read-only dependency source repositories are available under
 `.slim/clonedeps/repos/` for inspection. Do not edit these clones.
 
-- `.slim/clonedeps/repos/opencode-ai__opencode/` - `https://github.com/opencode-ai/opencode.git` at `main@73ee493265acf15fcd8caab2bc8cd3bd375b63cb`; inspect `packages/plugin` and `packages/sdk/js` for OpenCode plugin and SDK internals.
-- `.slim/clonedeps/repos/opencode/` - `https://github.com/anomalyco/opencode.git` at `dev@356f6841865d68adf6d0123c37357ad50814497a`; inspect `packages/opencode` for latest TypeScript runtime internals and experimental background subagent support.
+- `.slim/clonedeps/repos/kilo-ai__kilo/` - `https://github.com/kilo-ai/kilo.git` at `main@73ee493265acf15fcd8caab2bc8cd3bd375b63cb`; inspect `packages/plugin` and `packages/sdk/js` for KiloCode plugin and SDK internals.
+- `.slim/clonedeps/repos/kilo/` - `https://github.com/anomalyco/kilo.git` at `dev@356f6841865d68adf6d0123c37357ad50814497a`; inspect `packages/kilo` for latest TypeScript runtime internals and experimental background subagent support.
 - `.slim/clonedeps/repos/modelcontextprotocol__typescript-sdk/` - `https://github.com/modelcontextprotocol/typescript-sdk.git` at `v1.29.0@e12cbd7078db388152f6e839abdbe09ba01f3f32`; inspect it for MCP protocol and server integration internals.
 - `.slim/clonedeps/repos/agentclientprotocol__agent-client-protocol/` - `https://github.com/agentclientprotocol/agent-client-protocol.git` at `main@8110fde4e8283b4bef1329d1ef7b074fd14cee1e`; inspect it for ACP protocol specification and schema details.

@@ -68,15 +68,15 @@ describe('CompanionManager', () => {
     expect(state.sessions[0].pid).toBe(process.pid);
   });
 
-  it('shows orchestrator while orchestrator is busy with no specialists', () => {
+  it('shows chief while chief is busy with no specialists', () => {
     const m = make();
     m.onLoad();
     m.onSessionStatus({
       sessionId: 'ses_orch',
-      agent: 'orchestrator',
+      agent: 'chief',
       status: 'busy',
     });
-    expect(readState().sessions[0].active_agents).toEqual(['orchestrator']);
+    expect(readState().sessions[0].active_agents).toEqual(['chief']);
     expect(readState().sessions[0].status).toBe('busy');
   });
 
@@ -85,7 +85,7 @@ describe('CompanionManager', () => {
     m.onLoad();
     m.onSessionStatus({
       sessionId: 'ses_orch',
-      agent: 'orchestrator',
+      agent: 'chief',
       status: 'busy',
     });
     m.onSessionStatus({ sessionId: 'ses_a', agent: 'oracle', status: 'busy' });
@@ -118,7 +118,7 @@ describe('CompanionManager', () => {
     m.onLoad();
     m.onSessionStatus({
       sessionId: 'ses_orch',
-      agent: 'orchestrator',
+      agent: 'chief',
       status: 'busy',
     });
     m.onSessionStatus({
@@ -135,33 +135,33 @@ describe('CompanionManager', () => {
     expect(readState().sessions[0].active_agents).toEqual(['fixer']);
   });
 
-  it('falls back to orchestrator when last specialist finishes but orchestrator still busy', () => {
+  it('falls back to chief when last specialist finishes but chief still busy', () => {
     const m = make();
     m.onLoad();
     m.onSessionStatus({
       sessionId: 'ses_orch',
-      agent: 'orchestrator',
+      agent: 'chief',
       status: 'busy',
     });
     m.onSessionStatus({ sessionId: 'ses_a', agent: 'oracle', status: 'busy' });
     m.onSessionStatus({ sessionId: 'ses_a', agent: 'oracle', status: 'idle' });
-    expect(readState().sessions[0].active_agents).toEqual(['orchestrator']);
+    expect(readState().sessions[0].active_agents).toEqual(['chief']);
   });
 
-  it('keeps background specialists visible when orchestrator goes idle', () => {
-    // Background orchestration: orchestrator dispatches and idles while the
+  it('keeps background specialists visible when chief goes idle', () => {
+    // Background orchestration: chief dispatches and idles while the
     // specialist keeps running in its own session.
     const m = make();
     m.onLoad();
     m.onSessionStatus({
       sessionId: 'ses_orch',
-      agent: 'orchestrator',
+      agent: 'chief',
       status: 'busy',
     });
     m.onSessionStatus({ sessionId: 'ses_a', agent: 'fixer', status: 'busy' });
     m.onSessionStatus({
       sessionId: 'ses_orch',
-      agent: 'orchestrator',
+      agent: 'chief',
       status: 'idle',
     });
     expect(readState().sessions[0].active_agents).toEqual(['fixer']);

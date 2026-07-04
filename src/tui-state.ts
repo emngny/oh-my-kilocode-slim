@@ -9,7 +9,7 @@ export interface TuiSnapshot {
   agentVariants: Record<string, string>;
 }
 
-const STATE_DIR = 'oh-my-opencode-slim';
+const STATE_DIR = 'oh-my-kilocode-slim';
 const STATE_FILE = 'tui-state.json';
 
 function dataDir(): string {
@@ -19,7 +19,7 @@ function dataDir(): string {
 }
 
 export function getTuiStatePath(): string {
-  return path.join(dataDir(), 'opencode', 'storage', STATE_DIR, STATE_FILE);
+  return path.join(dataDir(), 'kilo', 'storage', STATE_DIR, STATE_FILE);
 }
 
 function emptySnapshot(): TuiSnapshot {

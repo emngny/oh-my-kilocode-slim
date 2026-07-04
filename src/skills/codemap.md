@@ -2,10 +2,10 @@
 
 ## Responsibility
 
-- Owns metadata-driven OpenCode custom skills shipped with this package
+- Owns metadata-driven KiloCode custom skills shipped with this package
 - Maintains the skill contract artifacts (`SKILL.md`, `README.md`, per-skill helper files) that are copied into `${configDir}/skills` at install time
 - Preserves a canonical registry boundary: runtime code consumes skill definitions as data, not as executable plugin dependencies
-- Skills are partitioned into orchestrator-only workflows and general-purpose skills for broad reuse
+- Skills are partitioned into chief-only workflows and general-purpose skills for broad reuse
 
 ## Design
 
@@ -20,22 +20,22 @@
 | `codemap/` | General-purpose | Repository mapping and codebase documentation skill |
 | `clonedeps/` | General-purpose | Workflow skill for dependency source mirroring and inspection |
 | `simplify/` | General-purpose | Readability and maintainability guidance skill |
-| `deepwork/` | Orchestrator-only | Heavy coding sessions, multi-phase implementation, and risky refactors |
-| `reflect/` | Orchestrator-only | Learning from repeated work and suggesting reusable improvements |
-| `worktrees/` | Orchestrator-only | Safe Git worktree lanes for parallel, risky, or isolated work |
-| `oh-my-opencode-slim/` | Orchestrator-only | Plugin configuration and self-improvement guidance |
+| `deepwork/` | Chief-only | Heavy coding sessions, multi-phase implementation, and risky refactors |
+| `reflect/` | Chief-only | Learning from repeated work and suggesting reusable improvements |
+| `worktrees/` | Chief-only | Safe Git worktree lanes for parallel, risky, or isolated work |
+| `oh-my-kilocode-slim/` | Chief-only | Plugin configuration and self-improvement guidance |
 
 ### Installation Pipeline
 
-- `install.ts` runs `installCustomSkill()` which recursively copies bundled skill directories into the OpenCode skills directory
+- `install.ts` runs `installCustomSkill()` which recursively copies bundled skill directories into the KiloCode skills directory
 - During plugin release, the `files` whitelist in `package.json` must include `src/skills` so `src/skills/**` survive `npm pack`
-- OpenCode plugin startup discovers these installed folders and reads each `SKILL.md` as a prompt-level contract
+- KiloCode plugin startup discovers these installed folders and reads each `SKILL.md` as a prompt-level contract
 
 ### Runtime Consumption
 
 - Files are considered static runtime payload
 - No plugin TS module in `src/` imports these files directly
-- They are loaded by OpenCode via filesystem installation at runtime
+- They are loaded by KiloCode via filesystem installation at runtime
 
 ## Flow
 
@@ -43,7 +43,7 @@
 2. **Installation**: `bun run install` delegates to `src/cli/install.ts`, where `installCustomSkills()` gates copying of each `CUSTOM_SKILLS` entry
 3. **Validation**: `installCustomSkill()` computes `packageRoot`, validates `sourcePath`, then performs a recursive directory copy via `copyDirRecursive()`
 4. **Distribution**: During plugin release, `package.json` `files` whitelist ensures `src/skills/**` are included in the published tarball
-5. **Runtime Discovery**: OpenCode plugin startup discovers installed skill folders and reads each `SKILL.md` as a prompt-level contract
+5. **Runtime Discovery**: KiloCode plugin startup discovers installed skill folders and reads each `SKILL.md` as a prompt-level contract
 
 ## Integration
 
@@ -58,7 +58,7 @@
   - `src/skills/deepwork/SKILL.md`
   - `src/skills/reflect/SKILL.md`
   - `src/skills/worktrees/SKILL.md`
-  - `src/skills/oh-my-opencode-slim/SKILL.md`
+  - `src/skills/oh-my-kilocode-slim/SKILL.md`
 - `package.json` scripts (`verify:release`, `build`) rely on these assets to ensure install-time skill availability
 
 ### Permission System
@@ -73,4 +73,4 @@ Each skill directory contains:
 - `README.md`: Documentation and examples for the skill
 - Optional helper files and subdirectories for skill-specific functionality
 
-These artifacts are copied verbatim to the OpenCode skills directory during installation and serve as the skill's interface definition.
+These artifacts are copied verbatim to the KiloCode skills directory during installation and serve as the skill's interface definition.

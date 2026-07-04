@@ -1,6 +1,6 @@
-import type { Plugin, ToolDefinition } from '@opencode-ai/plugin';
+import type { Plugin, ToolDefinition } from '@kilocode/plugin';
 import { createAgents, getAgentConfigs, getDisabledAgents } from './agents';
-import { buildOrchestratorPrompt } from './agents/orchestrator';
+import { buildChiefPrompt } from './agents/chief';
 import { CompanionManager } from './companion/manager';
 import { ensureCompanionVersion } from './companion/updater';
 import {
@@ -62,8 +62,8 @@ import { SubagentDepthTracker } from './utils/subagent-depth';
 import { collapseSystemInPlace } from './utils/system-collapse';
 
 /**
- * Best-effort log to opencode's app logger.
- * Wrapped in try/catch to avoid deadlocking on opencode v1.4.8–v1.4.9
+ * Best-effort log to kilo's app logger.
+ * Wrapped in try/catch to avoid deadlocking on kilo v1.4.8–v1.4.9
  * where client.app.log() during init triggers a middleware cycle.
  */
 async function appLog(
@@ -73,14 +73,14 @@ async function appLog(
 ): Promise<void> {
   try {
     await ctx.client.app.log({
-      body: { service: 'oh-my-opencode-slim', level, message },
+      body: { service: 'oh-my-kilocode-slim', level, message },
     });
   } catch {
     // client.app.log may deadlock or be unavailable; stderr is the
     // fallback
     const prefix =
       level === 'error' ? 'ERROR' : level === 'warn' ? 'WARN' : 'INFO';
-    console.error(`[oh-my-opencode-slim] ${prefix}: ${message}`);
+    console.error(`[oh-my-kilocode-slim] ${prefix}: ${message}`);
   }
 }
 
@@ -113,12 +113,12 @@ async function probeJSDOM(): Promise<string | null> {
 // re-runs, it checks this variable and applies the runtime preset instead
 // of the config file's preset. State lives in config/runtime-preset.ts.
 
-const OhMyOpenCodeLite: Plugin = async (ctx) => {
+const OhMyKiloCodeLite: Plugin = async (ctx) => {
   const sessionId = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15);
   initLogger(sessionId);
 
   if (isPluginDisabledByEnv()) {
-    log('[plugin] disabled by OH_MY_OPENCODE_SLIM_DISABLE');
+    log('[plugin] disabled by OH_MY_KILOCODE_SLIM_DISABLE');
     return {};
   }
 
@@ -171,7 +171,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
     config = loadPluginConfig(ctx.directory);
 
     // Safety net: if a runtime preset was set via /preset command and
-    // OpenCode ever fully re-runs the plugin function (not just the
+    // KiloCode ever fully re-runs the plugin function (not just the
     // config() hook), override config.preset so agents are created with
     // the correct models. Currently only the config() hook re-runs after
     // Instance.dispose(), so this is a defensive guard.
@@ -256,7 +256,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       readContextMaxFiles: config.backgroundJobs?.readContextMaxFiles ?? 8,
     });
 
-    // Initialize MultiplexerSessionManager to handle OpenCode's built-in
+    // Initialize MultiplexerSessionManager to handle KiloCode's built-in
     // Task tool sessions
     multiplexerSessionManager = new MultiplexerSessionManager(
       ctx,
@@ -284,8 +284,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
 
     // Initialize post-file-tool nudge hook
     postFileToolNudgeHook = createPostFileToolNudgeHook({
-      shouldInject: (sessionID) =>
-        sessionAgentMap.get(sessionID) === 'orchestrator',
+      shouldInject: (sessionID) => sessionAgentMap.get(sessionID) === 'chief',
     });
 
     chatHeadersHook = createChatHeadersHook(ctx);
@@ -314,7 +313,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       readContextMaxFiles: config.backgroundJobs?.readContextMaxFiles ?? 8,
       backgroundJobBoard,
       shouldManageSession: (sessionID) =>
-        sessionAgentMap.get(sessionID) === 'orchestrator',
+        sessionAgentMap.get(sessionID) === 'chief',
     });
     interviewManager = createInterviewManager(ctx, config);
     presetManager = createPresetManager(ctx, config);
@@ -327,7 +326,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       client: ctx.client,
       backgroundJobBoard,
       shouldManageSession: (sessionID) =>
-        sessionAgentMap.get(sessionID) === 'orchestrator',
+        sessionAgentMap.get(sessionID) === 'chief',
     });
 
     tools = {
@@ -353,7 +352,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
     await appLog(
       ctx,
       'error',
-      `INIT FAILED: ${String(err)}. Report at github.com/alvinunreal/oh-my-opencode-slim/issues/310`,
+      `INIT FAILED: ${String(err)}. Report at github.com/alvinunreal/oh-my-kilocode-slim/issues/310`,
     );
     throw err;
   }
@@ -378,8 +377,8 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       `  tools:  ${toolCount} (expected >=${HEALTH_CHECK.minTools})`,
       `  mcps:   ${mcpCount} (expected >=${mcpThreshold})`,
       'This usually means a dependency failed to resolve (jsdom, etc).',
-      'If you recently updated opencode, see:',
-      '  github.com/alvinunreal/oh-my-opencode-slim/issues/310',
+      'If you recently updated kilo, see:',
+      '  github.com/alvinunreal/oh-my-kilocode-slim/issues/310',
     ].join('\n');
     log(`[plugin] WARN: ${msg}`);
     await appLog(ctx, 'warn', msg);
@@ -452,7 +451,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
   }
 
   return {
-    name: 'oh-my-opencode-slim',
+    name: 'oh-my-kilocode-slim',
 
     agent: agents,
 
@@ -460,40 +459,39 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
 
     mcp: mcps,
 
-    config: async (opencodeConfig: Record<string, unknown>) => {
+    config: async (kiloConfig: Record<string, unknown>) => {
       // Only set default_agent if not already configured by the user
       // and the plugin config doesn't explicitly disable this behavior
       if (
         config.setDefaultAgent !== false &&
-        !(opencodeConfig as { default_agent?: string }).default_agent
+        !(kiloConfig as { default_agent?: string }).default_agent
       ) {
-        (opencodeConfig as { default_agent?: string }).default_agent =
-          'orchestrator';
+        (kiloConfig as { default_agent?: string }).default_agent = 'chief';
       }
 
       // Merge Agent configs - per-agent shallow merge to preserve
-      // user-supplied fields (e.g. tools, permission) from opencode.json
-      if (!opencodeConfig.agent) {
-        opencodeConfig.agent = { ...agents };
+      // user-supplied fields (e.g. tools, permission) from kilo.json
+      if (!kiloConfig.agent) {
+        kiloConfig.agent = { ...agents };
       } else {
         for (const [name, pluginAgent] of Object.entries(agents)) {
-          const existing = (opencodeConfig.agent as Record<string, unknown>)[
+          const existing = (kiloConfig.agent as Record<string, unknown>)[
             name
           ] as Record<string, unknown> | undefined;
           if (existing) {
             // Shallow merge: plugin defaults first, user overrides win
-            (opencodeConfig.agent as Record<string, unknown>)[name] = {
+            (kiloConfig.agent as Record<string, unknown>)[name] = {
               ...pluginAgent,
               ...existing,
             };
           } else {
-            (opencodeConfig.agent as Record<string, unknown>)[name] = {
+            (kiloConfig.agent as Record<string, unknown>)[name] = {
               ...pluginAgent,
             };
           }
         }
       }
-      const configAgent = opencodeConfig.agent as Record<string, unknown>;
+      const configAgent = kiloConfig.agent as Record<string, unknown>;
 
       // Model resolution for foreground agents: use _modelArray entries
       // to pick the first model for startup-time selection.
@@ -506,8 +504,8 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
           if (models.length === 0) continue;
 
           // Use the first model in the model array. Not all providers
-          // require entries in opencodeConfig.provider - some are loaded
-          // automatically by opencode (e.g. github-copilot, openrouter).
+          // require entries in kiloConfig.provider - some are loaded
+          // automatically by kilo (e.g. github-copilot, openrouter).
           // We cannot distinguish these from truly unconfigured providers
           // at config-hook time, so we cannot gate on the provider config
           // keys. Runtime failover is handled separately by
@@ -528,7 +526,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
               }
             }
           } else {
-            // Agent exists in slim but not in opencodeConfig.agent -
+            // Agent exists in slim but not in kiloConfig.agent -
             // create entry
             (configAgent as Record<string, unknown>)[agentName] = {
               model: chosen.id,
@@ -693,17 +691,15 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       });
 
       // Merge MCP configs
-      const configMcp = opencodeConfig.mcp as
-        | Record<string, unknown>
-        | undefined;
+      const configMcp = kiloConfig.mcp as Record<string, unknown> | undefined;
       if (!configMcp) {
-        opencodeConfig.mcp = { ...mcps };
+        kiloConfig.mcp = { ...mcps };
       } else {
         Object.assign(configMcp, mcps);
       }
 
       // Get all MCP names from the merged config (built-in + custom)
-      const mergedMcpConfig = opencodeConfig.mcp as
+      const mergedMcpConfig = kiloConfig.mcp as
         | Record<string, unknown>
         | undefined;
       const allMcpNames = Object.keys(mergedMcpConfig ?? mcps);
@@ -746,11 +742,11 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
         agentConfigEntry.permission = agentPermission;
       }
 
-      interviewManager.registerCommand(opencodeConfig);
-      deepworkCommandHook.registerCommand(opencodeConfig);
-      reflectCommandHook.registerCommand(opencodeConfig);
-      loopCommandHook.registerCommand(opencodeConfig);
-      presetManager.registerCommand(opencodeConfig);
+      interviewManager.registerCommand(kiloConfig);
+      deepworkCommandHook.registerCommand(kiloConfig);
+      reflectCommandHook.registerCommand(kiloConfig);
+      loopCommandHook.registerCommand(kiloConfig);
+      presetManager.registerCommand(kiloConfig);
     },
 
     event: async (input) => {
@@ -811,7 +807,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
         }
       }
 
-      // Handle multiplexer pane spawning for OpenCode's Task tool sessions
+      // Handle multiplexer pane spawning for KiloCode's Task tool sessions
       await multiplexerSessionManager.onSessionCreated(event);
 
       // Handle session status/idle events for pane cleanup early so child panes
@@ -998,7 +994,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       }
     },
 
-    // Inject orchestrator system prompt for serve-mode sessions. In serve
+    // Inject chief system prompt for serve-mode sessions. In serve
     // mode, the agent's prompt field may be absent from the agents
     // registry (built before plugin config hooks run). This hook injects
     // it at LLM call time. Uses the already-resolved prompt from
@@ -1011,37 +1007,34 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       const agentName = input.sessionID
         ? sessionAgentMap.get(input.sessionID)
         : undefined;
-      if (agentName === 'orchestrator') {
+      if (agentName === 'chief') {
         const alreadyInjected = output.system.some(
           (s) =>
             typeof s === 'string' &&
             s.includes('<Role>') &&
-            s.includes('orchestrator'),
+            s.includes('chief'),
         );
         if (!alreadyInjected) {
-          // Prepend the orchestrator prompt to the system array. Use the
-          // resolved prompt from the orchestrator agent definition (which
-          // includes any custom replacement or append from orchestrator.md
-          // / orchestrator_append.md) Fall back to
-          // buildOrchestratorPrompt only if the resolved prompt is
+          // Prepend the chief prompt to the system array. Use the
+          // resolved prompt from the chief agent definition (which
+          // includes any custom replacement or append from chief.md
+          // / chief_append.md) Fall back to
+          // buildChiefPrompt only if the resolved prompt is
           // missing.
-          const orchestratorDef = agentDefs.find(
-            (a) => a.name === 'orchestrator',
-          );
-          const orchestratorPrompt =
-            typeof orchestratorDef?.config?.prompt === 'string'
-              ? orchestratorDef.config.prompt
-              : buildOrchestratorPrompt(disabledAgents);
+          const chiefDef = agentDefs.find((a) => a.name === 'chief');
+          const chiefPrompt =
+            typeof chiefDef?.config?.prompt === 'string'
+              ? chiefDef.config.prompt
+              : buildChiefPrompt(disabledAgents);
           output.system[0] =
-            orchestratorPrompt +
-            (output.system[0] ? `\n\n${output.system[0]}` : '');
+            chiefPrompt + (output.system[0] ? `\n\n${output.system[0]}` : '');
         }
       }
 
       // Collapse to single system message for provider compatibility.
       // Some providers (e.g. Qwen via VLLM/DashScope) reject multiple
       // system messages. Sub-hooks above may push additional entries; join
-      // them back into one element so OpenCode emits a single system
+      // them back into one element so KiloCode emits a single system
       // message.
       collapseSystemInPlace(output.system);
     },
@@ -1066,10 +1059,10 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
         }
       }
 
-      // Strip image parts from orchestrator messages when @observer is
-      // available. When the orchestrator's model doesn't support image
+      // Strip image parts from chief messages when @observer is
+      // available. When the chief's model doesn't support image
       // input, the API call fails before the LLM can respond. We replace
-      // image bytes with a text nudge so the orchestrator delegates to
+      // image bytes with a text nudge so the chief delegates to
       // @observer instead.
       processImageAttachments({
         messages: typedOutput.messages,
@@ -1168,7 +1161,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
   };
 };
 
-export default OhMyOpenCodeLite;
+export default OhMyKiloCodeLite;
 
 export type {
   AgentName,

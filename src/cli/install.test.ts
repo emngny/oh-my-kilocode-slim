@@ -13,15 +13,15 @@ const actualPaths = require('./paths');
 const originalSyncBundledSkillsFromPackage =
   actualSkillSync.syncBundledSkillsFromPackage;
 
-const originalIsOpenCodeInstalled = actualConfigManager.isOpenCodeInstalled;
-const originalGetOpenCodeVersion = actualConfigManager.getOpenCodeVersion;
-const originalGetOpenCodePath = actualConfigManager.getOpenCodePath;
-const originalAddPluginToOpenCodeConfig =
-  actualConfigManager.addPluginToOpenCodeConfig;
-const originalAddPluginToOpenCodeTuiConfig =
-  actualConfigManager.addPluginToOpenCodeTuiConfig;
-const originalWarmOpenCodePluginCache =
-  actualConfigManager.warmOpenCodePluginCache;
+const originalIsKiloCodeInstalled = actualConfigManager.isKiloCodeInstalled;
+const originalGetKiloCodeVersion = actualConfigManager.getKiloCodeVersion;
+const originalGetKiloCodePath = actualConfigManager.getKiloCodePath;
+const originalAddPluginToKiloCodeConfig =
+  actualConfigManager.addPluginToKiloCodeConfig;
+const originalAddPluginToKiloCodeTuiConfig =
+  actualConfigManager.addPluginToKiloCodeTuiConfig;
+const originalWarmKiloCodePluginCache =
+  actualConfigManager.warmKiloCodePluginCache;
 const originalDisableDefaultAgents = actualConfigManager.disableDefaultAgents;
 const originalEnableLspByDefault = actualConfigManager.enableLspByDefault;
 const originalDetectCurrentConfig = actualConfigManager.detectCurrentConfig;
@@ -70,26 +70,24 @@ mock.module('../hooks/auto-update-checker/skill-sync', () => {
 mock.module('./config-manager', () => {
   return {
     ...actualConfigManager,
-    isOpenCodeInstalled: async () =>
-      enableInstallMocks ? true : originalIsOpenCodeInstalled(),
-    getOpenCodeVersion: async () =>
-      enableInstallMocks ? '1.0.0' : originalGetOpenCodeVersion(),
-    getOpenCodePath: () =>
-      enableInstallMocks
-        ? '/usr/local/bin/opencode'
-        : originalGetOpenCodePath(),
-    addPluginToOpenCodeConfig: async () =>
+    isKiloCodeInstalled: async () =>
+      enableInstallMocks ? true : originalIsKiloCodeInstalled(),
+    getKiloCodeVersion: async () =>
+      enableInstallMocks ? '1.0.0' : originalGetKiloCodeVersion(),
+    getKiloCodePath: () =>
+      enableInstallMocks ? '/usr/local/bin/kilo' : originalGetKiloCodePath(),
+    addPluginToKiloCodeConfig: async () =>
       enableInstallMocks
         ? { success: true, configPath: '/path' }
-        : originalAddPluginToOpenCodeConfig(),
-    addPluginToOpenCodeTuiConfig: async () =>
+        : originalAddPluginToKiloCodeConfig(),
+    addPluginToKiloCodeTuiConfig: async () =>
       enableInstallMocks
         ? { success: true, configPath: '/path' }
-        : originalAddPluginToOpenCodeTuiConfig(),
-    warmOpenCodePluginCache: async () =>
+        : originalAddPluginToKiloCodeTuiConfig(),
+    warmKiloCodePluginCache: async () =>
       enableInstallMocks
         ? { success: true, configPath: '/path' }
-        : originalWarmOpenCodePluginCache(),
+        : originalWarmKiloCodePluginCache(),
     disableDefaultAgents: () =>
       enableInstallMocks
         ? { success: true, configPath: '/path' }

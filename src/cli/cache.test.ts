@@ -42,7 +42,7 @@ mock.module('../utils/compat', () => ({
   crossSpawn: crossSpawnMock,
 }));
 
-const nonexistentPath = '/nonexistent/opencode.json';
+const nonexistentPath = '/nonexistent/kilo.json';
 
 let importCounter = 0;
 let getExistingConfigPathSpy: ReturnType<typeof spyOn>;
@@ -62,7 +62,7 @@ async function importFreshConfigIo() {
   return import(`./config-io?test=${importCounter++}`);
 }
 
-describe('warmOpenCodePluginCache', () => {
+describe('warmKiloCodePluginCache', () => {
   const originalArgv = [...process.argv];
   const originalXdgCacheHome = process.env.XDG_CACHE_HOME;
 
@@ -91,32 +91,32 @@ describe('warmOpenCodePluginCache', () => {
     getExistingConfigPathSpy.mockRestore();
   });
 
-  test('prewarms the @latest OpenCode cache for bunx @latest installs', async () => {
+  test('prewarms the @latest KiloCode cache for bunx @latest installs', async () => {
     const tmpDir = mkdirTemp();
     const cacheHome = join(tmpDir, 'cache');
     process.env.XDG_CACHE_HOME = cacheHome;
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim', version: '2.0.0' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.0' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     const expectedCacheDir = join(
       cacheHome,
-      'opencode',
+      'kilo',
       'packages',
-      'oh-my-opencode-slim@latest',
+      'oh-my-kilocode-slim@latest',
     );
 
     expect(result?.success).toBe(true);
@@ -133,39 +133,39 @@ describe('warmOpenCodePluginCache', () => {
     expect(
       JSON.parse(readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8')),
     ).toEqual({
-      name: 'oh-my-opencode-slim-cache',
+      name: 'oh-my-kilocode-slim-cache',
       private: true,
       dependencies: {
-        'oh-my-opencode-slim': 'latest',
+        'oh-my-kilocode-slim': 'latest',
       },
     });
 
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('repairs a stale OpenCode cache manifest', async () => {
+  test('repairs a stale KiloCode cache manifest', async () => {
     const tmpDir = mkdirTemp();
     const cacheHome = join(tmpDir, 'cache');
     process.env.XDG_CACHE_HOME = cacheHome;
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
     const expectedCacheDir = join(
       cacheHome,
-      'opencode',
+      'kilo',
       'packages',
-      'oh-my-opencode-slim@latest',
+      'oh-my-kilocode-slim@latest',
     );
     mkdirSync(expectedCacheDir, { recursive: true });
     writeFileSync(
@@ -177,17 +177,17 @@ describe('warmOpenCodePluginCache', () => {
       }),
     );
 
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     expect(result?.success).toBe(true);
     expect(
       JSON.parse(readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8')),
     ).toEqual({
-      name: 'oh-my-opencode-slim-cache',
+      name: 'oh-my-kilocode-slim-cache',
       private: true,
       dependencies: {
-        'oh-my-opencode-slim': 'latest',
+        'oh-my-kilocode-slim': 'latest',
       },
     });
 
@@ -201,32 +201,32 @@ describe('warmOpenCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim', version: '2.0.1' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.1' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
     const expectedCacheDir = join(
       cacheHome,
-      'opencode',
+      'kilo',
       'packages',
-      'oh-my-opencode-slim@latest',
+      'oh-my-kilocode-slim@latest',
     );
     const stalePluginDir = join(
       expectedCacheDir,
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(stalePluginDir, { recursive: true });
     writeFileSync(
       join(stalePluginDir, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim', version: '1.1.2' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '1.1.2' }),
     );
     writeFileSync(join(expectedCacheDir, 'bun.lock'), 'stale lockfile');
 
@@ -240,8 +240,8 @@ describe('warmOpenCodePluginCache', () => {
       },
     );
 
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     expect(result?.success).toBe(true);
     expect(result?.configPath).toBe(expectedCacheDir);
@@ -256,36 +256,36 @@ describe('warmOpenCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
     crossSpawnMock.mockImplementation(() => createSpawnResult());
 
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     expect(result).toEqual({
       success: false,
       configPath: join(
         cacheHome,
-        'opencode',
+        'kilo',
         'packages',
-        'oh-my-opencode-slim@latest',
+        'oh-my-kilocode-slim@latest',
       ),
       error: `Cached plugin package not found at ${join(
         cacheHome,
-        'opencode',
+        'kilo',
         'packages',
-        'oh-my-opencode-slim@latest',
+        'oh-my-kilocode-slim@latest',
         'node_modules',
-        'oh-my-opencode-slim',
+        'oh-my-kilocode-slim',
         'package.json',
       )}`,
     });
@@ -300,14 +300,14 @@ describe('warmOpenCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
     crossSpawnMock.mockImplementation(() => ({
@@ -315,16 +315,16 @@ describe('warmOpenCodePluginCache', () => {
       stderr: () => Promise.resolve('registry unavailable'),
     }));
 
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     expect(result).toEqual({
       success: false,
       configPath: join(
         cacheHome,
-        'opencode',
+        'kilo',
         'packages',
-        'oh-my-opencode-slim@latest',
+        'oh-my-kilocode-slim@latest',
       ),
       error: 'registry unavailable',
     });
@@ -339,19 +339,19 @@ describe('warmOpenCodePluginCache', () => {
 
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@latest',
+      'bunx-1000-oh-my-kilocode-slim@latest',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
     const packageJsonSuffix = join(
-      'oh-my-opencode-slim@latest',
+      'oh-my-kilocode-slim@latest',
       'package.json',
     );
     const fs = await import('node:fs');
@@ -365,16 +365,16 @@ describe('warmOpenCodePluginCache', () => {
       },
     );
     try {
-      const { warmOpenCodePluginCache } = await importFreshConfigIo();
-      const result = await warmOpenCodePluginCache();
+      const { warmKiloCodePluginCache } = await importFreshConfigIo();
+      const result = await warmKiloCodePluginCache();
 
       expect(result).toEqual({
         success: false,
         configPath: join(
           cacheHome,
-          'opencode',
+          'kilo',
           'packages',
-          'oh-my-opencode-slim@latest',
+          'oh-my-kilocode-slim@latest',
         ),
         error: 'Failed to write cache package.json: Error: disk full',
       });
@@ -391,12 +391,12 @@ describe('warmOpenCodePluginCache', () => {
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     expect(result).toBeNull();
     expect(crossSpawnMock).not.toHaveBeenCalled();
@@ -412,11 +412,11 @@ describe('warmOpenCodePluginCache', () => {
     // Set up a config file with a pinned version
     const configDir = join(tmpDir, 'config');
     mkdirSync(configDir, { recursive: true });
-    const configPath = join(configDir, 'opencode.json');
+    const configPath = join(configDir, 'kilo.json');
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['oh-my-opencode-slim@1.2.3'],
+        plugin: ['oh-my-kilocode-slim@1.2.3'],
       }),
     );
 
@@ -426,25 +426,25 @@ describe('warmOpenCodePluginCache', () => {
     try {
       const packageRoot = join(
         tmpDir,
-        'bunx-1000-oh-my-opencode-slim@latest',
+        'bunx-1000-oh-my-kilocode-slim@latest',
         'node_modules',
-        'oh-my-opencode-slim',
+        'oh-my-kilocode-slim',
       );
       mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
       writeFileSync(
         join(packageRoot, 'package.json'),
-        JSON.stringify({ name: 'oh-my-opencode-slim' }),
+        JSON.stringify({ name: 'oh-my-kilocode-slim' }),
       );
       process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
-      const { warmOpenCodePluginCache } = await importFreshConfigIo();
-      const result = await warmOpenCodePluginCache();
+      const { warmKiloCodePluginCache } = await importFreshConfigIo();
+      const result = await warmKiloCodePluginCache();
 
       const expectedCacheDir = join(
         cacheHome,
-        'opencode',
+        'kilo',
         'packages',
-        'oh-my-opencode-slim@1.2.3',
+        'oh-my-kilocode-slim@1.2.3',
       );
 
       expect(result?.success).toBe(true);
@@ -454,10 +454,10 @@ describe('warmOpenCodePluginCache', () => {
           readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8'),
         ),
       ).toEqual({
-        name: 'oh-my-opencode-slim-cache',
+        name: 'oh-my-kilocode-slim-cache',
         private: true,
         dependencies: {
-          'oh-my-opencode-slim': '1.2.3',
+          'oh-my-kilocode-slim': '1.2.3',
         },
       });
     } finally {
@@ -473,26 +473,26 @@ describe('warmOpenCodePluginCache', () => {
     // Simulate bunx @beta: package.json has a beta version, config has no pinned version
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@beta',
+      'bunx-1000-oh-my-kilocode-slim@beta',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim', version: '2.0.0-beta.13' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.0-beta.13' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
     // Config mock returns no pinned version (nonexistent config path)
-    const { warmOpenCodePluginCache } = await importFreshConfigIo();
-    const result = await warmOpenCodePluginCache();
+    const { warmKiloCodePluginCache } = await importFreshConfigIo();
+    const result = await warmKiloCodePluginCache();
 
     const expectedCacheDir = join(
       cacheHome,
-      'opencode',
+      'kilo',
       'packages',
-      'oh-my-opencode-slim@beta',
+      'oh-my-kilocode-slim@beta',
     );
 
     expect(result?.success).toBe(true);
@@ -500,10 +500,10 @@ describe('warmOpenCodePluginCache', () => {
     expect(
       JSON.parse(readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8')),
     ).toEqual({
-      name: 'oh-my-opencode-slim-cache',
+      name: 'oh-my-kilocode-slim-cache',
       private: true,
       dependencies: {
-        'oh-my-opencode-slim': 'beta',
+        'oh-my-kilocode-slim': 'beta',
       },
     });
 
@@ -518,11 +518,11 @@ describe('warmOpenCodePluginCache', () => {
     // Config uses array tuple format: [spec, options]
     const configDir = join(tmpDir, 'config');
     mkdirSync(configDir, { recursive: true });
-    const configPath = join(configDir, 'opencode.json');
+    const configPath = join(configDir, 'kilo.json');
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: [['oh-my-opencode-slim@1.2.3', { someOption: true }]],
+        plugin: [['oh-my-kilocode-slim@1.2.3', { someOption: true }]],
       }),
     );
 
@@ -531,25 +531,25 @@ describe('warmOpenCodePluginCache', () => {
     try {
       const packageRoot = join(
         tmpDir,
-        'bunx-1000-oh-my-opencode-slim@latest',
+        'bunx-1000-oh-my-kilocode-slim@latest',
         'node_modules',
-        'oh-my-opencode-slim',
+        'oh-my-kilocode-slim',
       );
       mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
       writeFileSync(
         join(packageRoot, 'package.json'),
-        JSON.stringify({ name: 'oh-my-opencode-slim' }),
+        JSON.stringify({ name: 'oh-my-kilocode-slim' }),
       );
       process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
-      const { warmOpenCodePluginCache } = await importFreshConfigIo();
-      const result = await warmOpenCodePluginCache();
+      const { warmKiloCodePluginCache } = await importFreshConfigIo();
+      const result = await warmKiloCodePluginCache();
 
       const expectedCacheDir = join(
         cacheHome,
-        'opencode',
+        'kilo',
         'packages',
-        'oh-my-opencode-slim@1.2.3',
+        'oh-my-kilocode-slim@1.2.3',
       );
 
       expect(result?.success).toBe(true);
@@ -559,10 +559,10 @@ describe('warmOpenCodePluginCache', () => {
           readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8'),
         ),
       ).toEqual({
-        name: 'oh-my-opencode-slim-cache',
+        name: 'oh-my-kilocode-slim-cache',
         private: true,
         dependencies: {
-          'oh-my-opencode-slim': '1.2.3',
+          'oh-my-kilocode-slim': '1.2.3',
         },
       });
     } finally {
@@ -578,39 +578,39 @@ describe('warmOpenCodePluginCache', () => {
     // Running version is beta
     const packageRoot = join(
       tmpDir,
-      'bunx-1000-oh-my-opencode-slim@beta',
+      'bunx-1000-oh-my-kilocode-slim@beta',
       'node_modules',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
     );
     mkdirSync(join(packageRoot, 'dist', 'cli'), { recursive: true });
     writeFileSync(
       join(packageRoot, 'package.json'),
-      JSON.stringify({ name: 'oh-my-opencode-slim', version: '2.0.0-beta.13' }),
+      JSON.stringify({ name: 'oh-my-kilocode-slim', version: '2.0.0-beta.13' }),
     );
     process.argv[1] = join(packageRoot, 'dist', 'cli', 'index.js');
 
     // Config has a pinned stable version
     const configDir = join(tmpDir, 'config');
     mkdirSync(configDir, { recursive: true });
-    const configPath = join(configDir, 'opencode.json');
+    const configPath = join(configDir, 'kilo.json');
     writeFileSync(
       configPath,
       JSON.stringify({
-        plugin: ['oh-my-opencode-slim@1.2.3'],
+        plugin: ['oh-my-kilocode-slim@1.2.3'],
       }),
     );
 
     getExistingConfigPathSpy.mockReturnValue(configPath);
 
     try {
-      const { warmOpenCodePluginCache } = await importFreshConfigIo();
-      const result = await warmOpenCodePluginCache();
+      const { warmKiloCodePluginCache } = await importFreshConfigIo();
+      const result = await warmKiloCodePluginCache();
 
       const expectedCacheDir = join(
         cacheHome,
-        'opencode',
+        'kilo',
         'packages',
-        'oh-my-opencode-slim@1.2.3',
+        'oh-my-kilocode-slim@1.2.3',
       );
 
       expect(result?.success).toBe(true);
@@ -620,10 +620,10 @@ describe('warmOpenCodePluginCache', () => {
           readFileSync(join(expectedCacheDir, 'package.json'), 'utf-8'),
         ),
       ).toEqual({
-        name: 'oh-my-opencode-slim-cache',
+        name: 'oh-my-kilocode-slim-cache',
         private: true,
         dependencies: {
-          'oh-my-opencode-slim': '1.2.3',
+          'oh-my-kilocode-slim': '1.2.3',
         },
       });
     } finally {
@@ -633,16 +633,16 @@ describe('warmOpenCodePluginCache', () => {
 });
 
 function mkdirTemp(): string {
-  return mkdtempSync(join(tmpdir(), 'opencode-cache-test-'));
+  return mkdtempSync(join(tmpdir(), 'kilo-cache-test-'));
 }
 
 function writeCachedPluginPackage(cacheDir?: string): void {
   if (!cacheDir) return;
 
-  const pluginRoot = join(cacheDir, 'node_modules', 'oh-my-opencode-slim');
+  const pluginRoot = join(cacheDir, 'node_modules', 'oh-my-kilocode-slim');
   mkdirSync(pluginRoot, { recursive: true });
   writeFileSync(
     join(pluginRoot, 'package.json'),
-    JSON.stringify({ name: 'oh-my-opencode-slim' }),
+    JSON.stringify({ name: 'oh-my-kilocode-slim' }),
   );
 }

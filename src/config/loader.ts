@@ -39,7 +39,7 @@ export interface LoadPluginConfigOptions {
   silent?: boolean;
 }
 
-const PROMPTS_DIR_NAME = 'oh-my-opencode-slim';
+const PROMPTS_DIR_NAME = 'oh-my-kilocode-slim';
 
 /**
  * Load and validate plugin configuration from a specific file path.
@@ -76,7 +76,7 @@ function loadConfigFromPath(
       });
       if (!options?.silent) {
         console.warn(
-          `[oh-my-opencode-slim] Invalid JSON in ${configPath}:`,
+          `[oh-my-kilocode-slim] Invalid JSON in ${configPath}:`,
           message,
         );
       }
@@ -92,7 +92,7 @@ function loadConfigFromPath(
         formatted: result.error.format(),
       });
       if (!options?.silent) {
-        console.warn(`[oh-my-opencode-slim] Invalid config at ${configPath}:`);
+        console.warn(`[oh-my-kilocode-slim] Invalid config at ${configPath}:`);
         console.warn(result.error.format());
       }
       return null;
@@ -113,7 +113,7 @@ function loadConfigFromPath(
       });
       if (!options?.silent) {
         console.warn(
-          `[oh-my-opencode-slim] Error reading config from ${configPath}:`,
+          `[oh-my-kilocode-slim] Error reading config from ${configPath}:`,
           error.message,
         );
       }
@@ -126,7 +126,7 @@ function loadConfigFromPath(
  * Find existing config file path, preferring .jsonc over .json.
  * Checks for .jsonc first, then falls back to .json.
  *
- * @param basePath - Base path without extension (e.g., /path/to/oh-my-opencode-slim)
+ * @param basePath - Base path without extension (e.g., /path/to/oh-my-kilocode-slim)
  * @returns Path to existing config file, or null if neither exists
  */
 function findConfigPath(basePath: string): string | null {
@@ -160,9 +160,9 @@ function findConfigPathInDirs(
 /**
  * Find plugin config paths (user and project) for a given directory.
  * User config uses getConfigSearchDirs() for lookup.
- * Project config uses <directory>/.opencode/oh-my-opencode-slim.
+ * Project config uses <directory>/.kilo/oh-my-kilocode-slim.
  *
- * @param directory - Project directory to search for .opencode config
+ * @param directory - Project directory to search for .kilo config
  * @returns Object with userConfigPath and projectConfigPath (null if not found)
  */
 export function findPluginConfigPaths(directory: string): {
@@ -171,13 +171,13 @@ export function findPluginConfigPaths(directory: string): {
 } {
   const userConfigPath = findConfigPathInDirs(
     getConfigSearchDirs(),
-    'oh-my-opencode-slim',
+    'oh-my-kilocode-slim',
   );
 
   const projectConfigBasePath = path.join(
     directory,
-    '.opencode',
-    'oh-my-opencode-slim',
+    '.kilo',
+    'oh-my-kilocode-slim',
   );
 
   const projectConfigPath = findConfigPath(projectConfigBasePath);
@@ -255,15 +255,15 @@ export function deepMerge<T extends Record<string, unknown>>(
  * Load plugin configuration from user and project config files, merging them appropriately.
  *
  * Configuration is loaded from two locations:
- * 1. User config: $OPENCODE_CONFIG_DIR/oh-my-opencode-slim.jsonc or .json,
- *    or ~/.config/opencode/oh-my-opencode-slim.jsonc or .json (or $XDG_CONFIG_HOME)
- * 2. Project config: <directory>/.opencode/oh-my-opencode-slim.jsonc or .json
+ * 1. User config: $KILOCODE_CONFIG_DIR/oh-my-kilocode-slim.jsonc or .json,
+ *    or ~/.config/kilo/oh-my-kilocode-slim.jsonc or .json (or $XDG_CONFIG_HOME)
+ * 2. Project config: <directory>/.kilo/oh-my-kilocode-slim.jsonc or .json
  *
  * JSONC format is preferred over JSON (allows comments and trailing commas).
  * Project config takes precedence over user config. Nested objects (agents, tmux) are
  * deep-merged, while top-level arrays are replaced entirely by project config.
  *
- * @param directory - Project directory to search for .opencode config
+ * @param directory - Project directory to search for .kilo config
  * @param options - Optional load options including onWarning callback
  * @returns Merged plugin configuration (empty object if no configs found)
  */
@@ -289,7 +289,7 @@ export function loadPluginConfig(
   config = migrateTmuxToMultiplexer(config);
 
   // Override preset from environment variable if set
-  const envPreset = process.env.OH_MY_OPENCODE_SLIM_PRESET;
+  const envPreset = process.env.OH_MY_KILOCODE_SLIM_PRESET;
   if (envPreset) {
     config.preset = envPreset;
   }
@@ -314,7 +314,7 @@ export function loadPluginConfig(
         message,
       });
       if (!options?.silent) {
-        console.warn(`[oh-my-opencode-slim] ${message}`);
+        console.warn(`[oh-my-kilocode-slim] ${message}`);
       }
     }
   }
@@ -342,7 +342,7 @@ export function loadPluginConfig(
  * If preset is provided and safe for paths, it first checks {preset}/ subdirectory,
  * then falls back to the root prompts directory.
  *
- * @param agentName - Name of the agent (e.g., "orchestrator", "explorer")
+ * @param agentName - Name of the agent (e.g., "chief", "explorer")
  * @param optionsOrPreset - Optional preset name or options configuration
  * @returns Object with prompt and/or appendPrompt if files exist
  */
@@ -372,12 +372,12 @@ export function loadAgentPrompt(
   // 1. Project preset dir
   if (projectDirectory && presetDirName) {
     searchDirs.push(
-      path.join(projectDirectory, '.opencode', PROMPTS_DIR_NAME, presetDirName),
+      path.join(projectDirectory, '.kilo', PROMPTS_DIR_NAME, presetDirName),
     );
   }
   // 2. Project root dir
   if (projectDirectory) {
-    searchDirs.push(path.join(projectDirectory, '.opencode', PROMPTS_DIR_NAME));
+    searchDirs.push(path.join(projectDirectory, '.kilo', PROMPTS_DIR_NAME));
   }
   // 3. User preset dirs
   if (presetDirName) {
@@ -404,7 +404,7 @@ export function loadAgentPrompt(
         return fs.readFileSync(promptPath, 'utf-8');
       } catch (error) {
         console.warn(
-          `[oh-my-opencode-slim] ${errorPrefix} ${promptPath}:`,
+          `[oh-my-kilocode-slim] ${errorPrefix} ${promptPath}:`,
           error instanceof Error ? error.message : String(error),
         );
       }

@@ -15,21 +15,21 @@ export const SUBAGENT_NAMES = [
   'councillor',
 ] as const;
 
-export const ALL_AGENT_NAMES = ['orchestrator', ...SUBAGENT_NAMES] as const;
+export const ALL_AGENT_NAMES = ['chief', ...SUBAGENT_NAMES] as const;
 
 // Agent name type (for use in DEFAULT_MODELS)
 export type AgentName = (typeof ALL_AGENT_NAMES)[number];
 
 /** Agents that cannot be disabled even if listed in disabled_agents config. */
-export const PROTECTED_AGENTS = new Set(['orchestrator', 'councillor']);
+export const PROTECTED_AGENTS = new Set(['chief', 'councillor']);
 
 /**
  * Default models for each agent.
  * All set to undefined so agents follow the global/session model.
- * Users can override per-agent via oh-my-opencode-slim.json agents.<name>.model.
+ * Users can override per-agent via oh-my-kilocode-slim.json agents.<name>.model.
  */
 export const DEFAULT_MODELS: Record<AgentName, string | undefined> = {
-  orchestrator: undefined,
+  chief: undefined,
   oracle: undefined,
   librarian: undefined,
   explorer: undefined,

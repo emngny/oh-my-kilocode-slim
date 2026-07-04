@@ -1,4 +1,4 @@
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import { POLL_INTERVAL_BACKGROUND_MS } from '../config';
 import type { MultiplexerConfig } from '../config/schema';
 import {
@@ -52,7 +52,7 @@ interface SessionEvent {
 type CloseReason = 'idle' | 'deleted';
 
 const SHARED_STATE_KEY = Symbol.for(
-  'oh-my-opencode-slim.multiplexer-session-manager.state',
+  'oh-my-kilocode-slim.multiplexer-session-manager.state',
 );
 
 function getSharedState(): SharedSessionState {

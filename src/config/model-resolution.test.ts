@@ -7,8 +7,8 @@ import type { ModelEntry } from '../config/schema';
  *
  * The resolver always picks the first model in the effective array,
  * regardless of provider configuration. This is correct because:
- * - Not all providers require entries in opencodeConfig.provider - some are
- *   loaded automatically by opencode (e.g. github-copilot, openrouter).
+ * - Not all providers require entries in kiloConfig.provider - some are
+ *   loaded automatically by kilo (e.g. github-copilot, openrouter).
  * - We cannot distinguish "auto-loaded provider" from "provider not configured"
  *   without calling the API, which isn't available at config-hook time.
  * - Runtime failover (rate-limit handling) is handled separately by
@@ -34,13 +34,13 @@ describe('model array resolution', () => {
 
   test('uses first model when no provider config exists', () => {
     const modelArray: ModelEntry[] = [
-      { id: 'opencode/big-pickle', variant: 'high' },
+      { id: 'kilo/big-pickle', variant: 'high' },
       { id: 'iflowcn/qwen3-235b-a22b-thinking-2507', variant: 'high' },
     ];
 
     const result = resolveModelFromArray(modelArray);
 
-    expect(result?.model).toBe('opencode/big-pickle');
+    expect(result?.model).toBe('kilo/big-pickle');
     expect(result?.variant).toBe('high');
   });
 

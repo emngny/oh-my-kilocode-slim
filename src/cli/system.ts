@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { statSync } from 'node:fs';
 import { crossSpawn } from '../utils/compat';
 
-let cachedOpenCodePath: string | null = null;
+let cachedKiloCodePath: string | null = null;
 
 function resolvePathCommand(command: string): string | null {
   try {
@@ -38,102 +38,102 @@ function canExecute(command: string, args: string[]): boolean {
   }
 }
 
-function getOpenCodePaths(): string[] {
+function getKiloCodePaths(): string[] {
   const home = process.env.HOME || process.env.USERPROFILE || '';
 
   return [
     // PATH (try this first)
-    'opencode',
+    'kilo',
     // User local installations (Linux & macOS)
-    `${home}/.local/bin/opencode`,
-    `${home}/.opencode/bin/opencode`,
-    `${home}/bin/opencode`,
+    `${home}/.local/bin/kilo`,
+    `${home}/.kilo/bin/kilo`,
+    `${home}/bin/kilo`,
     // System-wide installations
-    '/usr/local/bin/opencode',
-    '/opt/opencode/bin/opencode',
-    '/usr/bin/opencode',
-    '/bin/opencode',
+    '/usr/local/bin/kilo',
+    '/opt/kilo/bin/kilo',
+    '/usr/bin/kilo',
+    '/bin/kilo',
     // macOS specific
-    '/Applications/OpenCode.app/Contents/MacOS/opencode',
-    `${home}/Applications/OpenCode.app/Contents/MacOS/opencode`,
+    '/Applications/KiloCode.app/Contents/MacOS/kilo',
+    `${home}/Applications/KiloCode.app/Contents/MacOS/kilo`,
     // Homebrew (macOS & Linux)
-    '/opt/homebrew/bin/opencode',
-    '/home/linuxbrew/.linuxbrew/bin/opencode',
-    `${home}/homebrew/bin/opencode`,
+    '/opt/homebrew/bin/kilo',
+    '/home/linuxbrew/.linuxbrew/bin/kilo',
+    `${home}/homebrew/bin/kilo`,
     // macOS user Library
-    `${home}/Library/Application Support/opencode/bin/opencode`,
+    `${home}/Library/Application Support/kilo/bin/kilo`,
     // Snap (Linux)
-    '/snap/bin/opencode',
-    '/var/snap/opencode/current/bin/opencode',
+    '/snap/bin/kilo',
+    '/var/snap/kilo/current/bin/kilo',
     // Flatpak (Linux)
-    '/var/lib/flatpak/exports/bin/ai.opencode.OpenCode',
-    `${home}/.local/share/flatpak/exports/bin/ai.opencode.OpenCode`,
+    '/var/lib/flatpak/exports/bin/ai.kilo.KiloCode',
+    `${home}/.local/share/flatpak/exports/bin/ai.kilo.KiloCode`,
     // Nix (Linux/macOS)
-    '/nix/store/opencode/bin/opencode',
-    `${home}/.nix-profile/bin/opencode`,
-    '/run/current-system/sw/bin/opencode',
+    '/nix/store/kilo/bin/kilo',
+    `${home}/.nix-profile/bin/kilo`,
+    '/run/current-system/sw/bin/kilo',
     // Cargo (Rust toolchain)
-    `${home}/.cargo/bin/opencode`,
+    `${home}/.cargo/bin/kilo`,
     // npm/npx global
-    `${home}/.npm-global/bin/opencode`,
-    '/usr/local/lib/node_modules/opencode/bin/opencode',
+    `${home}/.npm-global/bin/kilo`,
+    '/usr/local/lib/node_modules/kilo/bin/kilo',
     // Yarn global
-    `${home}/.yarn/bin/opencode`,
+    `${home}/.yarn/bin/kilo`,
     // PNPM
-    `${home}/.pnpm-global/bin/opencode`,
+    `${home}/.pnpm-global/bin/kilo`,
   ];
 }
 
-export function resolveOpenCodePath(): string {
-  if (cachedOpenCodePath) {
-    return cachedOpenCodePath;
+export function resolveKiloCodePath(): string {
+  if (cachedKiloCodePath) {
+    return cachedKiloCodePath;
   }
 
-  const pathOpenCodePath = resolvePathCommand('opencode');
-  if (pathOpenCodePath) {
-    cachedOpenCodePath = pathOpenCodePath;
-    return pathOpenCodePath;
+  const pathKiloCodePath = resolvePathCommand('kilo');
+  if (pathKiloCodePath) {
+    cachedKiloCodePath = pathKiloCodePath;
+    return pathKiloCodePath;
   }
 
-  const paths = getOpenCodePaths();
+  const paths = getKiloCodePaths();
 
-  for (const opencodePath of paths) {
-    if (opencodePath === 'opencode') continue;
+  for (const kiloPath of paths) {
+    if (kiloPath === 'kilo') continue;
     try {
-      const stat = statSync(opencodePath);
+      const stat = statSync(kiloPath);
       if (stat.isFile()) {
-        cachedOpenCodePath = opencodePath;
-        return opencodePath;
+        cachedKiloCodePath = kiloPath;
+        return kiloPath;
       }
     } catch {
       // Try next path
     }
   }
 
-  // Fallback to 'opencode' and hope it's in PATH
-  return 'opencode';
+  // Fallback to 'kilo' and hope it's in PATH
+  return 'kilo';
 }
 
-export async function isOpenCodeInstalled(): Promise<boolean> {
-  const pathOpenCodePath = resolvePathCommand('opencode');
+export async function isKiloCodeInstalled(): Promise<boolean> {
+  const pathKiloCodePath = resolvePathCommand('kilo');
 
-  if (pathOpenCodePath && canExecute(pathOpenCodePath, ['--version'])) {
-    cachedOpenCodePath = pathOpenCodePath;
+  if (pathKiloCodePath && canExecute(pathKiloCodePath, ['--version'])) {
+    cachedKiloCodePath = pathKiloCodePath;
     return true;
   }
 
-  const paths = getOpenCodePaths();
+  const paths = getKiloCodePaths();
 
-  for (const opencodePath of paths) {
-    if (opencodePath === 'opencode') continue;
+  for (const kiloPath of paths) {
+    if (kiloPath === 'kilo') continue;
     try {
-      const proc = crossSpawn([opencodePath, '--version'], {
+      const proc = crossSpawn([kiloPath, '--version'], {
         stdout: 'pipe',
         stderr: 'pipe',
       });
       await proc.exited;
       if (proc.exitCode === 0) {
-        cachedOpenCodePath = opencodePath;
+        cachedKiloCodePath = kiloPath;
         return true;
       }
     } catch {
@@ -156,10 +156,10 @@ export async function isTmuxInstalled(): Promise<boolean> {
   }
 }
 
-export async function getOpenCodeVersion(): Promise<string | null> {
-  const opencodePath = resolveOpenCodePath();
+export async function getKiloCodeVersion(): Promise<string | null> {
+  const kiloPath = resolveKiloCodePath();
   try {
-    const proc = crossSpawn([opencodePath, '--version'], {
+    const proc = crossSpawn([kiloPath, '--version'], {
       stdout: 'pipe',
       stderr: 'pipe',
     });
@@ -174,9 +174,9 @@ export async function getOpenCodeVersion(): Promise<string | null> {
   return null;
 }
 
-export function getOpenCodePath(): string | null {
-  const path = resolveOpenCodePath();
-  return path === 'opencode' ? null : path;
+export function getKiloCodePath(): string | null {
+  const path = resolveKiloCodePath();
+  return path === 'kilo' ? null : path;
 }
 
 export async function fetchLatestVersion(

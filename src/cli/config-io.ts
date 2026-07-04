@@ -13,7 +13,7 @@ import { dirname, join } from 'node:path';
 import { crossSpawn } from '../utils/compat';
 import {
   ensureConfigDir,
-  ensureOpenCodeConfigDir,
+  ensureKiloCodeConfigDir,
   ensureTuiConfigDir,
   getExistingConfigPath,
   getExistingTuiConfigPath,
@@ -24,10 +24,10 @@ import type {
   ConfigMergeResult,
   DetectedConfig,
   InstallConfig,
-  OpenCodeConfig,
+  KiloCodeConfig,
 } from './types';
 
-const PACKAGE_NAME = 'oh-my-opencode-slim';
+const PACKAGE_NAME = 'oh-my-kilocode-slim';
 const DEFAULT_OPENCODE_AGENTS_TO_DISABLE = ['explore', 'general'] as const;
 
 function isString(value: unknown): value is string {
@@ -47,11 +47,11 @@ function getModelIds(model: unknown): string[] {
   });
 }
 
-function getPlugins(config: OpenCodeConfig): unknown[] {
+function getPlugins(config: KiloCodeConfig): unknown[] {
   return Array.isArray(config.plugin) ? config.plugin : [];
 }
 
-function getPluginEntries(config: OpenCodeConfig): string[] {
+function getPluginEntries(config: KiloCodeConfig): string[] {
   return getPlugins(config).filter(isString);
 }
 
@@ -157,7 +157,7 @@ function getPluginEntry(): string {
 }
 
 /**
- * Reads the OpenCode config to find the pinned version for this plugin.
+ * Reads the KiloCode config to find the pinned version for this plugin.
  * Returns the version string (e.g. "1.2.3") if pinned, or undefined
  * if the plugin is unpinned (bare name or @latest).
  */
@@ -212,16 +212,16 @@ function getVersionFromPackageRoot(packageRoot: string): string | undefined {
   }
 }
 
-function getOpenCodePluginCacheDir(version?: string): string {
+function getKiloCodePluginCacheDir(version?: string): string {
   const cacheDir =
     process.env.XDG_CACHE_HOME?.trim() || join(homedir(), '.cache');
   const suffix = version
     ? `${PACKAGE_NAME}@${version}`
     : `${PACKAGE_NAME}@latest`;
-  return join(cacheDir, 'opencode', 'packages', suffix);
+  return join(cacheDir, 'kilo', 'packages', suffix);
 }
 
-function writeOpenCodePluginCacheManifest(
+function writeKiloCodePluginCacheManifest(
   cacheDir: string,
   version: string = 'latest',
 ): ConfigMergeResult | null {
@@ -250,7 +250,7 @@ function writeOpenCodePluginCacheManifest(
   }
 }
 
-function removeOpenCodePluginCacheArtifacts(cacheDir: string): void {
+function removeKiloCodePluginCacheArtifacts(cacheDir: string): void {
   rmSync(join(cacheDir, 'node_modules', PACKAGE_NAME), {
     recursive: true,
     force: true,
@@ -259,7 +259,7 @@ function removeOpenCodePluginCacheArtifacts(cacheDir: string): void {
   rmSync(join(cacheDir, 'bun.lockb'), { force: true });
 }
 
-function verifyOpenCodePluginCache(cacheDir: string): ConfigMergeResult | null {
+function verifyKiloCodePluginCache(cacheDir: string): ConfigMergeResult | null {
   const pluginPackageJsonPath = join(
     cacheDir,
     'node_modules',
@@ -300,7 +300,7 @@ function verifyOpenCodePluginCache(cacheDir: string): ConfigMergeResult | null {
   return null;
 }
 
-export async function warmOpenCodePluginCache(): Promise<ConfigMergeResult | null> {
+export async function warmKiloCodePluginCache(): Promise<ConfigMergeResult | null> {
   const cliEntryPath = process.argv[1];
   if (!cliEntryPath) {
     return null;
@@ -315,7 +315,7 @@ export async function warmOpenCodePluginCache(): Promise<ConfigMergeResult | nul
   const runningVersion = getVersionFromPackageRoot(packageRoot);
   const requestedTag = getRequestedPackageTag(packageRoot);
   const cacheVersion = pinnedVersion ?? requestedTag ?? runningVersion;
-  const cacheDir = getOpenCodePluginCacheDir(cacheVersion);
+  const cacheDir = getKiloCodePluginCacheDir(cacheVersion);
 
   try {
     mkdirSync(cacheDir, { recursive: true });
@@ -323,17 +323,17 @@ export async function warmOpenCodePluginCache(): Promise<ConfigMergeResult | nul
     return {
       success: false,
       configPath: cacheDir,
-      error: `Failed to create OpenCode cache directory: ${err}`,
+      error: `Failed to create KiloCode cache directory: ${err}`,
     };
   }
 
-  const manifestError = writeOpenCodePluginCacheManifest(
+  const manifestError = writeKiloCodePluginCacheManifest(
     cacheDir,
     cacheVersion,
   );
   if (manifestError) return manifestError;
 
-  removeOpenCodePluginCacheArtifacts(cacheDir);
+  removeKiloCodePluginCacheArtifacts(cacheDir);
 
   try {
     const proc = crossSpawn(['bun', 'install', '--ignore-scripts'], {
@@ -352,7 +352,7 @@ export async function warmOpenCodePluginCache(): Promise<ConfigMergeResult | nul
       };
     }
 
-    const verificationError = verifyOpenCodePluginCache(cacheDir);
+    const verificationError = verifyKiloCodePluginCache(cacheDir);
     if (verificationError) return verificationError;
 
     return { success: true, configPath: cacheDir };
@@ -360,7 +360,7 @@ export async function warmOpenCodePluginCache(): Promise<ConfigMergeResult | nul
     return {
       success: false,
       configPath: cacheDir,
-      error: `Failed to warm OpenCode cache: ${err}`,
+      error: `Failed to warm KiloCode cache: ${err}`,
     };
   }
 }
@@ -382,7 +382,7 @@ export function stripJsonComments(json: string): string {
 }
 
 export function parseConfigFile(path: string): {
-  config: OpenCodeConfig | null;
+  config: KiloCodeConfig | null;
   error?: string;
 } {
   try {
@@ -391,14 +391,14 @@ export function parseConfigFile(path: string): {
     if (stat.size === 0) return { config: null };
     const content = readFileSync(path, 'utf-8');
     if (content.trim().length === 0) return { config: null };
-    return { config: JSON.parse(stripJsonComments(content)) as OpenCodeConfig };
+    return { config: JSON.parse(stripJsonComments(content)) as KiloCodeConfig };
   } catch (err) {
     return { config: null, error: String(err) };
   }
 }
 
 export function parseConfig(path: string): {
-  config: OpenCodeConfig | null;
+  config: KiloCodeConfig | null;
   error?: string;
 } {
   const result = parseConfigFile(path);
@@ -414,7 +414,7 @@ export function parseConfig(path: string): {
 /**
  * Write config to file atomically.
  */
-export function writeConfig(configPath: string, config: OpenCodeConfig): void {
+export function writeConfig(configPath: string, config: KiloCodeConfig): void {
   if (configPath.endsWith('.jsonc')) {
     console.warn(
       '[config-manager] Writing to .jsonc file - comments will not be preserved',
@@ -435,11 +435,11 @@ export function writeConfig(configPath: string, config: OpenCodeConfig): void {
   renameSync(tmpPath, configPath);
 }
 
-export async function addPluginToOpenCodeConfig(): Promise<ConfigMergeResult> {
+export async function addPluginToKiloCodeConfig(): Promise<ConfigMergeResult> {
   const configPath = getExistingConfigPath();
 
   try {
-    ensureOpenCodeConfigDir();
+    ensureKiloCodeConfigDir();
   } catch (err) {
     return {
       success: false,
@@ -462,7 +462,7 @@ export async function addPluginToOpenCodeConfig(): Promise<ConfigMergeResult> {
 
     const pluginEntry = getPluginEntry();
 
-    // Remove existing oh-my-opencode-slim entries
+    // Remove existing oh-my-kilocode-slim entries
     const filteredPlugins = plugins.filter(
       (plugin) => !isMatchingPluginEntry(plugin),
     );
@@ -477,12 +477,12 @@ export async function addPluginToOpenCodeConfig(): Promise<ConfigMergeResult> {
     return {
       success: false,
       configPath,
-      error: `Failed to update opencode config: ${err}`,
+      error: `Failed to update kilo config: ${err}`,
     };
   }
 }
 
-export async function addPluginToOpenCodeTuiConfig(): Promise<ConfigMergeResult> {
+export async function addPluginToKiloCodeTuiConfig(): Promise<ConfigMergeResult> {
   const configPath = getExistingTuiConfigPath();
 
   try {
@@ -520,13 +520,13 @@ export async function addPluginToOpenCodeTuiConfig(): Promise<ConfigMergeResult>
     return {
       success: false,
       configPath,
-      error: `Failed to update opencode TUI config: ${err}`,
+      error: `Failed to update kilo TUI config: ${err}`,
     };
   }
 }
 
 // Removed: addAuthPlugins - no longer needed with cliproxy
-// Removed: addProviderConfig - default opencode now has kimi provider config
+// Removed: addProviderConfig - default kilo now has kimi provider config
 
 export function writeLiteConfig(
   installConfig: InstallConfig,
@@ -565,7 +565,7 @@ export function disableDefaultAgents(): ConfigMergeResult {
   const configPath = getExistingConfigPath();
 
   try {
-    ensureOpenCodeConfigDir();
+    ensureKiloCodeConfigDir();
     const { config: parsedConfig, error } = parseConfig(configPath);
     if (error) {
       return {
@@ -603,7 +603,7 @@ export function enableLspByDefault(): ConfigMergeResult {
   const configPath = getExistingConfigPath();
 
   try {
-    ensureOpenCodeConfigDir();
+    ensureKiloCodeConfigDir();
     const { config: parsedConfig, error } = parseConfig(configPath);
     if (error) {
       return {
@@ -629,7 +629,7 @@ export function enableLspByDefault(): ConfigMergeResult {
   }
 }
 
-export function canModifyOpenCodeConfig(): boolean {
+export function canModifyKiloCodeConfig(): boolean {
   try {
     const configPath = getExistingConfigPath();
     if (!existsSync(configPath)) return true; // Will be created
@@ -663,7 +663,7 @@ export function detectCurrentConfig(): DetectedConfig {
   const plugins = getPluginEntries(config);
   result.isInstalled = plugins.some((p) => isPluginEntry(p));
   result.hasAntigravity = plugins.some((p) =>
-    p.startsWith('opencode-antigravity-auth'),
+    p.startsWith('kilo-antigravity-auth'),
   );
 
   // Check for providers
@@ -695,7 +695,7 @@ export function detectCurrentConfig(): DetectedConfig {
       result.hasZaiPlan ||= models.some((m) =>
         m.startsWith('zai-coding-plan/'),
       );
-      result.hasOpencodeZen ||= models.some((m) => m.startsWith('opencode/'));
+      result.hasOpencodeZen ||= models.some((m) => m.startsWith('kilo/'));
       if (models.some((m) => m.startsWith('google/'))) {
         result.hasAntigravity = true;
       }

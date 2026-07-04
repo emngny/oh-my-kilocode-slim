@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Provides AST-aware code search and replace capabilities via the ast-grep CLI. This tooling layer enables OpenCode agents to perform precise, language-aware code transformations and queries across the repository using structured AST patterns rather than fragile regex-based matching.
+Provides AST-aware code search and replace capabilities via the ast-grep CLI. This tooling layer enables KiloCode agents to perform precise, language-aware code transformations and queries across the repository using structured AST patterns rather than fragile regex-based matching.
 
 ## Design
 
@@ -29,7 +29,7 @@ The implementation follows a layered architecture:
   - `getEmptyResultHint()`: Provides user guidance when patterns yield no matches (e.g., missing colons in Python)
 
 - **Binary Management** (`downloader.ts`):
-  - `ensureAstGrepBinary()`: Downloads platform-specific ast-grep binary on-demand to `~/.cache/oh-my-opencode-slim/bin/`
+  - `ensureAstGrepBinary()`: Downloads platform-specific ast-grep binary on-demand to `~/.cache/oh-my-kilocode-slim/bin/`
   - Supports caching, version detection, and platform-specific artifacts
   - Handles permissions and cleanup
 
@@ -40,7 +40,7 @@ The implementation follows a layered architecture:
   - Implements path resolution logic that checks: cached binary → npm package → platform-specific package → Homebrew → PATH
 
 - **Public API** (`index.ts`):
-  - Exports built-in tools for OpenCode integration
+  - Exports built-in tools for KiloCode integration
   - Re-exports types, constants, and CLI utilities for external consumers
 
 ## Flow
@@ -72,7 +72,7 @@ The implementation follows a layered architecture:
 
 ## Integration
 
-- **Consumed by**: OpenCode plugin system via `@opencode-ai/plugin` tool registration
+- **Consumed by**: KiloCode plugin system via `@kilocode/plugin` tool registration
 - **Depends on**:
   - `@ast-grep/cli` (for fallback binary resolution)
   - `crossSpawn` utility for cross-platform process handling

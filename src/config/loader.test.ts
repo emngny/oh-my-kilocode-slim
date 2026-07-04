@@ -18,7 +18,7 @@ describe('loadPluginConfig', () => {
     userConfigDir = path.join(tempDir, 'user-config');
     originalEnv = { ...process.env };
     // Isolate from real user config
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = userConfigDir;
   });
 
@@ -34,12 +34,12 @@ describe('loadPluginConfig', () => {
     expect(config).toEqual({});
   });
 
-  test('loads project config from .opencode directory', () => {
+  test('loads project config from .kilo directory', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: 'test/model' },
@@ -53,10 +53,10 @@ describe('loadPluginConfig', () => {
 
   test('loads autoUpdate flag when configured', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         autoUpdate: false,
       }),
@@ -68,31 +68,31 @@ describe('loadPluginConfig', () => {
 
   test('ignores invalid config (schema violation or malformed JSON)', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
 
     // Test 1: Invalid temperature (out of range)
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { temperature: 5 } } }),
     );
     expect(loadPluginConfig(projectDir)).toEqual({});
 
     // Test 2: Malformed JSON
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       '{ invalid json }',
     );
     expect(loadPluginConfig(projectDir)).toEqual({});
   });
 
-  test('accepts prompt on built-in agents and rejects orchestratorPrompt on orchestrator in config files', () => {
+  test('accepts prompt on built-in agents and rejects chiefPrompt on chief in config files', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
 
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: {
@@ -109,12 +109,12 @@ describe('loadPluginConfig', () => {
     );
 
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
-          orchestrator: {
+          chief: {
             model: 'openai/gpt-5.5',
-            orchestratorPrompt: 'This must be rejected.',
+            chiefPrompt: 'This must be rejected.',
           },
         },
       }),
@@ -122,17 +122,17 @@ describe('loadPluginConfig', () => {
     expect(loadPluginConfig(projectDir)).toEqual({});
   });
 
-  test('respects OPENCODE_CONFIG_DIR for user config location', () => {
+  test('respects KILOCODE_CONFIG_DIR for user config location', () => {
     const customDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'omc-opencode-config-'),
+      path.join(os.tmpdir(), 'omc-kilo-config-'),
     );
-    process.env.OPENCODE_CONFIG_DIR = customDir;
+    process.env.KILOCODE_CONFIG_DIR = customDir;
 
     // Write plugin config in the custom directory
     fs.writeFileSync(
-      path.join(customDir, 'oh-my-opencode-slim.json'),
+      path.join(customDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
-        agents: { oracle: { model: 'custom/model-from-opencode-config-dir' } },
+        agents: { oracle: { model: 'custom/model-from-kilo-config-dir' } },
       }),
     );
 
@@ -141,22 +141,22 @@ describe('loadPluginConfig', () => {
 
     const config = loadPluginConfig(projectDir);
     expect(config.agents?.oracle?.model).toBe(
-      'custom/model-from-opencode-config-dir',
+      'custom/model-from-kilo-config-dir',
     );
 
     fs.rmSync(customDir, { recursive: true, force: true });
   });
 
-  test('falls back to default user config dir when OPENCODE_CONFIG_DIR has no config', () => {
+  test('falls back to default user config dir when KILOCODE_CONFIG_DIR has no config', () => {
     const customDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'omc-opencode-config-empty-'),
+      path.join(os.tmpdir(), 'omc-kilo-config-empty-'),
     );
-    process.env.OPENCODE_CONFIG_DIR = customDir;
+    process.env.KILOCODE_CONFIG_DIR = customDir;
 
-    const defaultConfigDir = path.join(userConfigDir, 'opencode');
+    const defaultConfigDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(defaultConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(defaultConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(defaultConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: 'fallback/default-config' } },
       }),
@@ -179,7 +179,7 @@ describe('onWarning callback', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'onwarning-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = tempDir;
   });
 
@@ -190,10 +190,10 @@ describe('onWarning callback', () => {
 
   test('invalid schema calls onWarning with invalid-schema', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { temperature: 5 } } }),
     );
 
@@ -205,7 +205,7 @@ describe('onWarning callback', () => {
     expect(warnings).toHaveLength(1);
     expect(warnings[0]?.kind).toBe('invalid-schema');
     expect(warnings[0]?.path).toBe(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
     );
     expect(warnings[0]?.message).toBe('Config does not match schema');
     expect(config).toEqual({});
@@ -213,10 +213,10 @@ describe('onWarning callback', () => {
 
   test('invalid JSON calls onWarning with invalid-json', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       '{ invalid json }',
     );
 
@@ -228,17 +228,17 @@ describe('onWarning callback', () => {
     expect(warnings).toHaveLength(1);
     expect(warnings[0]?.kind).toBe('invalid-json');
     expect(warnings[0]?.path).toBe(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
     );
     expect(config).toEqual({});
   });
 
   test('silent option suppresses console warnings', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       '{ invalid json }',
     );
 
@@ -260,8 +260,8 @@ describe('onWarning callback', () => {
 
   test('read error calls onWarning with read-error', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
-    const configPath = path.join(projectConfigDir, 'oh-my-opencode-slim.json');
+    const projectConfigDir = path.join(projectDir, '.kilo');
+    const configPath = path.join(projectConfigDir, 'oh-my-kilocode-slim.json');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(configPath, JSON.stringify({}));
 
@@ -297,10 +297,10 @@ describe('onWarning callback', () => {
 
   test('missing preset calls onWarning with missing-preset', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'nonexistent',
         presets: { other: { oracle: { model: 'other' } } },
@@ -321,10 +321,10 @@ describe('onWarning callback', () => {
 
   test('silent: true on missing preset still calls onWarning but not console.warn', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'nonexistent',
         presets: { other: { oracle: { model: 'other' } } },
@@ -351,10 +351,10 @@ describe('onWarning callback', () => {
 
   test('valid config does not call onWarning', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { model: 'valid/model' } } }),
     );
 
@@ -369,10 +369,10 @@ describe('onWarning callback', () => {
 
   test('no options object does not break loadPluginConfig', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { model: 'model' } } }),
     );
 
@@ -392,7 +392,7 @@ describe('deepMerge behavior', () => {
     originalEnv = { ...process.env };
 
     // Set XDG_CONFIG_HOME to control user config location
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = userConfigDir;
   });
 
@@ -403,10 +403,10 @@ describe('deepMerge behavior', () => {
 
   test('merges nested agent configs from user and project', () => {
     // Create user config
-    const userOpencodeDir = path.join(userConfigDir, 'opencode');
+    const userOpencodeDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: 'user/oracle-model', temperature: 0.5 },
@@ -417,10 +417,10 @@ describe('deepMerge behavior', () => {
 
     // Create project config (should override/merge with user)
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { temperature: 0.8 }, // Override temperature only
@@ -443,10 +443,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('merges nested tmux configs', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'opencode');
+    const userOpencodeDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         tmux: {
           enabled: true,
@@ -457,10 +457,10 @@ describe('deepMerge behavior', () => {
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         tmux: {
           enabled: false, // Override enabled
@@ -477,10 +477,10 @@ describe('deepMerge behavior', () => {
   });
 
   test("preserves user tmux.enabled when project doesn't specify", () => {
-    const userOpencodeDir = path.join(userConfigDir, 'opencode');
+    const userOpencodeDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         tmux: {
           enabled: true,
@@ -490,10 +490,10 @@ describe('deepMerge behavior', () => {
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: 'test' } }, // No tmux override
       }),
@@ -506,20 +506,20 @@ describe('deepMerge behavior', () => {
   });
 
   test('project config overrides top-level arrays', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'opencode');
+    const userOpencodeDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         disabled_mcps: ['websearch'],
       }),
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         disabled_mcps: ['context7'],
       }),
@@ -534,10 +534,10 @@ describe('deepMerge behavior', () => {
   test('handles missing user config gracefully', () => {
     // Don't create user config, only project
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: 'project/model' },
@@ -550,10 +550,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('handles missing project config gracefully', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'opencode');
+    const userOpencodeDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: 'user/model' },
@@ -570,10 +570,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('merges fallback timeout from user and project', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'opencode');
+    const userOpencodeDir = path.join(userConfigDir, 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         fallback: {
           enabled: true,
@@ -582,10 +582,10 @@ describe('deepMerge behavior', () => {
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         fallback: {
           enabled: false,
@@ -606,7 +606,7 @@ describe('preset resolution', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'preset-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = path.join(tempDir, 'user-config');
   });
 
@@ -617,10 +617,10 @@ describe('preset resolution', () => {
 
   test('backward compatibility: config with only agents works unchanged', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: 'direct-model' } },
       }),
@@ -633,10 +633,10 @@ describe('preset resolution', () => {
 
   test("preset applied: preset + presets returns preset's agents", () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'fast',
         presets: {
@@ -651,10 +651,10 @@ describe('preset resolution', () => {
 
   test('root agents override preset agents', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'fast',
         presets: {
@@ -677,10 +677,10 @@ describe('preset resolution', () => {
 
   test('missing preset: preset set but not in presets -> returns empty/root agents', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'nonexistent',
         presets: {
@@ -696,10 +696,10 @@ describe('preset resolution', () => {
 
   test('preset only: no root agents, just preset works', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'dev',
         presets: {
@@ -714,12 +714,12 @@ describe('preset resolution', () => {
 
   test('invalid preset shape: bad agent config in preset fails schema validation', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
 
     // preset agents with invalid temperature
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'invalid',
         presets: {
@@ -734,10 +734,10 @@ describe('preset resolution', () => {
 
   test('nonexistent preset from config warns and falls back to root agents', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'nonexistent',
         presets: {
@@ -758,10 +758,10 @@ describe('preset resolution', () => {
 
   test('nonexistent preset with no root agents returns empty agents', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'nonexistent',
         presets: {
@@ -780,10 +780,10 @@ describe('preset resolution', () => {
 
   test('options from preset are deep-merged with root agents', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'openai',
         presets: {
@@ -813,10 +813,10 @@ describe('preset resolution', () => {
 
   test('options from preset only work without root agents', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'anthropic-thinking',
         presets: {
@@ -841,10 +841,10 @@ describe('preset resolution', () => {
 
   test('root options override preset options for same key', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'concise',
         presets: {
@@ -879,7 +879,7 @@ describe('environment variable preset override', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'env-preset-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = path.join(tempDir, 'user-config');
   });
 
@@ -890,10 +890,10 @@ describe('environment variable preset override', () => {
 
   test('Env var overrides preset from config file', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'config-preset',
         presets: {
@@ -903,7 +903,7 @@ describe('environment variable preset override', () => {
       }),
     );
 
-    process.env.OH_MY_OPENCODE_SLIM_PRESET = 'env-preset';
+    process.env.OH_MY_KILOCODE_SLIM_PRESET = 'env-preset';
     const config = loadPluginConfig(projectDir);
     expect(config.preset).toBe('env-preset');
     expect(config.agents?.oracle?.model).toBe('env-model');
@@ -911,10 +911,10 @@ describe('environment variable preset override', () => {
 
   test('Env var works when config has no preset', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         presets: {
           'env-preset': { oracle: { model: 'env-model' } },
@@ -922,7 +922,7 @@ describe('environment variable preset override', () => {
       }),
     );
 
-    process.env.OH_MY_OPENCODE_SLIM_PRESET = 'env-preset';
+    process.env.OH_MY_KILOCODE_SLIM_PRESET = 'env-preset';
     const config = loadPluginConfig(projectDir);
     expect(config.preset).toBe('env-preset');
     expect(config.agents?.oracle?.model).toBe('env-model');
@@ -930,10 +930,10 @@ describe('environment variable preset override', () => {
 
   test('Env var is ignored if empty string', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'config-preset',
         presets: {
@@ -942,7 +942,7 @@ describe('environment variable preset override', () => {
       }),
     );
 
-    process.env.OH_MY_OPENCODE_SLIM_PRESET = '';
+    process.env.OH_MY_KILOCODE_SLIM_PRESET = '';
     const config = loadPluginConfig(projectDir);
     expect(config.preset).toBe('config-preset');
     expect(config.agents?.oracle?.model).toBe('config-model');
@@ -950,10 +950,10 @@ describe('environment variable preset override', () => {
 
   test('Env var is ignored if undefined', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'config-preset',
         presets: {
@@ -962,7 +962,7 @@ describe('environment variable preset override', () => {
       }),
     );
 
-    delete process.env.OH_MY_OPENCODE_SLIM_PRESET;
+    delete process.env.OH_MY_KILOCODE_SLIM_PRESET;
     const config = loadPluginConfig(projectDir);
     expect(config.preset).toBe('config-preset');
     expect(config.agents?.oracle?.model).toBe('config-model');
@@ -970,10 +970,10 @@ describe('environment variable preset override', () => {
 
   test('Env var with nonexistent preset warns and falls back', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'config-preset',
         presets: {
@@ -983,7 +983,7 @@ describe('environment variable preset override', () => {
       }),
     );
 
-    process.env.OH_MY_OPENCODE_SLIM_PRESET = 'typo-preset';
+    process.env.OH_MY_KILOCODE_SLIM_PRESET = 'typo-preset';
     const consoleWarnSpy = spyOn(console, 'warn');
     const config = loadPluginConfig(projectDir);
     expect(config.preset).toBe('typo-preset');
@@ -1005,7 +1005,7 @@ describe('JSONC config support', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jsonc-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = path.join(tempDir, 'user-config');
   });
 
@@ -1016,10 +1016,10 @@ describe('JSONC config support', () => {
 
   test('loads .jsonc file with single-line comments', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // This is a comment
         "agents": {
@@ -1034,10 +1034,10 @@ describe('JSONC config support', () => {
 
   test('loads .jsonc file with multi-line comments', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         /* Multi-line
            comment block */
@@ -1053,10 +1053,10 @@ describe('JSONC config support', () => {
 
   test('loads .jsonc file with trailing commas', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         "agents": {
           "oracle": { "model": "test-model", },
@@ -1070,16 +1070,16 @@ describe('JSONC config support', () => {
 
   test('prefers .jsonc over .json when both exist', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
 
     // Create both files
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { model: 'json-model' } } }),
     );
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // JSONC version
         "agents": { "oracle": { "model": "jsonc-model" } }
@@ -1092,12 +1092,12 @@ describe('JSONC config support', () => {
 
   test('falls back to .json when .jsonc does not exist', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
 
     // Only create .json file
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { model: 'json-model' } } }),
     );
 
@@ -1106,10 +1106,10 @@ describe('JSONC config support', () => {
   });
 
   test('loads user config from .jsonc', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'opencode');
+    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // User config with comments
         "agents": { "librarian": { "model": "user-librarian" } }
@@ -1124,10 +1124,10 @@ describe('JSONC config support', () => {
   });
 
   test('merges user .jsonc with project .jsonc', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'opencode');
+    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // User config
         "agents": {
@@ -1137,10 +1137,10 @@ describe('JSONC config support', () => {
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // Project config
         "agents": { "oracle": { "temperature": 0.8 } }
@@ -1154,10 +1154,10 @@ describe('JSONC config support', () => {
 
   test('handles complex JSONC with mixed comments and trailing commas', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // Main configuration
         "preset": "dev",
@@ -1192,7 +1192,7 @@ describe('loadAgentPrompt', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'prompt-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = tempDir;
   });
 
@@ -1207,7 +1207,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('loads replacement prompt from {agent}.md', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'replacement prompt');
 
@@ -1217,7 +1217,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('loads append prompt from {agent}_append.md', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(
       path.join(promptsDir, 'oracle_append.md'),
@@ -1230,7 +1230,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('loads both replacement and append prompts', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'replacement prompt');
     fs.writeFileSync(
@@ -1244,7 +1244,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('handles file read errors gracefully', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     const promptPath = path.join(promptsDir, 'error-agent.md');
     fs.writeFileSync(promptPath, 'content');
@@ -1277,7 +1277,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('prefers preset prompt files over root prompts', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
 
@@ -1298,7 +1298,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('falls back to root prompt files when preset files are missing', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
 
@@ -1314,7 +1314,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('falls back independently between preset and root files', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
 
@@ -1330,7 +1330,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('ignores unsafe preset names for prompt lookup', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'root replacement');
 
@@ -1340,7 +1340,7 @@ describe('loadAgentPrompt', () => {
   });
 
   test('falls back to root when preset prompt file read fails', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
     const presetPromptPath = path.join(presetDir, 'oracle.md');
@@ -1374,8 +1374,8 @@ describe('loadAgentPrompt', () => {
 
     const promptsDir = path.join(
       customConfigHome,
-      'opencode',
-      'oh-my-opencode-slim',
+      'kilo',
+      'oh-my-kilocode-slim',
     );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'xdg-agent.md'), 'xdg prompt');
@@ -1384,32 +1384,32 @@ describe('loadAgentPrompt', () => {
     expect(result.prompt).toBe('xdg prompt');
   });
 
-  test('respects OPENCODE_CONFIG_DIR for prompt location', () => {
+  test('respects KILOCODE_CONFIG_DIR for prompt location', () => {
     const customDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'omc-prompt-config-'),
     );
-    process.env.OPENCODE_CONFIG_DIR = customDir;
+    process.env.KILOCODE_CONFIG_DIR = customDir;
 
-    const promptsDir = path.join(customDir, 'oh-my-opencode-slim');
+    const promptsDir = path.join(customDir, 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(
       path.join(promptsDir, 'oracle.md'),
-      'prompt from OPENCODE_CONFIG_DIR dir',
+      'prompt from KILOCODE_CONFIG_DIR dir',
     );
 
     const result = loadAgentPrompt('oracle');
-    expect(result.prompt).toBe('prompt from OPENCODE_CONFIG_DIR dir');
+    expect(result.prompt).toBe('prompt from KILOCODE_CONFIG_DIR dir');
 
     fs.rmSync(customDir, { recursive: true, force: true });
   });
 
-  test('falls back to default prompt dir when OPENCODE_CONFIG_DIR has no prompt', () => {
+  test('falls back to default prompt dir when KILOCODE_CONFIG_DIR has no prompt', () => {
     const customDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'omc-prompt-config-empty-'),
     );
-    process.env.OPENCODE_CONFIG_DIR = customDir;
+    process.env.KILOCODE_CONFIG_DIR = customDir;
 
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const promptsDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'fallback prompt');
 
@@ -1427,7 +1427,7 @@ describe('env variable interpolation', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'env-interp-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = path.join(tempDir, 'user-config');
   });
 
@@ -1439,10 +1439,10 @@ describe('env variable interpolation', () => {
   test('basic substitution: {env:FOO} resolves to the value of FOO', () => {
     process.env.FOO = 'foo-model';
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: '{env:FOO}' } },
       }),
@@ -1456,10 +1456,10 @@ describe('env variable interpolation', () => {
     process.env.FOO = 'foo-model';
     process.env.BAR = 'bar-model';
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: '{env:FOO}' },
@@ -1476,10 +1476,10 @@ describe('env variable interpolation', () => {
   test('undefined variable: {env:NONEXISTENT} resolves to empty string', () => {
     delete process.env.NONEXISTENT;
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: '{env:NONEXISTENT}' } },
       }),
@@ -1491,10 +1491,10 @@ describe('env variable interpolation', () => {
 
   test('no interpolation needed: config without {env:...} works unchanged', () => {
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: 'foo-model' } },
       }),
@@ -1507,10 +1507,10 @@ describe('env variable interpolation', () => {
   test('partial string: "prefix-{env:FOO}-suffix" resolves correctly', () => {
     process.env.FOO = 'foo';
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { model: 'prefix-{env:FOO}-suffix' } },
       }),
@@ -1523,10 +1523,10 @@ describe('env variable interpolation', () => {
   test('works in JSONC files with comments', () => {
     process.env.FOO = 'foo-model';
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // Use env variable for model
         "agents": { "oracle": { "model": "{env:FOO}" } }
@@ -1541,10 +1541,10 @@ describe('env variable interpolation', () => {
     process.env.FOO = 'foo';
     process.env.BAR = 'bar';
     const projectDir = path.join(tempDir, 'project');
-    const projectConfigDir = path.join(projectDir, '.opencode');
+    const projectConfigDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(projectConfigDir, { recursive: true });
     fs.writeFileSync(
-      path.join(projectConfigDir, 'oh-my-opencode-slim.json'),
+      path.join(projectConfigDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: '{env:FOO}/{env:BAR}' },

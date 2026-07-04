@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { CouncilConfigSchema } from './council-schema';
 
 const MANUAL_AGENT_NAMES = [
-  'orchestrator',
+  'chief',
   'oracle',
   'designer',
   'explorer',
@@ -41,7 +41,7 @@ export const ManualAgentPlanSchema = z
 
 export const ManualPlanSchema = z
   .object({
-    orchestrator: ManualAgentPlanSchema,
+    chief: ManualAgentPlanSchema,
     oracle: ManualAgentPlanSchema,
     designer: ManualAgentPlanSchema,
     explorer: ManualAgentPlanSchema,
@@ -78,7 +78,7 @@ export const AgentOverrideConfigSchema = z
     skills: z.array(z.string()).optional(), // skills this agent can use ("*" = all, "!item" = exclude)
     mcps: z.array(z.string()).optional(), // MCPs this agent can use ("*" = all, "!item" = exclude)
     prompt: z.string().min(1).optional(),
-    orchestratorPrompt: z.string().min(1).optional(),
+    chiefPrompt: z.string().min(1).optional(),
     options: z.record(z.string(), z.unknown()).optional(), // provider-specific model options (e.g., textVerbosity, thinking budget)
     displayName: z.string().min(1).optional(),
   })
@@ -239,7 +239,7 @@ export const AcpAgentConfigSchema = z
     cwd: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
     prompt: z.string().min(1).optional(),
-    orchestratorPrompt: z.string().min(1).optional(),
+    chiefPrompt: z.string().min(1).optional(),
     wrapperModel: ProviderModelIdSchema.optional(),
     timeoutMs: z
       .number()
@@ -262,18 +262,17 @@ export type AcpAgentPermissionMode = z.infer<
 export type AcpAgentConfig = z.infer<typeof AcpAgentConfigSchema>;
 export type AcpAgentsConfig = z.infer<typeof AcpAgentsConfigSchema>;
 
-function rejectOrchestratorPromptOnOrchestrator(
+function rejectChiefPromptOnChief(
   overrides: Record<string, z.infer<typeof AgentOverrideConfigSchema>>,
   ctx: z.RefinementCtx,
   pathPrefix: Array<string | number>,
 ): void {
   for (const [name, override] of Object.entries(overrides)) {
-    if (name === 'orchestrator' && override.orchestratorPrompt !== undefined) {
+    if (name === 'chief' && override.chiefPrompt !== undefined) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: [...pathPrefix, name, 'orchestratorPrompt'],
-        message:
-          'orchestratorPrompt is not supported for the orchestrator agent',
+        path: [...pathPrefix, name, 'chiefPrompt'],
+        message: 'chiefPrompt is not supported for the chief agent',
       });
     }
   }
@@ -301,7 +300,7 @@ export const PluginConfigSchema = z
       .describe(
         'Agent names to disable completely. ' +
           'Disabled agents are not instantiated and cannot be delegated to. ' +
-          'Orchestrator and council internal agents (councillor) cannot be disabled. ' +
+          'Chief and council internal agents (councillor) cannot be disabled. ' +
           "By default, 'observer' is disabled. Remove it from this list and configure a vision-capable model to enable.",
       ),
     disabled_mcps: z.array(z.string()).optional(),
@@ -309,7 +308,7 @@ export const PluginConfigSchema = z
       .array(z.string())
       .optional()
       .describe(
-        'Tool names to disable completely. Disabled tools are not registered with OpenCode and cannot be used by agents.',
+        'Tool names to disable completely. Disabled tools are not registered with KiloCode and cannot be used by agents.',
       ),
     disabled_skills: z
       .array(z.string())
@@ -332,15 +331,12 @@ export const PluginConfigSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.agents) {
-      rejectOrchestratorPromptOnOrchestrator(value.agents, ctx, ['agents']);
+      rejectChiefPromptOnChief(value.agents, ctx, ['agents']);
     }
 
     if (value.presets) {
       for (const [presetName, preset] of Object.entries(value.presets)) {
-        rejectOrchestratorPromptOnOrchestrator(preset, ctx, [
-          'presets',
-          presetName,
-        ]);
+        rejectChiefPromptOnChief(preset, ctx, ['presets', presetName]);
       }
     }
   });

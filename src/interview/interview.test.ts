@@ -1723,7 +1723,7 @@ describe('renderInterviewPage', () => {
 
     expect(html).toContain('<img class="brand-mark"');
     expect(html).toContain(
-      'https://ohmyopencodeslim.com/android-chrome-512x512.png',
+      'https://ohmykiloslim.com/android-chrome-512x512.png',
     );
   });
 

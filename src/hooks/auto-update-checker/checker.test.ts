@@ -8,9 +8,9 @@ mock.module('../../utils/logger', () => ({
 
 mock.module('../../cli/config-manager', () => ({
   stripJsonComments: (s: string) => s,
-  getOpenCodeConfigPaths: () => [
-    '/mock/config/opencode.json',
-    '/mock/config/opencode.jsonc',
+  getKiloCodeConfigPaths: () => [
+    '/mock/config/kilo.json',
+    '/mock/config/kilo.jsonc',
   ],
 }));
 
@@ -68,7 +68,7 @@ describe('auto-update-checker/checker', () => {
     test('returns version from local package.json if path exists', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
         (p: string) => {
-          if (p.includes('opencode.json')) return true;
+          if (p.includes('kilo.json')) return true;
           if (p.includes('package.json')) return true;
           return false;
         },
@@ -81,14 +81,14 @@ describe('auto-update-checker/checker', () => {
       );
       const readSpy = spyOn(fs, 'readFileSync').mockImplementation(
         (p: string) => {
-          if (p.includes('opencode.json')) {
+          if (p.includes('kilo.json')) {
             return JSON.stringify({
-              plugin: ['file:///dev/oh-my-opencode-slim'],
+              plugin: ['file:///dev/oh-my-kilocode-slim'],
             });
           }
           if (p.includes('package.json')) {
             return JSON.stringify({
-              name: 'oh-my-opencode-slim',
+              name: 'oh-my-kilocode-slim',
               version: '1.2.3-dev',
             });
           }
@@ -111,11 +111,11 @@ describe('auto-update-checker/checker', () => {
   describe('findPluginEntry', () => {
     test('detects latest version entry', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
-        (p: string) => p.includes('opencode.json'),
+        (p: string) => p.includes('kilo.json'),
       );
       const readSpy = spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({
-          plugin: ['oh-my-opencode-slim'],
+          plugin: ['oh-my-kilocode-slim'],
         }),
       );
 
@@ -125,7 +125,7 @@ describe('auto-update-checker/checker', () => {
 
       const entry = findPluginEntry('/test');
       expect(entry).not.toBeNull();
-      expect(entry?.entry).toBe('oh-my-opencode-slim');
+      expect(entry?.entry).toBe('oh-my-kilocode-slim');
       expect(entry?.isPinned).toBe(false);
       expect(entry?.pinnedVersion).toBeNull();
 
@@ -135,11 +135,11 @@ describe('auto-update-checker/checker', () => {
 
     test('detects pinned version entry', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
-        (p: string) => p.includes('opencode.json'),
+        (p: string) => p.includes('kilo.json'),
       );
       const readSpy = spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({
-          plugin: ['oh-my-opencode-slim@1.0.0'],
+          plugin: ['oh-my-kilocode-slim@1.0.0'],
         }),
       );
 

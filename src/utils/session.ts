@@ -2,7 +2,7 @@
  * Shared session utilities for council and background managers.
  */
 
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 
 type OpencodeClient = PluginInput['client'];
 
@@ -89,7 +89,7 @@ export function parseModelReference(
 /**
  * Send a prompt to a session with optional timeout.
  * If timeout is exceeded, the session is aborted and an error is thrown.
- * @param client - OpenCode client instance
+ * @param client - KiloCode client instance
  * @param args - Arguments for session.prompt()
  * @param timeoutMs - Timeout in milliseconds (0 = no timeout)
  * @throws Error if timeout is exceeded
@@ -169,7 +169,7 @@ export interface SessionExtractionResult {
 /**
  * Extract the result text from a session.
  * Collects all assistant messages and concatenates their text parts.
- * @param client - OpenCode client instance
+ * @param client - KiloCode client instance
  * @param sessionId - Session ID to extract from
  * @param options - Optional: `includeReasoning` (default true) controls whether
  *                  reasoning/chain-of-thought parts are included.

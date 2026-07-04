@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const HISTORY_DIR = join(process.cwd(), '.opencode', 'loop-history');
+const HISTORY_DIR = join(process.cwd(), '.kilo', 'loop-history');
 
 function slugify(text: string): string {
   return text

@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Centralized utilities and shared abstractions used across the oh-my-opencode-slim plugin. This folder provides:
+Centralized utilities and shared abstractions used across the oh-my-kilocode-slim plugin. This folder provides:
 - Background job lifecycle management via BackgroundJobBoard
 - Environment and configuration utilities
 - Type guards and validation helpers
@@ -17,7 +17,7 @@ Centralized utilities and shared abstractions used across the oh-my-opencode-sli
 
 - **BackgroundJobBoard** (`background-job-board.ts`): Singleton registry and lifecycle manager for background tasks spawned by sub-agents. Implements a reusable session pool pattern with automatic cleanup and reconciliation hooks. Tracks task state (running, completed, error, cancelled), maintains context files, and provides prompt-ready summaries for agent coordination.
 
-- **Logger** (`logger.ts`): File-based logging with 7-day retention, automatic directory creation, and write queuing. Logs are written to `~/.local/share/opencode/log/oh-my-opencode-slim.<sessionId>.log` and cleaned up on initialization.
+- **Logger** (`logger.ts`): File-based logging with 7-day retention, automatic directory creation, and write queuing. Logs are written to `~/.local/share/kilo/log/oh-my-kilocode-slim.<sessionId>.log` and cleaned up on initialization.
 
 - **Session Utilities** (`session.ts`): Timeout handling, session abort coordination, model reference parsing, and session content extraction. Provides `promptWithTimeout` and `extractSessionResult` for safe session operations.
 
@@ -49,7 +49,7 @@ Centralized utilities and shared abstractions used across the oh-my-opencode-sli
 
 ### Logging Flow
 1. Plugin initializes logger with session ID via initLogger(sessionId)
-2. Logs are appended to `~/.local/share/opencode/log/oh-my-opencode-slim.<sessionId>.log`
+2. Logs are appended to `~/.local/share/kilo/log/oh-my-kilocode-slim.<sessionId>.log`
 3. Old logs (>7 days) are automatically cleaned up on initialization
 4. Log writes are queued to avoid blocking, with errors silently ignored
 
@@ -82,7 +82,7 @@ Centralized utilities and shared abstractions used across the oh-my-opencode-sli
 ### Dependencies
 
 - **Node.js built-ins**: `fs`, `fs/promises`, `os`, `path` for logging and file operations
-- **@opencode-ai/sdk**: PluginInput type for session utilities
+- **@kilocode/sdk**: PluginInput type for session utilities
 
 ### Export Chain
 

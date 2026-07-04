@@ -1,5 +1,5 @@
 /**
- * Shared message type shapes for the OpenCode plugin API's `messages` array.
+ * Shared message type shapes for the KiloCode plugin API's `messages` array.
  *
  * These types describe the structure of chat messages passed through
  * `experimental.chat.messages.transform` and related hooks. All fields

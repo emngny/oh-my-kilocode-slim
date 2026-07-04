@@ -1,6 +1,6 @@
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { type ToolDefinition, tool } from '@opencode-ai/plugin';
+import { type ToolDefinition, tool } from '@kilocode/plugin';
 import {
   type AcpAgentConfig,
   type AcpAgentsConfig,
@@ -90,8 +90,8 @@ class AcpClient {
       protocolVersion: 1,
       clientCapabilities: {},
       clientInfo: {
-        name: 'oh-my-opencode-slim',
-        title: 'oh-my-opencode-slim ACP bridge',
+        name: 'oh-my-kilocode-slim',
+        title: 'oh-my-kilocode-slim ACP bridge',
       },
     });
     this.authMethods = readAuthMethods(init);

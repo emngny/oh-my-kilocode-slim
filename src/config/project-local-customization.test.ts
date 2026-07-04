@@ -13,7 +13,7 @@ describe('Project-local customization - 15 core cases', () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'proj-custom-test-'));
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
+    delete process.env.KILOCODE_CONFIG_DIR;
     process.env.XDG_CONFIG_HOME = tempDir;
   });
 
@@ -24,15 +24,15 @@ describe('Project-local customization - 15 core cases', () => {
 
   // Test Case 1: Project prompt root beats user prompt root
   test('1. Project prompt root beats user prompt root', () => {
-    const userDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const userDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(userDir, { recursive: true });
     fs.writeFileSync(path.join(userDir, 'oracle.md'), 'user-oracle');
 
     const projectDir = path.join(tempDir, 'project');
     const projectPromptDir = path.join(
       projectDir,
-      '.opencode',
-      'oh-my-opencode-slim',
+      '.kilo',
+      'oh-my-kilocode-slim',
     );
     fs.mkdirSync(projectPromptDir, { recursive: true });
     fs.writeFileSync(
@@ -49,8 +49,8 @@ describe('Project-local customization - 15 core cases', () => {
     const projectDir = path.join(tempDir, 'project');
     const projectPromptDir = path.join(
       projectDir,
-      '.opencode',
-      'oh-my-opencode-slim',
+      '.kilo',
+      'oh-my-kilocode-slim',
     );
     const projectPresetDir = path.join(projectPromptDir, 'test-preset');
     fs.mkdirSync(projectPresetDir, { recursive: true });
@@ -73,7 +73,7 @@ describe('Project-local customization - 15 core cases', () => {
 
   // Test Case 3: User preset prompt beats user root prompt when no project prompt exists
   test('3. User preset prompt beats user root prompt when no project prompt exists', () => {
-    const userDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const userDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     const userPresetDir = path.join(userDir, 'test-preset');
     fs.mkdirSync(userPresetDir, { recursive: true });
 
@@ -92,8 +92,8 @@ describe('Project-local customization - 15 core cases', () => {
     const projectDir = path.join(tempDir, 'project');
     const projectPromptDir = path.join(
       projectDir,
-      '.opencode',
-      'oh-my-opencode-slim',
+      '.kilo',
+      'oh-my-kilocode-slim',
     );
     fs.mkdirSync(projectPromptDir, { recursive: true });
 
@@ -141,7 +141,7 @@ describe('Project-local customization - 15 core cases', () => {
     };
 
     // User prompt file mock
-    const userDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const userDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(userDir, { recursive: true });
     fs.writeFileSync(
       path.join(userDir, 'oracle.md'),
@@ -165,7 +165,7 @@ describe('Project-local customization - 15 core cases', () => {
     };
 
     // User append file mock
-    const userDir = path.join(tempDir, 'opencode', 'oh-my-opencode-slim');
+    const userDir = path.join(tempDir, 'kilo', 'oh-my-kilocode-slim');
     fs.mkdirSync(userDir, { recursive: true });
     fs.writeFileSync(path.join(userDir, 'oracle_append.md'), 'append content');
 
@@ -176,55 +176,53 @@ describe('Project-local customization - 15 core cases', () => {
     );
   });
 
-  // Test Case 8: Built-in orchestratorPrompt is injected into orchestrator prompt
-  test('8. Built-in orchestratorPrompt is injected into orchestrator prompt', () => {
+  // Test Case 8: Built-in chiefPrompt is injected into chief prompt
+  test('8. Built-in chiefPrompt is injected into chief prompt', () => {
     const config = {
       agents: {
         oracle: {
           model: 'openai/gpt-4o',
-          orchestratorPrompt:
+          chiefPrompt:
             'Please routing to @oracle when architecture is queried.',
         },
       },
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator?.config.prompt).toContain(
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief?.config.prompt).toContain(
       '# Project-specific routing guidance',
     );
-    expect(orchestrator?.config.prompt).toContain(
+    expect(chief?.config.prompt).toContain(
       'Please routing to @oracle when architecture is queried.',
     );
   });
 
-  // Test Case 9: Disabled built-in agent\'s orchestratorPrompt is not injected
-  test("9. Disabled built-in agent's orchestratorPrompt is not injected", () => {
+  // Test Case 9: Disabled built-in agent\'s chiefPrompt is not injected
+  test("9. Disabled built-in agent's chiefPrompt is not injected", () => {
     const config = {
       disabled_agents: ['oracle'],
       agents: {
         oracle: {
           model: 'openai/gpt-4o',
-          orchestratorPrompt:
+          chiefPrompt:
             'Please routing to @oracle when architecture is queried.',
         },
       },
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator?.config.prompt).not.toContain(
-      'Please routing to @oracle',
-    );
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief?.config.prompt).not.toContain('Please routing to @oracle');
   });
 
-  // Test Case 10: agents.orchestrator.orchestratorPrompt is rejected or explicitly ignored
-  test('10. agents.orchestrator.orchestratorPrompt is rejected', () => {
+  // Test Case 10: agents.chief.chiefPrompt is rejected or explicitly ignored
+  test('10. agents.chief.chiefPrompt is rejected', () => {
     const invalidConfig = {
       agents: {
-        orchestrator: {
+        chief: {
           model: 'openai/gpt-4o',
-          orchestratorPrompt: 'Self guidance',
+          chiefPrompt: 'Self guidance',
         },
       },
     };
@@ -317,14 +315,14 @@ describe('Project-local customization - 15 core cases', () => {
     expect(merged.agents?.oracle?.temperature).toBe(0.1);
   });
 
-  // Test Case 14: Schema accepts built-in prompt/orchestratorPrompt in root and presets, but rejects empty strings
-  test('14. Schema accepts built-in prompt/orchestratorPrompt in root and presets, but rejects empty strings', () => {
+  // Test Case 14: Schema accepts built-in prompt/chiefPrompt in root and presets, but rejects empty strings
+  test('14. Schema accepts built-in prompt/chiefPrompt in root and presets, but rejects empty strings', () => {
     // Non-empty is allowed
     const valid = PluginConfigSchema.safeParse({
       agents: {
         oracle: {
           prompt: 'non-empty prompt',
-          orchestratorPrompt: 'non-empty guidance',
+          chiefPrompt: 'non-empty guidance',
         },
       },
     });
@@ -340,28 +338,28 @@ describe('Project-local customization - 15 core cases', () => {
     });
     expect(invalidPrompt.success).toBe(false);
 
-    // Empty orchestratorPrompt is rejected
-    const invalidOrchestrator = PluginConfigSchema.safeParse({
+    // Empty chiefPrompt is rejected
+    const invalidChief = PluginConfigSchema.safeParse({
       agents: {
         oracle: {
-          orchestratorPrompt: '',
+          chiefPrompt: '',
         },
       },
     });
-    expect(invalidOrchestrator.success).toBe(false);
+    expect(invalidChief.success).toBe(false);
   });
 
   // Test Case 15: Docs examples match actual precedence
   test('15. Precedence chain: project preset -> project root -> user preset -> user root', () => {
-    const userDir = path.join(tempDir, 'opencode');
-    const userPromptDir = path.join(userDir, 'oh-my-opencode-slim');
+    const userDir = path.join(tempDir, 'kilo');
+    const userPromptDir = path.join(userDir, 'oh-my-kilocode-slim');
     const userPresetDir = path.join(userPromptDir, 'my-preset');
 
     const projectDir = path.join(tempDir, 'project');
     const projectPromptDir = path.join(
       projectDir,
-      '.opencode',
-      'oh-my-opencode-slim',
+      '.kilo',
+      'oh-my-kilocode-slim',
     );
     const projectPresetDir = path.join(projectPromptDir, 'my-preset');
 

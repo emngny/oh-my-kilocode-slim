@@ -12,7 +12,7 @@ It uses Codex Plus for the OpenAI models and GitHub Copilot for the premium desi
 {
     "preset": "thirtydollars",
     "presets": {
-      "thirtydollars": { "orchestrator": { "model": "openai/gpt-5.5", "variant": "medium", "skills": [ "*" ], "mcps": [ "*", "websearch"] },
+      "thirtydollars": { "chief": { "model": "openai/gpt-5.5", "variant": "medium", "skills": [ "*" ], "mcps": [ "*", "websearch"] },
         "oracle": { "model": "openai/gpt-5.5", "variant": "high", "skills": [], "mcps": [] },
         "librarian": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": [ "websearch", "context7", "gh_grep" ] },
         "explorer": { "model": "openai/gpt-5.4-mini", "variant": "low", "skills": [], "mcps": [] },

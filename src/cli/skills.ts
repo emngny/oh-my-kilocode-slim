@@ -5,7 +5,7 @@ import { CUSTOM_SKILLS } from './custom-skills';
  * permission grants but is NOT installed by this plugin's CLI.
  */
 export interface PermissionOnlySkill {
-  /** Skill name - must match the name OpenCode uses for permission checks */
+  /** Skill name - must match the name KiloCode uses for permission checks */
   name: string;
   /** List of agents that should auto-allow this skill */
   allowedAgents: string[];
@@ -39,9 +39,9 @@ export function getSkillPermissionsForAgent(
 ): Record<string, 'allow' | 'ask' | 'deny'> {
   const disabledSkills = new Set(disabledSkillNames ?? []);
 
-  // Orchestrator gets all skills by default, others are restricted
+  // Chief gets all skills by default, others are restricted
   const permissions: Record<string, 'allow' | 'ask' | 'deny'> = {
-    '*': agentName === 'orchestrator' ? 'allow' : 'deny',
+    '*': agentName === 'chief' ? 'allow' : 'deny',
   };
 
   // If the user provided an explicit skill list (even empty), honor it

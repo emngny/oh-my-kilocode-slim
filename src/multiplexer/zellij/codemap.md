@@ -1,7 +1,7 @@
 # src/multiplexer/zellij/
 
 ## Responsibility
-Implements a Zellij-based multiplexer adapter that creates and manages terminal panes for sub-agent sessions within Zellij workspaces. Provides pane lifecycle management, session isolation, and graceful shutdown for OpenCode's multiplexer interface.
+Implements a Zellij-based multiplexer adapter that creates and manages terminal panes for sub-agent sessions within Zellij workspaces. Provides pane lifecycle management, session isolation, and graceful shutdown for KiloCode's multiplexer interface.
 
 ## Design
 
@@ -15,12 +15,12 @@ Implements a Zellij-based multiplexer adapter that creates and manages terminal 
 - Implements `Multiplexer` interface with `type = 'zellij'`
 - Manages Zellij binary discovery and availability checks
 - Handles two operational modes via `paneMode`:
-  - `'agent-tab'` (default): Creates dedicated "opencode-agents" tab
+  - `'agent-tab'` (default): Creates dedicated "kilo-agents" tab
   - `'current-tab'`: Creates panes in user's current tab
 
 #### Session Management
-- **Pane Creation**: Uses `spawnPane()` to create new panes with OpenCode attach commands
-- **Tab Management**: Ensures "opencode-agents" tab exists, tracks tab/pane IDs
+- **Pane Creation**: Uses `spawnPane()` to create new panes with KiloCode attach commands
+- **Tab Management**: Ensures "kilo-agents" tab exists, tracks tab/pane IDs
 - **Lifecycle**: Implements `closePane()` with graceful Ctrl+C shutdown before pane termination
 
 #### Layout Handling
@@ -30,7 +30,7 @@ Implements a Zellij-based multiplexer adapter that creates and manages terminal 
   - `'even-horizontal'`, `'even-vertical'`, `'tiled'` → `null` (no direction, Zellij handles tiling)
 
 ### Shell Integration
-- **Command Construction**: Builds `opencode attach` commands with session, server URL, and directory
+- **Command Construction**: Builds `kilo attach` commands with session, server URL, and directory
 - **Pane Naming**: Truncates description to 30 chars for pane titles
 - **Shell Safety**: Uses `quoteShellArg()` to properly escape shell arguments
 
@@ -40,8 +40,8 @@ Implements a Zellij-based multiplexer adapter that creates and manages terminal 
 ```
 1. Plugin loads → ZellijMultiplexer instantiated with layout='main-vertical'
 2. First sub-agent session:
-   - ensureAgentTab() creates "opencode-agents" tab if not exists
-   - runInPane() focuses default pane and writes OpenCode attach command
+   - ensureAgentTab() creates "kilo-agents" tab if not exists
+   - runInPane() focuses default pane and writes KiloCode attach command
    - firstPaneUsed flag set to true
 3. Subsequent sub-agent sessions:
    - createPaneInAgentTab() creates new pane in agent tab
@@ -104,7 +104,7 @@ Implements a Zellij-based multiplexer adapter that creates and manages terminal 
 - Prevents shell injection via `quoteShellArg()` with proper escaping
 
 ### State Tracking
-- `agentTabId`: Caches the "opencode-agents" tab ID after creation
+- `agentTabId`: Caches the "kilo-agents" tab ID after creation
 - `firstPaneId`: Stores the initial pane ID for first sub-agent reuse
 - `firstPaneUsed`: Boolean flag prevents duplicate first pane usage
 - `parentTabId`: Caches parent tab ID for current-tab mode optimization

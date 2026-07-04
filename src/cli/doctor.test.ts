@@ -58,8 +58,8 @@ describe('runDoctorCheck', () => {
     tempDir = setupTempDir();
     originalCwd = process.cwd();
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
-    delete process.env.OH_MY_OPENCODE_SLIM_PRESET;
+    delete process.env.KILOCODE_CONFIG_DIR;
+    delete process.env.OH_MY_KILOCODE_SLIM_PRESET;
     process.env.XDG_CONFIG_HOME = path.join(tempDir, 'user-config');
   });
 
@@ -86,10 +86,10 @@ describe('runDoctorCheck', () => {
 
   test('valid project config returns ok', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(configDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // JSONC comments are supported.
         "agents": {
@@ -107,10 +107,10 @@ describe('runDoctorCheck', () => {
 
   test('invalid JSON returns not ok with invalid-json error', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       '{ invalid json }',
     );
 
@@ -124,8 +124,8 @@ describe('runDoctorCheck', () => {
 
   test('config deleted after discovery returns read error with path', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
-    const configPath = path.join(configDir, 'oh-my-opencode-slim.json');
+    const configDir = path.join(projectDir, '.kilo');
+    const configPath = path.join(configDir, 'oh-my-kilocode-slim.json');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(configPath, '{}');
 
@@ -151,11 +151,11 @@ describe('runDoctorCheck', () => {
 
   test('invalid schema returns not ok with schema issues', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     // temperature must be 0-2
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { temperature: 99 } } }),
     );
 
@@ -170,10 +170,10 @@ describe('runDoctorCheck', () => {
 
   test('multiple schema errors includes relevant paths', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { temperature: 99 } },
         multiplexer: { type: 'unknown' },
@@ -193,9 +193,9 @@ describe('runDoctorCheck', () => {
 
   test('empty config file returns invalid-json error', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
-    fs.writeFileSync(path.join(configDir, 'oh-my-opencode-slim.json'), '');
+    fs.writeFileSync(path.join(configDir, 'oh-my-kilocode-slim.json'), '');
 
     const result = runDoctorCheck(projectDir);
 
@@ -205,18 +205,18 @@ describe('runDoctorCheck', () => {
   });
 
   test('invalid user config skips preset check', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'opencode');
+    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       '{ invalid }',
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'mypreset',
         presets: { mypreset: { oracle: { model: 'test/model' } } },
@@ -232,10 +232,10 @@ describe('runDoctorCheck', () => {
 
   test('preset check passes with valid preset', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'mypreset',
         presets: { mypreset: { oracle: { model: 'test/model' } } },
@@ -250,10 +250,10 @@ describe('runDoctorCheck', () => {
 
   test('preset check fails for missing preset', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'nonexistent',
         presets: { other: {} },
@@ -269,10 +269,10 @@ describe('runDoctorCheck', () => {
 
   test('env preset overrides config preset', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'config-preset',
         presets: {
@@ -282,7 +282,7 @@ describe('runDoctorCheck', () => {
       }),
     );
 
-    process.env.OH_MY_OPENCODE_SLIM_PRESET = 'env-preset';
+    process.env.OH_MY_KILOCODE_SLIM_PRESET = 'env-preset';
 
     const result = runDoctorCheck(projectDir);
 
@@ -292,10 +292,10 @@ describe('runDoctorCheck', () => {
   });
 
   test('project config overrides user config with merge', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'opencode');
+    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { temperature: 0.5 } },
         presets: {
@@ -308,10 +308,10 @@ describe('runDoctorCheck', () => {
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'test-preset',
         agents: { oracle: { model: 'project/model' } },
@@ -331,10 +331,10 @@ describe('runDoctorCheck', () => {
 
   test('json formatter omits parsed config payload', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { model: 'secret/model' } } }),
     );
 
@@ -348,10 +348,10 @@ describe('runDoctorCheck', () => {
   });
 
   test('project preset overrides user preset', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'opencode');
+    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
     fs.mkdirSync(userOpencodeDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-opencode-slim.json'),
+      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'user-preset',
         presets: {
@@ -362,10 +362,10 @@ describe('runDoctorCheck', () => {
     );
 
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'project-preset',
       }),
@@ -380,15 +380,15 @@ describe('runDoctorCheck', () => {
 
   test('.jsonc preferred over .json', () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
 
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { model: 'json-model' } } }),
     );
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.jsonc'),
+      path.join(configDir, 'oh-my-kilocode-slim.jsonc'),
       JSON.stringify({ agents: { oracle: { model: 'jsonc-model' } } }),
     );
 
@@ -420,8 +420,8 @@ describe('doctor CLI wrapper', () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'doctor-cli-test-'));
     originalCwd = process.cwd();
     originalEnv = { ...process.env };
-    delete process.env.OPENCODE_CONFIG_DIR;
-    delete process.env.OH_MY_OPENCODE_SLIM_PRESET;
+    delete process.env.KILOCODE_CONFIG_DIR;
+    delete process.env.OH_MY_KILOCODE_SLIM_PRESET;
     process.env.XDG_CONFIG_HOME = path.join(tempDir, 'user-config');
   });
 
@@ -459,10 +459,10 @@ describe('doctor CLI wrapper', () => {
 
   test('invalid config exits 1', async () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       '{ invalid }',
     );
 
@@ -495,10 +495,10 @@ describe('doctor CLI wrapper', () => {
 
   test('JSON output has correct shape with schema error', async () => {
     const projectDir = path.join(tempDir, 'project');
-    const configDir = path.join(projectDir, '.opencode');
+    const configDir = path.join(projectDir, '.kilo');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
-      path.join(configDir, 'oh-my-opencode-slim.json'),
+      path.join(configDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({ agents: { oracle: { temperature: 5 } } }),
     );
 

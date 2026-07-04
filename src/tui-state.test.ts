@@ -55,18 +55,18 @@ describe('tui-state persistence', () => {
   test('updates a single live agent model without dropping others', () => {
     recordTuiAgentModels({
       agentModels: {
-        orchestrator: 'default',
+        chief: 'default',
         explorer: 'openai/gpt-5.4-mini',
       },
     });
 
     recordTuiAgentModel({
-      agentName: 'orchestrator',
+      agentName: 'chief',
       model: 'openai/gpt-5.5',
     });
 
     expect(readTuiSnapshot().agentModels).toEqual({
-      orchestrator: 'openai/gpt-5.5',
+      chief: 'openai/gpt-5.5',
       explorer: 'openai/gpt-5.4-mini',
     });
   });
@@ -74,7 +74,7 @@ describe('tui-state persistence', () => {
   test('updates a single live agent variant without dropping others', () => {
     recordTuiAgentModels({
       agentModels: {
-        orchestrator: 'default',
+        chief: 'default',
         explorer: 'openai/gpt-5.4-mini',
       },
       agentVariants: {
@@ -83,13 +83,13 @@ describe('tui-state persistence', () => {
     });
 
     recordTuiAgentModel({
-      agentName: 'orchestrator',
+      agentName: 'chief',
       model: 'openai/gpt-5.5',
       variant: 'high',
     });
 
     expect(readTuiSnapshot().agentVariants).toEqual({
-      orchestrator: 'high',
+      chief: 'high',
       explorer: 'low',
     });
   });
@@ -97,9 +97,9 @@ describe('tui-state persistence', () => {
   test('ignores legacy config status fields in old snapshots', () => {
     const filePath = path.join(
       tempDir,
-      'opencode',
+      'kilo',
       'storage',
-      'oh-my-opencode-slim',
+      'oh-my-kilocode-slim',
       'tui-state.json',
     );
     fs.mkdirSync(path.dirname(filePath), { recursive: true });

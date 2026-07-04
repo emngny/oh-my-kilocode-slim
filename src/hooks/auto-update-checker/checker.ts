@@ -148,13 +148,13 @@ export function extractChannel(version: string | null): string {
 }
 
 /**
- * Generates a list of potential OpenCode configuration file paths.
- * @param directory The current plugin directory to check for local .opencode folders.
+ * Generates a list of potential KiloCode configuration file paths.
+ * @param directory The current plugin directory to check for local .kilo folders.
  */
 function getConfigPaths(directory: string): string[] {
   return [
-    path.join(directory, '.opencode', 'opencode.json'),
-    path.join(directory, '.opencode', 'opencode.jsonc'),
+    path.join(directory, '.kilo', 'kilo.json'),
+    path.join(directory, '.kilo', 'kilo.jsonc'),
     USER_OPENCODE_CONFIG,
     USER_OPENCODE_CONFIG_JSONC,
   ];

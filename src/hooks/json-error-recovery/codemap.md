@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Provides automatic JSON error detection and recovery for OpenCode plugin tool execution. This hook monitors tool output for JSON parse errors and injects a standardized error reminder to guide users toward correcting their JSON syntax.
+Provides automatic JSON error detection and recovery for KiloCode plugin tool execution. This hook monitors tool output for JSON parse errors and injects a standardized error reminder to guide users toward correcting their JSON syntax.
 
 ## Design
 
@@ -11,11 +11,11 @@ Provides automatic JSON error detection and recovery for OpenCode plugin tool ex
 - **JSON_ERROR_TOOL_EXCLUDE_LIST**: Set of tools excluded from JSON error checking (bash, read, glob, webfetch, gh_grep_searchgithub, websearch_web_search_exa)
 - **JSON_ERROR_PATTERNS**: Array of regex patterns for detecting various JSON error messages
 - **JSON_ERROR_REMINDER**: Standardized error message template instructing users on JSON correction
-- **createJsonErrorRecoveryHook()**: Factory function that returns the OpenCode plugin hook
+- **createJsonErrorRecoveryHook()**: Factory function that returns the KiloCode plugin hook
 
 ### Hook Architecture
 
-The hook implements the OpenCode plugin's `tool.execute.after` lifecycle hook:
+The hook implements the KiloCode plugin's `tool.execute.after` lifecycle hook:
 - Triggered after every tool execution
 - Validates output is a string
 - Checks for JSON error patterns in output
@@ -46,19 +46,19 @@ Tool Execution → tool.execute.after Hook Trigger →
 5. **Duplicate Prevention**: Outputs already containing the error marker are skipped
 6. **Pattern Testing**: Output is tested against all JSON error patterns
 7. **Reminder Injection**: If any pattern matches, the standardized error reminder is appended to the output
-8. **Result Return**: Modified output is returned to the OpenCode plugin system
+8. **Result Return**: Modified output is returned to the KiloCode plugin system
 
 ## Integration
 
 ### Consumers
 
-- **Primary Consumer**: OpenCode plugin system via the `tool.execute.after` lifecycle hook
+- **Primary Consumer**: KiloCode plugin system via the `tool.execute.after` lifecycle hook
 - **Error Path**: JSON errors in tool arguments are detected and surfaced to users
 
 ### Dependencies
 
-- **OpenCode Plugin SDK**: `@opencode-ai/plugin` for PluginInput type definitions
-- **Lifecycle Events**: Relies on the `tool.execute.after` event being emitted by OpenCode
+- **KiloCode Plugin SDK**: `@kilocode/plugin` for PluginInput type definitions
+- **Lifecycle Events**: Relies on the `tool.execute.after` event being emitted by KiloCode
 
 ### Integration Points
 

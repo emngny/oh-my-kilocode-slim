@@ -60,7 +60,7 @@ describe('TmuxMultiplexer', () => {
     logMock.mockClear();
     crossSpawnMock.mockReset();
     crossSpawnMock.mockImplementation((command: string[]) => {
-      if (command[0] === 'which')
+      if (command[0] === 'which' || command[0] === 'where')
         return createSpawnResult(0, '/usr/bin/tmux\n');
       if (command[1] === '-V') return createSpawnResult(0, 'tmux 3.6a');
       if (command[1] === 'split-window') {
@@ -116,7 +116,7 @@ describe('TmuxMultiplexer', () => {
     const tmux = new TmuxMultiplexer('main-vertical', 60);
 
     crossSpawnMock.mockImplementation((command: string[]) => {
-      if (command[0] === 'which')
+      if (command[0] === 'which' || command[0] === 'where')
         return createSpawnResult(0, '/usr/bin/tmux\n');
       if (command[1] === '-V') return createSpawnResult(0, 'tmux 3.6a');
       if (command.includes('select-layout')) {

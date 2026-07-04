@@ -2,16 +2,16 @@
 
 ## Responsibility
 
-Provides the optional animated companion UI feature that visualizes agent activity (busy/idle states) as animated GIFs. This is a user-facing visual overlay that runs separately from OpenCode's core orchestration.
+Provides the optional animated companion UI feature that visualizes agent activity (busy/idle states) as animated GIFs. This is a user-facing visual overlay that runs separately from KiloCode's core orchestration.
 
 ## Design
 
 The companion system consists of two main components following a **Producer-Consumer** pattern:
 
 - **Producer (manager.ts)**: `CompanionManager` class
-  - Listens to OpenCode session lifecycle events (`session.status`, `session.deleted`)
-  - Tracks agent activity per session (orchestrator, fixers, etc.)
-  - Maintains state in a JSON file at `~/.local/share/opencode/storage/oh-my-opencode-slim/companion-state.json`
+  - Listens to KiloCode session lifecycle events (`session.status`, `session.deleted`)
+  - Tracks agent activity per session (chief, fixers, etc.)
+  - Maintains state in a JSON file at `~/.local/share/kilo/storage/oh-my-kilocode-slim/companion-state.json`
   - Spawns the companion binary process when enabled
   - Implements a locking mechanism for concurrent state writes
 
@@ -40,7 +40,7 @@ interface CompanionSession {
 - State file contains array of active sessions with their current agent activity
 - Binary path determined by:
   - User config (`binaryPath` in companion config)
-  - Default location: `~/.local/share/opencode/storage/oh-my-opencode-slim/bin/`
+  - Default location: `~/.local/share/kilo/storage/oh-my-kilocode-slim/bin/`
 
 ### Binary Distribution
 
@@ -54,7 +54,7 @@ interface CompanionSession {
 ### Session Lifecycle Integration
 
 ```
-OpenCode Session → CompanionManager.onSessionStatus() → Updates state → Spawns companion binary
+KiloCode Session → CompanionManager.onSessionStatus() → Updates state → Spawns companion binary
 ```
 
 1. **Plugin loads** (`CompanionManager.onLoad()`)
@@ -63,7 +63,7 @@ OpenCode Session → CompanionManager.onSessionStatus() → Updates state → Sp
    - Cleans up stale sessions on load
 
 2. **Agent activity events** (`CompanionManager.onSessionStatus()`)
-   - Receives `session.status` events from OpenCode
+   - Receives `session.status` events from KiloCode
    - Maps session IDs to agent names via `sessionAgentMap`
    - Updates internal state:
      - `busy` → adds agent to active_agents array
@@ -113,7 +113,7 @@ ensureCompanionVersion() → installCompanionArchive() → extract → validate 
 
 ### Dependencies
 
-- **OpenCode events**: Listens to `session.status` and `session.deleted` lifecycle events
+- **KiloCode events**: Listens to `session.status` and `session.deleted` lifecycle events
 - **File system**: Uses Node.js `fs` for state persistence and binary installation
 - **Child processes**: Spawns companion binary as detached process
 - **Network**: Downloads companion binaries from GitHub releases
@@ -141,15 +141,15 @@ interface CompanionConfig {
 
 ### Storage Locations
 
-- **State file**: `~/.local/share/opencode/storage/oh-my-opencode-slim/companion-state.json`
-- **Binary**: `~/.local/share/opencode/storage/oh-my-opencode-slim/bin/oh-my-opencode-slim-companion[.exe]`
-- **Metadata**: `~/.local/share/opencode/storage/oh-my-opencode-slim/bin/oh-my-opencode-slim-companion.json`
+- **State file**: `~/.local/share/kilo/storage/oh-my-kilocode-slim/companion-state.json`
+- **Binary**: `~/.local/share/kilo/storage/oh-my-kilocode-slim/bin/oh-my-kilocode-slim-companion[.exe]`
+- **Metadata**: `~/.local/share/kilo/storage/oh-my-kilocode-slim/bin/oh-my-kilocode-slim-companion.json`
 
 ### GitHub Release Artifacts
 
-- Repository: `alvinunreal/oh-my-opencode-slim`
+- Repository: `alvinunreal/oh-my-kilocode-slim`
 - Release tag pattern: `companion-v{version}`
-- Artifact names: `oh-my-opencode-slim-companion-v{version}-{target}.{tar.gz|zip}`
+- Artifact names: `oh-my-kilocode-slim-companion-v{version}-{target}.{tar.gz|zip}`
 
 
 ## Error Handling & Edge Cases

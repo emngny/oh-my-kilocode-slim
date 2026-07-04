@@ -1,4 +1,4 @@
-import type { TuiPluginModule } from '@opencode-ai/plugin/tui';
+import type { TuiPluginModule } from '@kilocode/plugin/tui';
 import type { JSX } from '@opentui/solid';
 import { createElement, insert, setProp } from '@opentui/solid';
 import { DEFAULT_DISABLED_AGENTS, SUBAGENT_NAMES } from './config/constants';
@@ -10,7 +10,7 @@ import {
 } from './tui-state';
 import { isPluginDisabledByEnv } from './utils/env';
 
-const PLUGIN_NAME = 'oh-my-opencode-slim';
+const PLUGIN_NAME = 'oh-my-kilocode-slim';
 const CONFIG_WARNING_COLOR = 'orange';
 const FALLBACK_SIDEBAR_AGENTS = SUBAGENT_NAMES.filter(
   (agent) =>

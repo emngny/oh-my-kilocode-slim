@@ -1,8 +1,4 @@
-import {
-  type PluginInput,
-  type ToolDefinition,
-  tool,
-} from '@opencode-ai/plugin';
+import { type PluginInput, type ToolDefinition, tool } from '@kilocode/plugin';
 import type { CouncilManager } from '../council/council-manager';
 import { shortModelLabel } from '../utils/session';
 

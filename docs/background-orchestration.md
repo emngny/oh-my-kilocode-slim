@@ -1,19 +1,19 @@
 # Background Orchestration
 
 Background orchestration is the default orchestration model for
-oh-my-opencode-slim. It assumes native OpenCode background subagents are
-available and changes the orchestrator from a primary worker into a scheduler.
+oh-my-kilocode-slim. It assumes native KiloCode background subagents are
+available and changes the chief from a primary worker into a scheduler.
 
 The old model was:
 
 ```text
-orchestrator works directly → delegates when useful → waits for result
+chief works directly → delegates when useful → waits for result
 ```
 
 The default background-orchestration model is:
 
 ```text
-orchestrator plans → dispatches background specialists → monitors → reconciles → verifies
+chief plans → dispatches background specialists → monitors → reconciles → verifies
 ```
 
 This is a clean rebuild, not a compatibility layer over the old blocking model.
@@ -22,12 +22,12 @@ This is a clean rebuild, not a compatibility layer over the old blocking model.
 
 ## Runtime Requirement
 
-Background orchestration requires an OpenCode release that includes native
+Background orchestration requires an KiloCode release that includes native
 background subagents, launched with background subagents
 enabled:
 
 ```bash
-OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true opencode
+KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true kilo
 ```
 
 The required native/background-control tools are:
@@ -35,20 +35,20 @@ The required native/background-control tools are:
 | Tool | Purpose |
 |------|---------|
 | `task(..., background: true)` | Start a specialist in the background and immediately return a task ID |
-| hook-driven completion | OpenCode injects terminal background task results automatically |
+| hook-driven completion | KiloCode injects terminal background task results automatically |
 | `cancel_task` | Plugin-provided tool to cancel a tracked background task by task ID or Background Job Board alias |
 
 If these are not available, the scheduler cannot use the default background
 workflow. Configure the environment variable through the installer or use the
-one-shot export above before starting OpenCode.
+one-shot export above before starting KiloCode.
 
-Use an OpenCode release that includes native background subagents and hook-driven completion; run `opencode --version` and update if background tasks are missing.
+Use an KiloCode release that includes native background subagents and hook-driven completion; run `kilo --version` and update if background tasks are missing.
 
 ---
 
 ## Core Principle
 
-The orchestrator is not the default implementation worker.
+The chief is not the default implementation worker.
 
 Its job is to:
 
@@ -62,7 +62,7 @@ Its job is to:
 - run or route final verification,
 - communicate concise progress and outcomes to the user.
 
-Specialists do the work. The orchestrator manages the work.
+Specialists do the work. The chief manages the work.
 
 ---
 
@@ -92,7 +92,7 @@ Verify
 Final response
 ```
 
-The orchestrator should not act on assumptions from a still-running task. It can
+The chief should not act on assumptions from a still-running task. It can
 continue scheduling independent work, but dependent work waits for terminal task
 results.
 
@@ -102,7 +102,7 @@ results.
 
 ### 1. Build a dependency graph
 
-Before dispatching agents, the orchestrator identifies:
+Before dispatching agents, the chief identifies:
 
 - which questions must be answered before implementation,
 - which tasks can run in parallel,
@@ -126,7 +126,7 @@ task(
 )
 ```
 
-The orchestrator records the returned task ID and keeps working only on safe,
+The chief records the returned task ID and keeps working only on safe,
 independent coordination.
 
 ### 3. Track ownership
@@ -145,33 +145,33 @@ Rules:
 
 ### 4. Wait, cancel, and reconcile
 
-Background tasks are not complete until OpenCode injects their terminal result or
+Background tasks are not complete until KiloCode injects their terminal result or
 hook-driven completion marks them terminal.
 
-The orchestrator should use background completion events to:
+The chief should use background completion events to:
 
 - wait for dependent results,
 - check long-running tasks,
 - collect outputs before final response,
 - surface failures or blocked tasks clearly.
 
-The orchestrator should use `cancel_task` only when the user asks, or when a
+The chief should use `cancel_task` only when the user asks, or when a
 running lane is obsolete, wrong, or conflicts with a safer replacement plan.
 Cancellation is not rollback: if cancelling a writer, inspect and reconcile
 partial file changes before launching a replacement lane.
 
 **Note on reconciliation:** Idle-based reconciliation is a heuristic. A job marked
-as reconciled means its terminal result was injected into an orchestrator turn
+as reconciled means its terminal result was injected into an chief turn
 that completed and the parent returned to idle; it is not proof the result was
-explicitly acknowledged or used. The orchestrator should still verify it consumed
+explicitly acknowledged or used. The chief should still verify it consumed
 the relevant outputs before finalizing.
 
-Specialist outputs are inputs, not final truth. The orchestrator reconciles them
+Specialist outputs are inputs, not final truth. The chief reconciles them
 against each other and the original user goal.
 
 ### 5. Verify
 
-Verification remains orchestrator-owned, but not necessarily orchestrator-run.
+Verification remains chief-owned, but not necessarily chief-run.
 
 Examples:
 
@@ -219,15 +219,15 @@ it is for judgment where disagreement is useful.
 
 ### Observer
 
-Visual/media analysis isolated from the orchestrator context.
+Visual/media analysis isolated from the chief context.
 
 ---
 
 ## Direct Work Boundary
 
-Background orchestration removes the orchestrator-as-worker default.
+Background orchestration removes the chief-as-worker default.
 
-The orchestrator may directly:
+The chief may directly:
 
 - ask clarifying questions,
 - read minimal context needed to route work,
@@ -236,7 +236,7 @@ The orchestrator may directly:
 - synthesize results,
 - run final checks when that is cheaper than delegating.
 
-The orchestrator should delegate:
+The chief should delegate:
 
 - broad code search,
 - unfamiliar library research,
@@ -285,13 +285,13 @@ Look into background tasks.
 
 ---
 
-## State The Orchestrator Must Track
+## State The Chief Must Track
 
 The prompt/runtime treats background tasks as a small job board:
 
 | Field | Meaning |
 |-------|---------|
-| task ID | Native OpenCode background task/session ID |
+| task ID | Native KiloCode background task/session ID |
 | specialist | Agent type assigned |
 | objective | What the task is responsible for |
 | state | running, completed, error, cancelled, timed out |
@@ -300,7 +300,7 @@ The prompt/runtime treats background tasks as a small job board:
 | result | Final task output once terminal |
 
 The current todo list can represent user-visible work, but task IDs and file
-ownership need to be explicit in the orchestrator's working context.
+ownership need to be explicit in the chief's working context.
 
 ---
 
@@ -309,7 +309,7 @@ ownership need to be explicit in the orchestrator's working context.
 The plugin is aware that a `task` return can mean "background job launched"
 rather than "work complete". It tracks running task IDs, exposes recent work in
 the background job board, updates aliases from task results, and keeps
-multiplexer panes attached while the parent orchestrator continues scheduling.
+multiplexer panes attached while the parent chief continues scheduling.
 
 ---
 
@@ -317,14 +317,14 @@ multiplexer panes attached while the parent orchestrator continues scheduling.
 
 The installer and docs configure background subagents as a requirement for the
 default scheduler workflow. If background subagents are
-unavailable, treat it as an environment or OpenCode-version issue rather than an
+unavailable, treat it as an environment or KiloCode-version issue rather than an
 intentional V1 fallback:
 
 ```text
-Background orchestration requires OpenCode background subagents.
-Start OpenCode with:
+Background orchestration requires KiloCode background subagents.
+Start KiloCode with:
 
-OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true opencode
+KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true kilo
 ```
 
 No automatic legacy fallback keeps the mental model clean.
@@ -339,7 +339,7 @@ User asks:
 Make background subagents first-class in this plugin.
 ```
 
-The orchestrator should do something like:
+The chief should do something like:
 
 1. Create todos for discovery, design, implementation, docs, tests, review.
 2. Launch Explorer in background to map task-session hooks and task lifecycle.
@@ -353,7 +353,7 @@ The orchestrator should do something like:
 10. Run final checks.
 11. Report final state.
 
-At no point does the orchestrator become the main implementer.
+At no point does the chief become the main implementer.
 
 ---
 
@@ -361,13 +361,13 @@ At no point does the orchestrator become the main implementer.
 
 Background orchestration is working when:
 
-- the orchestrator launches independent specialists in background by default,
+- the chief launches independent specialists in background by default,
 - task IDs are tracked until terminal state,
 - dependent work waits for real task results,
 - file ownership prevents concurrent write conflicts,
 - final responses only happen after reconciliation and verification,
 - users see faster progress on multi-step work,
-- the orchestrator context stays focused on decisions instead of worker detail.
+- the chief context stays focused on decisions instead of worker detail.
 
 Background orchestration is not just "parallel agents." It is a
-scheduler-centered operating model for OpenCode's native background subagents.
+scheduler-centered operating model for KiloCode's native background subagents.

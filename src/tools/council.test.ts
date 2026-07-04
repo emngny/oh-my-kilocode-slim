@@ -359,7 +359,7 @@ describe('council_session tool', () => {
       expect(councilManager.runCouncil).toHaveBeenCalledTimes(1);
     });
 
-    test('blocks orchestrator agent from invoking council session', async () => {
+    test('blocks chief agent from invoking council session', async () => {
       const ctx = createMockPluginContext();
       const councilManager = createMockCouncilManager();
       const tools = createCouncilTool(ctx, councilManager);
@@ -367,7 +367,7 @@ describe('council_session tool', () => {
       expect(
         tools.council_session.execute({ prompt: 'Test' }, {
           sessionID: 'test',
-          agent: 'orchestrator',
+          agent: 'chief',
         } as any),
       ).rejects.toThrow(
         'Council sessions can only be invoked by the council agent',

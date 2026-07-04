@@ -1,6 +1,6 @@
 /**
  * A custom skill bundled in this repository.
- * Unlike npx-installed skills, these are copied from src/skills/ to the OpenCode skills directory
+ * Unlike npx-installed skills, these are copied from src/skills/ to the KiloCode skills directory
  */
 export interface CustomSkill {
   /** Skill name (folder name) */
@@ -26,48 +26,48 @@ export const CUSTOM_SKILLS: CustomSkill[] = [
   {
     name: 'codemap',
     description: 'Repository understanding and hierarchical codemap generation',
-    allowedAgents: ['orchestrator'],
+    allowedAgents: ['chief'],
     sourcePath: 'src/skills/codemap',
   },
   {
     name: 'clonedeps',
     description: 'Clone important dependency source for local inspection',
-    allowedAgents: ['orchestrator'],
+    allowedAgents: ['chief'],
     sourcePath: 'src/skills/clonedeps',
   },
   {
     name: 'deepwork',
     description:
       'Heavy/complex coding sessions and large modifications workflow',
-    allowedAgents: ['orchestrator'],
+    allowedAgents: ['chief'],
     sourcePath: 'src/skills/deepwork',
   },
   {
     name: 'reflect',
     description:
       'Review repeated work and suggest reusable workflow improvements',
-    allowedAgents: ['orchestrator'],
+    allowedAgents: ['chief'],
     sourcePath: 'src/skills/reflect',
   },
   {
-    name: 'oh-my-opencode-slim',
+    name: 'oh-my-kilocode-slim',
     description:
-      'Configure, customize, and safely improve oh-my-opencode-slim setups',
-    allowedAgents: ['orchestrator'],
-    sourcePath: 'src/skills/oh-my-opencode-slim',
+      'Configure, customize, and safely improve oh-my-kilocode-slim setups',
+    allowedAgents: ['chief'],
+    sourcePath: 'src/skills/oh-my-kilocode-slim',
   },
   {
     name: 'release-smoke-test',
     description:
       'Validate packed release candidates and bugfixes before public publish',
-    allowedAgents: ['orchestrator'],
+    allowedAgents: ['chief'],
     sourcePath: 'src/skills/release-smoke-test',
   },
   {
     name: 'worktrees',
     description:
       'Manage Git worktrees as OMO safe isolated coding lanes for complex/risky/parallel work',
-    allowedAgents: ['orchestrator'],
+    allowedAgents: ['chief'],
     sourcePath: 'src/skills/worktrees',
   },
 ];

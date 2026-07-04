@@ -35,7 +35,7 @@ import { renderDashboardPage, renderInterviewPage } from './ui';
 function getAuthFilePath(port: number): string {
   const dataHome =
     process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
-  return path.join(dataHome, 'opencode', `.dashboard-${port}.json`);
+  return path.join(dataHome, 'kilo', `.dashboard-${port}.json`);
 }
 
 function writeAuthFile(port: number, token: string): void {

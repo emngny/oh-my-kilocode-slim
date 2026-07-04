@@ -3,13 +3,13 @@
  *
  * Creates panes for sub-agent sessions in Zellij.
  *
- * The default mode creates a dedicated "opencode-agents" tab:
+ * The default mode creates a dedicated "kilo-agents" tab:
  * - First sub-agent uses the default pane from new-tab
  * - Subsequent sub-agents create new panes
  * - User stays in their original tab
  *
  * The optional "current-tab" mode creates panes in the tab containing the
- * parent OpenCode pane instead.
+ * parent KiloCode pane instead.
  */
 
 import type { MultiplexerLayout, ZellijPaneMode } from '../../config/schema';
@@ -132,11 +132,7 @@ export class ZellijMultiplexer implements Multiplexer {
     directory: string,
     description: string,
   ): Promise<PaneResult> {
-    const opencodeCmd = buildOpencodeAttachCommand(
-      sessionId,
-      serverUrl,
-      directory,
-    );
+    const kiloCmd = buildOpencodeAttachCommand(sessionId, serverUrl, directory);
     const paneName = description.slice(0, 30).replace(/"/g, '\\"');
     const targetTabId = await this.getParentTabId(zellij);
 
@@ -151,7 +147,7 @@ export class ZellijMultiplexer implements Multiplexer {
       '--',
       'sh',
       '-lc',
-      opencodeCmd,
+      kiloCmd,
     ];
 
     const proc = crossSpawn([zellij, ...args], {
@@ -176,11 +172,7 @@ export class ZellijMultiplexer implements Multiplexer {
     directory: string,
     description: string,
   ): Promise<PaneResult> {
-    const opencodeCmd = buildOpencodeAttachCommand(
-      sessionId,
-      serverUrl,
-      directory,
-    );
+    const kiloCmd = buildOpencodeAttachCommand(sessionId, serverUrl, directory);
     const paneName = description.slice(0, 30).replace(/"/g, '\\"');
 
     const currentTabId = await this.getCurrentTabId(zellij);
@@ -198,7 +190,7 @@ export class ZellijMultiplexer implements Multiplexer {
         '--',
         'sh',
         '-lc',
-        opencodeCmd,
+        kiloCmd,
       ];
 
       const proc = crossSpawn([zellij, ...args], {
@@ -241,7 +233,7 @@ export class ZellijMultiplexer implements Multiplexer {
       '--',
       'sh',
       '-lc',
-      opencodeCmd,
+      kiloCmd,
     ];
 
     const proc = crossSpawn([zellij, ...args], {
@@ -280,7 +272,7 @@ export class ZellijMultiplexer implements Multiplexer {
     description: string,
   ): Promise<boolean> {
     try {
-      const opencodeCmd = buildOpencodeAttachCommand(
+      const kiloCmd = buildOpencodeAttachCommand(
         sessionId,
         serverUrl,
         directory,
@@ -297,7 +289,7 @@ export class ZellijMultiplexer implements Multiplexer {
       ).exited;
 
       await crossSpawn(
-        [zellij, 'action', 'write-chars', buildShellLaunchCommand(opencodeCmd)],
+        [zellij, 'action', 'write-chars', buildShellLaunchCommand(kiloCmd)],
         {
           stdout: 'ignore',
           stderr: 'ignore',
@@ -320,7 +312,7 @@ export class ZellijMultiplexer implements Multiplexer {
   ): Promise<{ tabId: string; firstPaneId: string } | null> {
     try {
       // Try to find existing tab
-      const existingTab = await this.findTabByName(zellij, 'opencode-agents');
+      const existingTab = await this.findTabByName(zellij, 'kilo-agents');
       if (existingTab) {
         const firstPane = await this.getFirstPaneInTab(
           zellij,
@@ -337,14 +329,14 @@ export class ZellijMultiplexer implements Multiplexer {
 
       // Create new tab
       const createProc = crossSpawn(
-        [zellij, 'action', 'new-tab', '--name', 'opencode-agents'],
+        [zellij, 'action', 'new-tab', '--name', 'kilo-agents'],
         { stdout: 'pipe', stderr: 'pipe' },
       );
       const createExit = await createProc.exited;
       if (createExit !== 0) return null;
 
       // Get the new tab info
-      const newTab = await this.findTabByName(zellij, 'opencode-agents');
+      const newTab = await this.findTabByName(zellij, 'kilo-agents');
       if (!newTab) return null;
 
       // Get the new pane
@@ -626,7 +618,7 @@ function buildOpencodeAttachCommand(
   directory: string,
 ): string {
   return [
-    'opencode',
+    'kilo',
     'attach',
     quoteShellArg(serverUrl),
     '--session',

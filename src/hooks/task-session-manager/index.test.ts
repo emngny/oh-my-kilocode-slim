@@ -35,7 +35,7 @@ function createMessages(sessionID: string, text = 'user message') {
   return {
     messages: [
       {
-        info: { role: 'user', agent: 'orchestrator', sessionID },
+        info: { role: 'user', agent: 'chief', sessionID },
         parts: [{ type: 'text', text }],
       },
     ],
@@ -43,7 +43,7 @@ function createMessages(sessionID: string, text = 'user message') {
 }
 
 describe('task-session-manager hook', () => {
-  test('ignores messages without OpenCode info or parts', async () => {
+  test('ignores messages without KiloCode info or parts', async () => {
     const board = new BackgroundJobBoard();
     board.registerLaunch({
       taskID: 'child-1',
@@ -56,7 +56,7 @@ describe('task-session-manager hook', () => {
       messages: [
         {},
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
         },
         { parts: [{ type: 'text', text: 'missing info' }] },
         {
@@ -64,7 +64,7 @@ describe('task-session-manager hook', () => {
           parts: [{ type: 'text', text: 'assistant response' }],
         },
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [{ type: 'text', text: 'valid user message' }],
         },
       ],
@@ -444,7 +444,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -521,7 +521,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -582,7 +582,7 @@ describe('task-session-manager hook', () => {
         {
           info: {
             role: 'user',
-            agent: 'orchestrator',
+            agent: 'chief',
             sessionID: 'parent-1',
             id: 'msg-1',
           },
@@ -631,7 +631,7 @@ describe('task-session-manager hook', () => {
         {
           info: {
             role: 'user',
-            agent: 'orchestrator',
+            agent: 'chief',
             sessionID: 'parent-1',
             id: 'msg-2',
           },
@@ -693,7 +693,7 @@ describe('task-session-manager hook', () => {
     const firstMessages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [completionPart],
         },
       ],
@@ -727,13 +727,13 @@ describe('task-session-manager hook', () => {
         {
           info: {
             role: 'assistant',
-            agent: 'orchestrator',
+            agent: 'chief',
             sessionID: 'parent-1',
           },
           parts: [{ type: 'text', text: 'some other message' }],
         }, // New message at index 0
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [completionPart], // Same completion now at index 1
         },
       ],
@@ -764,7 +764,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -807,7 +807,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -849,7 +849,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -891,7 +891,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -932,7 +932,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -974,7 +974,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -1018,7 +1018,7 @@ describe('task-session-manager hook', () => {
     const messages = {
       messages: [
         {
-          info: { role: 'user', agent: 'orchestrator', sessionID: 'parent-1' },
+          info: { role: 'user', agent: 'chief', sessionID: 'parent-1' },
           parts: [
             {
               type: 'text',
@@ -1663,9 +1663,9 @@ describe('task-session-manager hook', () => {
     const next = createMessages('parent-1', 'reuse');
     await hook['experimental.chat.messages.transform']({}, next);
     const prompt = next.messages[0].parts[0].text;
-    expect(prompt).not.toContain('small.ts');
-    expect(prompt).toContain('src/large.ts (12 lines)');
-    expect(prompt).not.toContain('src/large.ts (18 lines)');
+    expect(prompt.replace(/\\/g, '/')).not.toContain('small.ts');
+    expect(prompt.replace(/\\/g, '/')).toContain('src/large.ts (12 lines)');
+    expect(prompt.replace(/\\/g, '/')).not.toContain('src/large.ts (18 lines)');
     expect(prompt).toContain('(+1 more)');
   });
 
@@ -1705,7 +1705,7 @@ describe('task-session-manager hook', () => {
     expect('experimental.chat.system.transform' in hook).toBe(false);
   });
 
-  test('ignores sessions that are not orchestrator-managed', async () => {
+  test('ignores sessions that are not chief-managed', async () => {
     const { hook } = createHook({ shouldManageSession: () => false });
 
     await hook['tool.execute.before'](

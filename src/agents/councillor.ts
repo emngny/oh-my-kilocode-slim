@@ -1,5 +1,5 @@
 import { NO_SHELL_READONLY_FILE_OPERATIONS_RULES } from '../config';
-import { type AgentDefinition, resolvePrompt } from './orchestrator';
+import { type AgentDefinition, resolvePrompt } from './chief';
 import { createReadOnlyAgentPermission } from './permissions';
 
 /**
@@ -9,7 +9,7 @@ import { createReadOnlyAgentPermission } from './permissions';
  * tmux/UI). They have read-only access to the codebase via tools but CANNOT
  * modify files, run shell commands, or spawn subagents.
  *
- * Permission model mirrors OpenCode's built-in `explore` agent:
+ * Permission model mirrors KiloCode's built-in `explore` agent:
  * deny all, then selectively allow read-only tools.
  *
  * The per-councillor model is overridden at session creation time via the
@@ -26,7 +26,7 @@ problem.
 - Search by name patterns (glob)
 - Search by content (grep)
 - Search code patterns (ast_grep_search)
-- Use OpenCode's built-in \`lsp\` tool when available
+- Use KiloCode's built-in \`lsp\` tool when available
 - Search external docs (if MCPs are configured for this agent)
 
 You CANNOT edit files, write files, run shell commands, or delegate to \

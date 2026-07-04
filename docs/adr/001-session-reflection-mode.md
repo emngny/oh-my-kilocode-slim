@@ -2,11 +2,11 @@
 
 **Date:** 2026-06-29
 **Status:** Accepted
-**Deciders:** User + Orchestrator
+**Deciders:** User + Chief
 
 ## Context
 
-We are adding a `--sessions` mode to the `/reflect` command in oh-my-opencode-slim. This mode enables cross-session reflection by analyzing past OpenCode sessions to find repeated patterns, friction, and improvement opportunities.
+We are adding a `--sessions` mode to the `/reflect` command in oh-my-kilocode-slim. This mode enables cross-session reflection by analyzing past KiloCode sessions to find repeated patterns, friction, and improvement opportunities.
 
 Current `/reflect` only looks at the current conversation and project files. The new mode analyzes historical sessions across all repos to find patterns like:
 - "Which workflows succeed most often?"
@@ -49,10 +49,10 @@ Current `/reflect` only looks at the current conversation and project files. The
 
 ### 3. Session Discovery
 
-**Decision:** LLM reads `~/.local/share/opencode/log/opencode.log` and greps for `session.id=ses_[a-f0-9]+` to extract session IDs.
+**Decision:** LLM reads `~/.local/share/kilo/log/kilo.log` and greps for `session.id=ses_[a-f0-9]+` to extract session IDs.
 
 **Rationale:**
-- Session IDs are reliably present in the main OpenCode log
+- Session IDs are reliably present in the main KiloCode log
 - Pattern is stable and parseable with simple grep
 - No new API dependencies needed
 
@@ -76,17 +76,17 @@ timestamp=2026-06-10T15:08:45.427Z level=INFO run=9bd29194 message=loop session.
 
 ### 5. Storage Location
 
-**Decision:** Store reflection summaries in `~/.config/opencode/oh-my-opencode-slim/reflections/`.
+**Decision:** Store reflection summaries in `~/.config/kilo/oh-my-kilocode-slim/reflections/`.
 
 **Rationale:**
-- Existing OMOS directory already contains presets, prompts, orchestrator_append.md
+- Existing OMOS directory already contains presets, prompts, chief_append.md
 - Pragmatic: keeps all OMOS data in one place
 - Easy discovery and cleanup
 - Global across projects (sessions are not project-specific)
 
 **Structure:**
 ```
-~/.config/opencode/oh-my-opencode-slim/reflections/
+~/.config/kilo/oh-my-kilocode-slim/reflections/
   sessions/
     ses_14de9c68effegtZtlATm42wnz7.json
   weekly/
@@ -98,8 +98,8 @@ timestamp=2026-06-10T15:08:45.427Z level=INFO run=9bd29194 message=loop session.
 **Alternatives considered:**
 | Option | Pros | Cons | Decision |
 |--------|------|------|----------|
-| `~/.config/opencode/oh-my-opencode-slim/reflections/` | Existing directory, single location | Mixes config and data | **Accepted** |
-| `~/.local/share/oh-my-opencode-slim/reflections/` | XDG-compliant, data separation | New directory, splits OMOS data | Rejected |
+| `~/.config/kilo/oh-my-kilocode-slim/reflections/` | Existing directory, single location | Mixes config and data | **Accepted** |
+| `~/.local/share/oh-my-kilocode-slim/reflections/` | XDG-compliant, data separation | New directory, splits OMOS data | Rejected |
 | `.slim/reflections/` (project-local) | Tied to codebase | Sessions are global, not project-specific | Rejected |
 | Ephemeral (no storage) | No disk overhead | Re-analyzes expensive sessions, no trend tracking | Rejected |
 
@@ -114,7 +114,7 @@ timestamp=2026-06-10T15:08:45.427Z level=INFO run=9bd29194 message=loop session.
 
 **Flow:**
 ```
-OpenCode logs
+KiloCode logs
   → Extract session IDs
   → For each session:
       → Load via client.session.messages()
@@ -147,7 +147,7 @@ OpenCode logs
 ```json
 {
   "session": "ses_14de9c68effegtZtlATm42wnz7",
-  "project": "/home/user/Projects/oh-my-opencode-slim",
+  "project": "/home/user/Projects/oh-my-kilocode-slim",
   "timestamp": "2026-06-10T15:08:45.427Z",
   "goal": "Fix CI failure",
   "success": true,
@@ -159,8 +159,8 @@ OpenCode logs
     "Create /test-ci command"
   ],
   "duration_minutes": 18,
-  "models_used": ["opencode/mimo-v2.5-free"],
-  "agents_used": ["orchestrator", "fixer", "explorer"],
+  "models_used": ["kilo/mimo-v2.5-free"],
+  "agents_used": ["chief", "fixer", "explorer"],
   "tools_used": ["Read", "Edit", "Bash"],
   "confidence": 0.85
 }

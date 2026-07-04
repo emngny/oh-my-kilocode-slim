@@ -100,12 +100,12 @@ describe('agent alias backward compatibility', () => {
 });
 
 describe('built-in subagent preset fallback', () => {
-  test('subagents missing from the active preset inherit the preset orchestrator model', () => {
+  test('subagents missing from the active preset inherit the preset chief model', () => {
     const config: PluginConfig = {
-      preset: 'opencode-go',
+      preset: 'kilo-go',
       presets: {
-        'opencode-go': {
-          orchestrator: { model: 'opencode-go/glm-5.2' },
+        'kilo-go': {
+          chief: { model: 'kilo-go/glm-5.2' },
         },
       },
       council: councilConfig(),
@@ -116,12 +116,12 @@ describe('built-in subagent preset fallback', () => {
 
     for (const name of ['observer', 'council', 'councillor'] as const) {
       expect(agents.find((a) => a.name === name)?.config.model).toBe(
-        'opencode-go/glm-5.2',
+        'kilo-go/glm-5.2',
       );
     }
   });
 
-  test('subagents missing from the active preset inherit the first subagent preset model when orchestrator is absent', () => {
+  test('subagents missing from the active preset inherit the first subagent preset model when chief is absent', () => {
     const config: PluginConfig = {
       preset: 'minimal',
       presets: {
@@ -130,7 +130,7 @@ describe('built-in subagent preset fallback', () => {
         },
       },
       agents: {
-        orchestrator: { model: 'root-orchestrator-model' },
+        chief: { model: 'root-chief-model' },
       },
       disabled_agents: [],
     };
@@ -167,60 +167,58 @@ describe('fixer agent fallback', () => {
   });
 });
 
-describe('orchestrator agent', () => {
-  test('orchestrator is first in agents array', () => {
+describe('chief agent', () => {
+  test('chief is first in agents array', () => {
     const agents = createAgents();
-    expect(agents[0].name).toBe('orchestrator');
+    expect(agents[0].name).toBe('chief');
   });
 
-  test('orchestrator has question permission set to allow', () => {
+  test('chief has question permission set to allow', () => {
     const agents = createAgents();
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator?.config.permission).toBeDefined();
-    expect((orchestrator?.config.permission as any).question).toBe('allow');
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief?.config.permission).toBeDefined();
+    expect((chief?.config.permission as any).question).toBe('allow');
   });
 
-  test('orchestrator is denied access to council_session', () => {
+  test('chief is denied access to council_session', () => {
     const agents = createAgents();
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect((orchestrator?.config.permission as any).council_session).toBe(
-      'deny',
-    );
+    const chief = agents.find((a) => a.name === 'chief');
+    expect((chief?.config.permission as any).council_session).toBe('deny');
   });
 
-  test('orchestrator is allowed to invoke cancel_task', () => {
+  test('chief is allowed to invoke cancel_task', () => {
     const agents = createAgents();
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect((orchestrator?.config.permission as any).cancel_task).toBe('allow');
+    const chief = agents.find((a) => a.name === 'chief');
+    expect((chief?.config.permission as any).cancel_task).toBe('allow');
   });
 
-  test('orchestrator accepts overrides', () => {
+  test('chief accepts overrides', () => {
     const config: PluginConfig = {
       agents: {
-        orchestrator: { model: 'custom-orchestrator-model', temperature: 0.3 },
+        chief: { model: 'custom-chief-model', temperature: 0.3 },
       },
     };
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator?.config.model).toBe('custom-orchestrator-model');
-    expect(orchestrator?.config.temperature).toBe(0.3);
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief?.config.model).toBe('custom-chief-model');
+    expect(chief?.config.temperature).toBe(0.3);
   });
 
-  test('orchestrator accepts variant override', () => {
+  test('chief accepts variant override', () => {
     const config: PluginConfig = {
       agents: {
-        orchestrator: { variant: 'high' },
+        chief: { variant: 'high' },
       },
     };
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator?.config.variant).toBe('high');
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief?.config.variant).toBe('high');
   });
 
-  test('orchestrator stores model array with per-model variants in _modelArray', () => {
+  test('chief stores model array with per-model variants in _modelArray', () => {
     const config: PluginConfig = {
       agents: {
-        orchestrator: {
+        chief: {
           model: [
             { id: 'google/gemini-3-pro', variant: 'high' },
             { id: 'github-copilot/claude-3.5-haiku' },
@@ -230,13 +228,13 @@ describe('orchestrator agent', () => {
       },
     };
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator?._modelArray).toEqual([
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief?._modelArray).toEqual([
       { id: 'google/gemini-3-pro', variant: 'high' },
       { id: 'github-copilot/claude-3.5-haiku' },
       { id: 'openai/gpt-4' },
     ]);
-    expect(orchestrator?.config.model).toBe('google/gemini-3-pro');
+    expect(chief?.config.model).toBe('google/gemini-3-pro');
   });
 });
 
@@ -264,7 +262,7 @@ describe('per-model variant in array config', () => {
   test('top-level variant preserved alongside per-model variants', () => {
     const config: PluginConfig = {
       agents: {
-        orchestrator: {
+        chief: {
           model: [
             { id: 'google/gemini-3-pro', variant: 'high' },
             'openai/gpt-4',
@@ -274,26 +272,25 @@ describe('per-model variant in array config', () => {
       },
     };
     const agents = createAgents(config);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
+    const chief = agents.find((a) => a.name === 'chief');
     // top-level variant still set as default
-    expect(orchestrator?.config.variant).toBe('low');
+    expect(chief?.config.variant).toBe('low');
     // per-model variants stored in _modelArray
-    expect(orchestrator?._modelArray?.[0]?.variant).toBe('high');
-    expect(orchestrator?._modelArray?.[1]?.variant).toBeUndefined();
+    expect(chief?._modelArray?.[0]?.variant).toBe('high');
+    expect(chief?._modelArray?.[1]?.variant).toBeUndefined();
   });
 });
 
 describe('skill permissions', () => {
-  test('orchestrator gets command-style bundled skills allowed by default', () => {
+  test('chief gets command-style bundled skills allowed by default', () => {
     const agents = createAgents();
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
-    expect(orchestrator).toBeDefined();
-    const skillPerm = (
-      orchestrator?.config.permission as Record<string, unknown>
-    )?.skill as Record<string, string>;
-    // orchestrator gets wildcard allow by default
+    const chief = agents.find((a) => a.name === 'chief');
+    expect(chief).toBeDefined();
+    const skillPerm = (chief?.config.permission as Record<string, unknown>)
+      ?.skill as Record<string, string>;
+    // chief gets wildcard allow by default
     expect(skillPerm?.['*']).toBe('allow');
-    // CUSTOM_SKILLS loop must also add a named codemap entry for orchestrator
+    // CUSTOM_SKILLS loop must also add a named codemap entry for chief
     expect(skillPerm?.codemap).toBe('allow');
     expect(skillPerm?.clonedeps).toBe('allow');
   });
@@ -421,8 +418,8 @@ describe('isSubagent type guard', () => {
     expect(isSubagent('fixer')).toBe(true);
   });
 
-  test('returns false for orchestrator', () => {
-    expect(isSubagent('orchestrator')).toBe(false);
+  test('returns false for chief', () => {
+    expect(isSubagent('chief')).toBe(false);
   });
 
   test('returns false for invalid agent names', () => {
@@ -433,8 +430,8 @@ describe('isSubagent type guard', () => {
 });
 
 describe('agent classification', () => {
-  test('SUBAGENT_NAMES excludes orchestrator', () => {
-    expect(SUBAGENT_NAMES).not.toContain('orchestrator');
+  test('SUBAGENT_NAMES excludes chief', () => {
+    expect(SUBAGENT_NAMES).not.toContain('chief');
     expect(SUBAGENT_NAMES).toContain('explorer');
     expect(SUBAGENT_NAMES).toContain('fixer');
   });
@@ -444,7 +441,7 @@ describe('agent classification', () => {
     const configs = getAgentConfigs({ disabled_agents: [] });
 
     // Primary agent
-    expect(configs.orchestrator.mode).toBe('primary');
+    expect(configs.chief.mode).toBe('primary');
 
     // Subagents
     for (const name of SUBAGENT_NAMES) {
@@ -462,7 +459,7 @@ describe('createAgents', () => {
   test('creates all agents without config', () => {
     const agents = createAgents();
     const names = agents.map((a) => a.name);
-    expect(names).toContain('orchestrator');
+    expect(names).toContain('chief');
     expect(names).toContain('explorer');
     expect(names).toContain('designer');
     expect(names).toContain('oracle');
@@ -478,10 +475,10 @@ describe('createAgents', () => {
   test('does not create council when council is not configured', () => {
     const agents = createAgents();
     const names = agents.map((a) => a.name);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
+    const chief = agents.find((a) => a.name === 'chief');
 
     expect(names).not.toContain('council');
-    expect(orchestrator?.config.prompt).not.toContain('@council');
+    expect(chief?.config.prompt).not.toContain('@council');
   });
 
   test('creates council when council is configured', () => {
@@ -489,26 +486,26 @@ describe('createAgents', () => {
       council: councilConfig(),
     });
     const names = agents.map((a) => a.name);
-    const orchestrator = agents.find((a) => a.name === 'orchestrator');
+    const chief = agents.find((a) => a.name === 'chief');
 
     expect(names).toContain('council');
-    expect(orchestrator?.config.prompt).toContain('@council');
+    expect(chief?.config.prompt).toContain('@council');
   });
 });
 
 describe('getAgentConfigs', () => {
   test('returns config record keyed by agent name', () => {
     const configs = getAgentConfigs();
-    expect(configs.orchestrator).toBeDefined();
+    expect(configs.chief).toBeDefined();
     expect(configs.explorer).toBeDefined();
-    // Agents have no hardcoded default model; OpenCode resolves them from the
+    // Agents have no hardcoded default model; KiloCode resolves them from the
     // global/session model unless users override per-agent models.
     expect(configs.explorer.model).toBeUndefined();
   });
 
   test('includes description in SDK config', () => {
     const configs = getAgentConfigs();
-    expect(configs.orchestrator.description).toBeDefined();
+    expect(configs.chief.description).toBeDefined();
     expect(configs.explorer.description).toBeDefined();
   });
 });
@@ -754,16 +751,16 @@ describe('AgentOverrideConfigSchema options validation', () => {
     expect(result.success).toBe(false);
   });
 
-  test('accepts prompt and orchestratorPrompt override fields', () => {
+  test('accepts prompt and chiefPrompt override fields', () => {
     const result = AgentOverrideConfigSchema.safeParse({
       model: 'openai/gpt-5.5',
       prompt: 'You are a specialized reviewer.',
-      orchestratorPrompt: '@reviewer\n- Role: Specialized reviewer',
+      chiefPrompt: '@reviewer\n- Role: Specialized reviewer',
     });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.prompt).toBe('You are a specialized reviewer.');
-      expect(result.data.orchestratorPrompt).toBe(
+      expect(result.data.chiefPrompt).toBe(
         '@reviewer\n- Role: Specialized reviewer',
       );
     }
@@ -777,10 +774,10 @@ describe('AgentOverrideConfigSchema options validation', () => {
     expect(result.success).toBe(false);
   });
 
-  test('rejects empty orchestratorPrompt fields', () => {
+  test('rejects empty chiefPrompt fields', () => {
     const result = AgentOverrideConfigSchema.safeParse({
       model: 'openai/gpt-5.5',
-      orchestratorPrompt: '',
+      chiefPrompt: '',
     });
     expect(result.success).toBe(false);
   });
@@ -808,12 +805,12 @@ describe('PluginConfigSchema custom-agent-only prompt fields', () => {
     expect(result.success).toBe(true);
   });
 
-  test('allows orchestratorPrompt on built-in top-level agent overrides', () => {
+  test('allows chiefPrompt on built-in top-level agent overrides', () => {
     const result = PluginConfigSchema.safeParse({
       agents: {
         explorer: {
           model: 'openai/gpt-5.4-mini',
-          orchestratorPrompt: '@explorer\n- Role: should be invalid here',
+          chiefPrompt: '@explorer\n- Role: should be invalid here',
         },
       },
     });
@@ -836,12 +833,12 @@ describe('PluginConfigSchema custom-agent-only prompt fields', () => {
     expect(result.success).toBe(true);
   });
 
-  test('rejects orchestratorPrompt on orchestrator agent overrides', () => {
+  test('rejects chiefPrompt on chief agent overrides', () => {
     const result = PluginConfigSchema.safeParse({
       agents: {
-        orchestrator: {
+        chief: {
           model: 'openai/gpt-5.4-mini',
-          orchestratorPrompt: '@orchestrator\n- Role: should be invalid here',
+          chiefPrompt: '@chief\n- Role: should be invalid here',
         },
       },
     });
@@ -855,7 +852,7 @@ describe('PluginConfigSchema custom-agent-only prompt fields', () => {
         janitor: {
           model: 'openai/gpt-5.4-mini',
           prompt: 'You are Janitor.',
-          orchestratorPrompt: '@janitor\n- Role: Cleanup specialist',
+          chiefPrompt: '@janitor\n- Role: Cleanup specialist',
         },
       },
     });
@@ -925,7 +922,7 @@ describe('disabled_agents', () => {
     const names = agents.map((a) => a.name);
     expect(names).not.toContain('designer');
     expect(names).not.toContain('fixer');
-    expect(names).toContain('orchestrator');
+    expect(names).toContain('chief');
     expect(names).toContain('explorer');
     expect(names).toContain('oracle');
     expect(names).toContain('librarian');
@@ -933,11 +930,11 @@ describe('disabled_agents', () => {
 
   test('protected agents cannot be disabled', () => {
     const config: PluginConfig = {
-      disabled_agents: ['orchestrator', 'councillor'],
+      disabled_agents: ['chief', 'councillor'],
     };
     const agents = createAgents(config);
     const names = agents.map((a) => a.name);
-    expect(names).toContain('orchestrator');
+    expect(names).toContain('chief');
     expect(names).toContain('councillor');
   });
 
@@ -965,11 +962,11 @@ describe('disabled_agents', () => {
 
   test('getDisabledAgents respects protection rules', () => {
     const config: PluginConfig = {
-      disabled_agents: ['orchestrator', 'designer', 'councillor'],
+      disabled_agents: ['chief', 'designer', 'councillor'],
     };
     const disabled = getDisabledAgents(config);
     expect(disabled.has('designer')).toBe(true);
-    expect(disabled.has('orchestrator')).toBe(false);
+    expect(disabled.has('chief')).toBe(false);
     expect(disabled.has('councillor')).toBe(false);
   });
 
@@ -980,7 +977,7 @@ describe('disabled_agents', () => {
     const enabled = getEnabledAgentNames(config);
     expect(enabled).not.toContain('designer');
     expect(enabled).not.toContain('fixer');
-    expect(enabled).toContain('orchestrator');
+    expect(enabled).toContain('chief');
     expect(enabled).toContain('explorer');
   });
 

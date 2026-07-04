@@ -1,14 +1,14 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import { stripJsonComments } from '../../cli/config-io';
 import { getConfigSearchDirs } from '../../cli/paths';
 import { loadPluginConfig } from '../../config/loader';
 import { MAX_MODEL_CONTENT_CHARS } from './constants';
 import type { CachedFetch, SecondaryModel } from './types';
 
-type OpenCodeClient = PluginInput['client'];
+type KiloCodeClient = PluginInput['client'];
 
 function parseModelRef(value: string | undefined) {
   if (!value) return undefined;
@@ -36,15 +36,15 @@ function pickAgentModelRef(value: unknown): string | undefined {
   return undefined;
 }
 
-function findPreferredOpenCodeConfigPath(baseDir: string) {
-  for (const file of ['opencode.jsonc', 'opencode.json']) {
+function findPreferredKiloCodeConfigPath(baseDir: string) {
+  for (const file of ['kilo.jsonc', 'kilo.json']) {
     const fullPath = path.join(baseDir, file);
     if (existsSync(fullPath)) return fullPath;
   }
   return undefined;
 }
 
-async function readOpenCodeConfigFile(configPath: string | undefined) {
+async function readKiloCodeConfigFile(configPath: string | undefined) {
   if (!configPath) return undefined;
   try {
     const content = await readFile(configPath, 'utf8');
@@ -56,16 +56,16 @@ async function readOpenCodeConfigFile(configPath: string | undefined) {
   }
 }
 
-async function readEffectiveOpenCodeConfig(directory: string) {
-  const projectDir = path.join(directory, '.opencode');
+async function readEffectiveKiloCodeConfig(directory: string) {
+  const projectDir = path.join(directory, '.kilo');
   const userDirs = getConfigSearchDirs();
-  const projectPath = findPreferredOpenCodeConfigPath(projectDir);
+  const projectPath = findPreferredKiloCodeConfigPath(projectDir);
   const userPath = userDirs
-    .map((configDir) => findPreferredOpenCodeConfigPath(configDir))
+    .map((configDir) => findPreferredKiloCodeConfigPath(configDir))
     .find(Boolean);
 
-  const userConfig = await readOpenCodeConfigFile(userPath);
-  const projectConfig = await readOpenCodeConfigFile(projectPath);
+  const userConfig = await readKiloCodeConfigFile(userPath);
+  const projectConfig = await readKiloCodeConfigFile(projectPath);
 
   return {
     small_model: projectConfig?.small_model ?? userConfig?.small_model,
@@ -86,10 +86,10 @@ export async function readSecondaryModelFromConfig(directory: string) {
       models.push(parsedModel);
     };
 
-    const opencodeConfig = await readEffectiveOpenCodeConfig(directory);
+    const kiloConfig = await readEffectiveKiloCodeConfig(directory);
     pushModel(
-      typeof opencodeConfig.small_model === 'string'
-        ? opencodeConfig.small_model
+      typeof kiloConfig.small_model === 'string'
+        ? kiloConfig.small_model
         : undefined,
     );
 
@@ -173,12 +173,12 @@ export const _testConfig = {
  *
  * The previous implementation swallowed all errors silently via
  * `.catch(() => undefined)`, which left orphaned sessions in the database
- * whenever the delete failed (e.g. during an OpenCode instance dispose/reload
+ * whenever the delete failed (e.g. during an KiloCode instance dispose/reload
  * cycle). This retries transient failures and logs persistent ones so the
  * issue is visible instead of silently leaking sessions.
  */
 async function deleteSessionSafely(
-  client: OpenCodeClient,
+  client: KiloCodeClient,
   sessionId: string,
   directory: string,
 ): Promise<void> {
@@ -206,7 +206,7 @@ async function deleteSessionSafely(
 }
 
 async function runSecondaryModel(
-  client: OpenCodeClient,
+  client: KiloCodeClient,
   directory: string,
   model: SecondaryModel,
   prompt: string,
@@ -297,7 +297,7 @@ async function runSecondaryModel(
 }
 
 export async function runSecondaryModelWithFallback(
-  client: OpenCodeClient,
+  client: KiloCodeClient,
   directory: string,
   models: SecondaryModel[],
   prompt: string,

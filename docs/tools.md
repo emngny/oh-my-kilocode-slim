@@ -40,8 +40,8 @@ Fast, structural code search and refactoring - more powerful than plain text gre
 |------|-------------|
 | `cancel_task` | Cancel a tracked background specialist task by native task ID or Background Job Board alias |
 
-`cancel_task` is orchestrator-only. It only cancels background tasks tracked for
-the current orchestrator session, and it does not roll back partial edits. After
+`cancel_task` is chief-only. It only cancels background tasks tracked for
+the current chief session, and it does not roll back partial edits. After
 cancelling a write-capable task, inspect and reconcile file changes before
 launching replacement work.
 
@@ -52,10 +52,10 @@ session lifecycle and cancellation edge cases behind this tool.
 
 ## Formatters
 
-OpenCode automatically formats files after they are written or edited, using language-specific formatters. No manual step needed.
+KiloCode automatically formats files after they are written or edited, using language-specific formatters. No manual step needed.
 
 Includes Prettier, Biome, `gofmt`, `rustfmt`, `ruff`, and 20+ others.
 
-> See the [official OpenCode docs](https://opencode.ai/docs/formatters/#built-in) for the complete list.
+> See the [official KiloCode docs](https://kilo.ai/docs/formatters/#built-in) for the complete list.
 
 ---

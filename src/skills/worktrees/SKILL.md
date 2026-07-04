@@ -6,13 +6,13 @@ description: Manage Git worktrees as OMO safe isolated coding lanes for complex,
 # Worktrees Orchestration Protocol
 
 The `worktrees` skill provides an opinionated, safe orchestration protocol for
-managing Git worktrees as isolated coding lanes. Its value is giving the Orchestrator a consistent OMO workflow for parallel agents, risky experiments, integration review, and cleanup.
+managing Git worktrees as isolated coding lanes. Its value is giving the Chief a consistent OMO workflow for parallel agents, risky experiments, integration review, and cleanup.
 
 ## Core Contract
 
-This is an **orchestrator-only** workflow. Other specialists such as `@fixer`
+This is an **chief-only** workflow. Other specialists such as `@fixer`
 or `@designer` can be assigned tasks inside a worktree lane, but the
-Orchestrator owns lane planning, branch/path selection, file ownership,
+Chief owns lane planning, branch/path selection, file ownership,
 delegation, diff validation, integration, and cleanup.
 
 All worktrees reside under the default path:
@@ -39,7 +39,7 @@ structural tracking:
       "path": ".slim/worktrees/feature-auth-v2",
       "base": "main",
       "purpose": "refactor authentication flow to use OAuth2",
-      "owner": "orchestrator",
+      "owner": "chief",
       "status": "active",
       "areas": ["src/auth", "src/config"],
       "createdAt": "2026-06-14T12:00:00.000Z"
@@ -57,7 +57,7 @@ project convention.
 
 ## Safety Guidelines
 
-Before executing any Git mutation command, the Orchestrator must observe the
+Before executing any Git mutation command, the Chief must observe the
 following guards:
 
 ### 1. Pre-Flight Checklist
@@ -86,21 +86,21 @@ Before creating lanes, add or update managed marker blocks only.
 `.gitignore`:
 
 ```gitignore
-# BEGIN oh-my-opencode-slim worktrees
+# BEGIN oh-my-kilocode-slim worktrees
 .slim/worktrees/
 .slim/worktrees.json
-# END oh-my-opencode-slim worktrees
+# END oh-my-kilocode-slim worktrees
 ```
 
 `.ignore`:
 
 ```ignore
-# BEGIN oh-my-opencode-slim worktrees
+# BEGIN oh-my-kilocode-slim worktrees
 !.slim/
 !.slim/worktrees.json
 !.slim/worktrees/
 !.slim/worktrees/**
-# END oh-my-opencode-slim worktrees
+# END oh-my-kilocode-slim worktrees
 ```
 
 ---

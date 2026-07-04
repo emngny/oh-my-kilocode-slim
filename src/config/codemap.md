@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Centralizes configuration loading, validation, schema definitions, and runtime state management for the oh-my-opencode-slim plugin. This folder implements the configuration pipeline that merges user preferences, project overrides, and preset-based agent configurations, providing validated runtime configuration objects to the rest of the plugin.
+Centralizes configuration loading, validation, schema definitions, and runtime state management for the oh-my-kilocode-slim plugin. This folder implements the configuration pipeline that merges user preferences, project overrides, and preset-based agent configurations, providing validated runtime configuration objects to the rest of the plugin.
 
 ## Design
 
@@ -35,9 +35,9 @@ The config system follows a layered architecture:
 
 ```
 1. Discovery Phase
-   ├─ User config: $OPENCODE_CONFIG_DIR/oh-my-opencode-slim.{jsonc,json}
-   ├─ Project config: <directory>/.opencode/oh-my-opencode-slim.{jsonc,json}
-   └─ Environment variable: OH_MY_OPENCODE_SLIM_PRESET (overrides preset field)
+   ├─ User config: $KILOCODE_CONFIG_DIR/oh-my-kilocode-slim.{jsonc,json}
+   ├─ Project config: <directory>/.kilo/oh-my-kilocode-slim.{jsonc,json}
+   └─ Environment variable: OH_MY_KILOCODE_SLIM_PRESET (overrides preset field)
 
 2. Parsing Phase
    ├─ JSONC support (comments, trailing commas) via stripJsonComments
@@ -77,7 +77,7 @@ Preset resolution flow:
 2. Look up preset in config.presets[presetName]
 3. Merge preset.agents with config.agents (root overrides take precedence)
 4. Apply preset-specific agent overrides
-5. Resolve preset model plans for manual agents (orchestrator, oracle, etc.)
+5. Resolve preset model plans for manual agents (chief, oracle, etc.)
 ```
 
 ## Integration
@@ -170,7 +170,7 @@ This allows consumers to import directly from `src/config` rather than individua
 - `skills`: Skill allow/deny list ("*" = all, "!item" = exclude)
 - `mcps`: MCP allow/deny list ("*" = all, "!item" = exclude)
 - `prompt`: Custom agent prompt override
-- `orchestratorPrompt`: Custom orchestrator prompt override
+- `chiefPrompt`: Custom chief prompt override
 - `options`: Provider-specific model options
 - `displayName`: Custom display name for the agent
 
@@ -190,7 +190,7 @@ This allows consumers to import directly from `src/config` rather than individua
 ## Environment Variable Support
 
 - `{env:VAR_NAME}`: Interpolated in config files during parsing
-- `OH_MY_OPENCODE_SLIM_PRESET`: Overrides config.preset at runtime
+- `OH_MY_KILOCODE_SLIM_PRESET`: Overrides config.preset at runtime
 
 ## Backward Compatibility
 

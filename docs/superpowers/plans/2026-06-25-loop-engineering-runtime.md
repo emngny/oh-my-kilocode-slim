@@ -31,13 +31,13 @@ The engine implements `verify()`. It should NOT implement `retry twice then esca
 - Oracle retry-wrapper - `oracleRetryCount` persisted in session
 - Council restricted to Layer 0 escalation only
 - Cancellation lifecycle - `cancelled` is quiet terminal state, no `onEscalated`
-- Session cleanup - engine manages `.loop-history-{loopID}.md` only, orchestrator owns artifact lifecycle
+- Session cleanup - engine manages `.loop-history-{loopID}.md` only, chief owns artifact lifecycle
 - Convergence signal scope - signals apply to `error` and `timeout` only, NOT `cancelled`
 - `totalErrors` (not `errorCount`) consistently used
 - `SuccessCriterion` as first-class type - engine routes by `success.type`
 - Deferred worktree/memory/trigger from core interfaces - Future Extensions section
-- Artifact lifecycle - engine signals `onArtifactWrite`, orchestrator owns filesystem
-- **Dispatch callback** - engine receives `dispatch(agent, prompt, contextFiles)` from orchestrator, no direct SDK access
+- Artifact lifecycle - engine signals `onArtifactWrite`, chief owns filesystem
+- **Dispatch callback** - engine receives `dispatch(agent, prompt, contextFiles)` from chief, no direct SDK access
 - **Manual verification** - no BackgroundJob created, engine manages waiting state in LoopSession
 - **Automated verification** - test/build/lint/command/fileExists dispatched to test-runner agent, not spawnSync
 - **LoopEngine location** - `src/loop/loop-engine.ts` (not src/council/)
@@ -212,7 +212,7 @@ cancelled  → (terminal)
 
 **History file:** Each session writes `compactHistory()` to a virtual file (`.loop-history-{loopID}.md` in the project root). This file is appended to `contextFiles` for each `executing` dispatch. Models read file context reliably.
 
-**Worktree integration:** If `definition.worktree?.enabled = true`, orchestrator creates a dedicated worktree before dispatching. Engine tracks `session.worktreeName`. On `done` → orchestrator merges worktree to main. On `escalated`/`cancelled` → orchestrator abandons worktree. Prevents parallel loops from colliding on the same files. Uses existing `using-git-worktrees` skill via orchestrator.
+**Worktree integration:** If `definition.worktree?.enabled = true`, chief creates a dedicated worktree before dispatching. Engine tracks `session.worktreeName`. On `done` → chief merges worktree to main. On `escalated`/`cancelled` → chief abandons worktree. Prevents parallel loops from colliding on the same files. Uses existing `using-git-worktrees` skill via chief.
 
 ### Task 5: Worktree Integration (Deferred - MVP uses in-process execution)
 
@@ -238,21 +238,21 @@ startLoop(definition) with worktree.enabled = true
   → engine fires onWorktreeCreate(loopID, "loop-{loopID}") callback
   → engine returns loopID immediately (non-blocking)
   ↓
-Orchestrator receives callback → creates worktree via using-git-worktrees skill
+Chief receives callback → creates worktree via using-git-worktrees skill
   ↓
-Orchestrator calls engine.setWorktreeReady(loopID)
+Chief calls engine.setWorktreeReady(loopID)
   → session.worktreeReady = true
   ↓
 Engine dispatches first job (checks session.worktreeReady before dispatching)
 ```
 
-**If worktree creation fails:** Orchestrator calls `engine.cancel(loopID)` with a reason. Engine transitions to `escalated` with system error, no merge/abandon attempted.
+**If worktree creation fails:** Chief calls `engine.cancel(loopID)` with a reason. Engine transitions to `escalated` with system error, no merge/abandon attempted.
 
 **On terminal states:**
-- `done` → engine fires `onWorktreeMerge(loopID, branchName)`. Orchestrator merges to main via skill.
-- `escalated`/`cancelled` → engine fires `onWorktreeAbandon(loopID, branchName)`. Orchestrator abandons via skill.
+- `done` → engine fires `onWorktreeMerge(loopID, branchName)`. Chief merges to main via skill.
+- `escalated`/`cancelled` → engine fires `onWorktreeAbandon(loopID, branchName)`. Chief abandons via skill.
 
-**Engine does not call git directly** - it delegates to orchestrator via callbacks (`onWorktreeCreate`, `onWorktreeMerge`, `onWorktreeAbandon`).
+**Engine does not call git directly** - it delegates to chief via callbacks (`onWorktreeCreate`, `onWorktreeMerge`, `onWorktreeAbandon`).
 
 **Validation:** `startLoop()` validates that `executeAgent !== verifyAgent`. If equal, throws `Error('executeAgent and verifyAgent must be different')`.
 
@@ -272,13 +272,13 @@ startLoop(definition) with memory.enabled = true
   → engine reads storePath (defaults to .loop-memory.md)
   → if file exists and valid: parses LoopMemoryStore
   → engine fires onMemoryRead(loopID, memory) callback
-  → orchestrator calls engine.setMemoryLoaded(loopID, memory)
+  → chief calls engine.setMemoryLoaded(loopID, memory)
   → session.memoryLoaded = true
   ↓
 Engine dispatches first job (checks session.memoryLoaded before dispatching)
 ```
 
-If memory file doesn't exist or is corrupt: engine fires `onMemoryRead(loopID, null)`. Orchestrator calls `setMemoryLoaded` with empty store. Loop proceeds with no prior patterns.
+If memory file doesn't exist or is corrupt: engine fires `onMemoryRead(loopID, null)`. Chief calls `setMemoryLoaded` with empty store. Loop proceeds with no prior patterns.
 
 **Write timing (on terminal state):**
 
@@ -286,15 +286,15 @@ If memory file doesn't exist or is corrupt: engine fires `onMemoryRead(loopID, n
 on 'done':
   → engine writes new LoopPattern to store (goal type, strategy, attemptsRequired, timestamp)
   → engine fires onMemoryWrite(loopID, storePath) callback
-  → orchestrator writes file via fs
+  → chief writes file via fs
 
 on 'escalated':
   → engine writes new FailureRecord to store (goal type, failureReason, what was attempted, occurrences++)
   → engine fires onMemoryWrite(loopID, storePath) callback
-  → orchestrator writes file via fs
+  → chief writes file via fs
 ```
 
-**Orchestrator does the actual file I/O** - engine delegates via callback, same pattern as worktree. This keeps the engine purely orchestration logic.
+**Chief does the actual file I/O** - engine delegates via callback, same pattern as worktree. This keeps the engine purely orchestration logic.
 
 **Future:** Memory store could be GitHub Issues (label-based), a database, or a dedicated file. File-based (`.loop-memory.md`) is MVP.
 
@@ -313,9 +313,9 @@ import { BackgroundJobBoard, type BackgroundJobRecord } from '../utils/backgroun
 export interface LoopEngineCallbacks {
   onLoopComplete?: (loopID: string, success: boolean) => void;
   onEscalated?: (loopID: string, reason: string) => void;
-  // Manual verification - orchestrator surfaces review to human, calls resolveManualReview
+  // Manual verification - chief surfaces review to human, calls resolveManualReview
   onManualReview?: (loopID: string, reason: string) => void;
-  // Artifact management - orchestrator owns filesystem, engine only signals
+  // Artifact management - chief owns filesystem, engine only signals
   onArtifactWrite?: (loopID: string, artifactPath: string) => void;
   // Deferred: onWorktreeCreate, onWorktreeMerge, onWorktreeAbandon
   // Deferred: onMemoryRead, onMemoryWrite
@@ -325,7 +325,7 @@ export class LoopEngine {
   private sessions: Map<string, LoopSession> = new Map();
   private jobBoard: BackgroundJobBoard;
   private callbacks: LoopEngineCallbacks;
-  // Dispatch callback provided by orchestrator - engine does not access SDK directly
+  // Dispatch callback provided by chief - engine does not access SDK directly
   private dispatch: (agent: string, prompt: string, contextFiles: string[]) => string;
 
   constructor(jobBoard: BackgroundJobBoard, callbacks: LoopEngineCallbacks, dispatch: (agent: string, prompt: string, contextFiles: string[]) => string);
@@ -350,18 +350,18 @@ export class LoopEngine {
 **Layered architecture:**
 
 ```
-Layer 0: Orchestrator - loads skill, delegates to LoopEngine, listens to callbacks, handles Grill + escalation
+Layer 0: Chief - loads skill, delegates to LoopEngine, listens to callbacks, handles Grill + escalation
 Layer 1: LoopEngine - event-driven state machine, dispatches agents, manages artifacts, enforces circuit breaker
 Layer 2: Specialist agents - do the work
   - @fixer, @designer, @explorer, @librarian - execute based on task domain
   - @oracle, @observer, test - verify based on task domain
   - @council - Layer 0 escalation ONLY, never inside the loop
-Skill - instructs orchestrator, never "does" anything itself
+Skill - instructs chief, never "does" anything itself
 ```
 
 **Key design:**
 
-1. `startLoop(definition)` is **non-blocking** - creates session, validates inputs, writes history file, dispatches first job, returns `loopID` immediately. Orchestrator never hangs.
+1. `startLoop(definition)` is **non-blocking** - creates session, validates inputs, writes history file, dispatches first job, returns `loopID` immediately. Chief never hangs.
 
    **Validation:**
    ```typescript
@@ -422,9 +422,9 @@ job completed (error)     → handleFailure() → may escalate
     }
    ```
 
-**Observer artifact transfer:** For UI loops, `verifyAgent = 'observer'`, the executing agent writes visual artifacts to paths. The engine signals `onArtifactWrite(loopID, artifactPath)` so orchestrator can manage artifact lifecycle. Engine does not own filesystem artifacts - only signals when they are written.
+**Observer artifact transfer:** For UI loops, `verifyAgent = 'observer'`, the executing agent writes visual artifacts to paths. The engine signals `onArtifactWrite(loopID, artifactPath)` so chief can manage artifact lifecycle. Engine does not own filesystem artifacts - only signals when they are written.
 
-**Manual verification:** When `success.type = 'manual'`, engine transitions to `verifying` but does NOT dispatch a verifyAgent. Instead, fires `onManualReview(loopID, reason)` and stops. Session waits. Orchestrator surfaces review to human. Human responds → orchestrator calls `engine.resolveManualReview(loopID, passed, reason)`. Engine resumes: `passed` → `done`, `!passed` → retry or escalate.
+**Manual verification:** When `success.type = 'manual'`, engine transitions to `verifying` but does NOT dispatch a verifyAgent. Instead, fires `onManualReview(loopID, reason)` and stops. Session waits. Chief surfaces review to human. Human responds → chief calls `engine.resolveManualReview(loopID, passed, reason)`. Engine resumes: `passed` → `done`, `!passed` → retry or escalate.
 
     **No Council inside the loop** - Council with 360s+ latency stalls the rapid `executing ↔ verifying` oscillation. Council is reserved for Layer 0 escalation only.
 
@@ -501,10 +501,10 @@ job completed (error)     → handleFailure() → may escalate
     private cleanupSession(session: LoopSession): void {
        // Delete .loop-history-{loopID}.md
       fs.unlinkSync(session.historyFilePath);
-      // Orchestrator handles artifact cleanup via onArtifactWrite tracking
+      // Chief handles artifact cleanup via onArtifactWrite tracking
     }
     ```
-    Called on terminal states: `done`, `escalated`, `cancelled`. Also called on `cancel(loopID)`. Engine only manages `.loop-history-{loopID}.md` - orchestrator owns artifact filesystem lifecycle.
+    Called on terminal states: `done`, `escalated`, `cancelled`. Also called on `cancel(loopID)`. Engine only manages `.loop-history-{loopID}.md` - chief owns artifact filesystem lifecycle.
 
     **"Modify definition and retry"** during `escalated`: Human decides to modify and retry → engine does NOT reuse the session. Instead:
     1. Call `cancel(loopID)` → triggers `cancelled` cleanup
@@ -552,23 +552,23 @@ private tryParseVerification(raw: string | undefined): VerificationResult | null
 
 **File:** `src/skills/loop-engineering/SKILL.md` (new file)
 
-The skill instructs the orchestrator - it never "does" anything itself. Orchestrator follows the skill's guidance.
+The skill instructs the chief - it never "does" anything itself. Chief follows the skill's guidance.
 
 Two parts:
 
-**Grill (human interview) - orchestrator follows these instructions:**
+**Grill (human interview) - chief follows these instructions:**
 - Conduct conversation to define `LoopDefinition` fields
 - Questions: goal, success criteria, max attempts, preferred agents, context files
 - Output structured JSON passed to `loopEngine.startLoop()`
 
-**Loop Monitor - orchestrator follows these instructions:**
+**Loop Monitor - chief follows these instructions:**
 - Listen to engine callbacks (`onLoopComplete`, `onEscalated`)
 - Display current state, attempt count, verification result to human
 - On `onEscalated` - surface resolution options to human, await instruction
 - On human intervention (cancel, force pass, modify definition) - call appropriate engine method
 
 **Skill does NOT:**
-- Call `loopEngine` directly - orchestrator does that
+- Call `loopEngine` directly - chief does that
 - Dispatch agents - engine does that
 - Evaluate verification - engine does that (via JSON parsing)
 - Manage state - engine does that
@@ -615,7 +615,7 @@ grep -r "deepwork" src/ --include="*.ts"
 - Depends on PR 1 merging first
 
 **Not in MVP PRs (deferred but architected):**
-- **Worktree isolation** - architected in Task 5, deferred to post-MVP. Orchestrator uses `using-git-worktrees` skill. Engine delegates worktree lifecycle via callbacks. Prevents parallel loop file collisions.
+- **Worktree isolation** - architected in Task 5, deferred to post-MVP. Chief uses `using-git-worktrees` skill. Engine delegates worktree lifecycle via callbacks. Prevents parallel loop file collisions.
 - **Cross-loop memory** - architected in Task 6, deferred to post-MVP. `.loop-memory.md` file store (MVP). Future: GitHub Issues, database. Enables learned strategies and tuned convergence thresholds.
 
 **Not architected yet (deferred):**

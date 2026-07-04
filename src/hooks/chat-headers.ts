@@ -1,5 +1,5 @@
-import type { PluginInput, ProviderContext } from '@opencode-ai/plugin';
-import type { Model, UserMessage } from '@opencode-ai/sdk';
+import type { PluginInput, ProviderContext } from '@kilocode/plugin';
+import type { Model, UserMessage } from '@kilocode/sdk';
 import { hasInternalInitiatorMarker } from '../utils';
 
 interface ChatHeadersInput {

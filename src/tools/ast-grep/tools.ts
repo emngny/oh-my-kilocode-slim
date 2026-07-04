@@ -1,4 +1,4 @@
-import { type ToolDefinition, tool } from '@opencode-ai/plugin';
+import { type ToolDefinition, tool } from '@kilocode/plugin';
 import { runSg } from './cli';
 import type { CliLanguage } from './types';
 import { CLI_LANGUAGES } from './types';

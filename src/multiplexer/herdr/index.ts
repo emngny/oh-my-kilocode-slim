@@ -116,8 +116,8 @@ export class HerdrMultiplexer implements Multiplexer {
         { stdout: 'ignore', stderr: 'ignore' },
       ).exited;
 
-      // 3. Run opencode attach in the new pane
-      const opencodeCmd = buildOpencodeAttachCommand(
+      // 3. Run kilo attach in the new pane
+      const kiloCmd = buildOpencodeAttachCommand(
         sessionId,
         serverUrl,
         directory,
@@ -125,10 +125,10 @@ export class HerdrMultiplexer implements Multiplexer {
 
       log('[herdr] spawnPane: running attach command', {
         paneId,
-        command: opencodeCmd,
+        command: kiloCmd,
       });
 
-      const runProc = crossSpawn([herdr, 'pane', 'run', paneId, opencodeCmd], {
+      const runProc = crossSpawn([herdr, 'pane', 'run', paneId, kiloCmd], {
         stdout: 'pipe',
         stderr: 'pipe',
       });
@@ -291,7 +291,7 @@ function buildOpencodeAttachCommand(
   directory: string,
 ): string {
   return [
-    'opencode',
+    'kilo',
     'attach',
     quoteShellArg(serverUrl),
     '--session',

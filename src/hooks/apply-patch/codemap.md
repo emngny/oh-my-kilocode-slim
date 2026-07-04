@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Implements OpenCode's patch application hook system with fuzzy matching and automatic rescue strategies. This module intercepts `apply_patch` tool invocations, parses custom patch formats, matches patch chunks to file content using multiple comparison strategies, and rewrites patches to apply cleanly across file moves, renames, and content drift.
+Implements KiloCode's patch application hook system with fuzzy matching and automatic rescue strategies. This module intercepts `apply_patch` tool invocations, parses custom patch formats, matches patch chunks to file content using multiple comparison strategies, and rewrites patches to apply cleanly across file moves, renames, and content drift.
 
 ## Design Patterns
 
@@ -101,7 +101,7 @@ index.ts: return modified patchText to hook
 ### Consumed By
 - **Main Plugin**: `src/index.ts` registers the hook via `createApplyPatchHook(ctx)`
 - **CLI**: `src/cli/index.ts` includes the hook in plugin initialization
-- **OpenCode**: Hook integrates with `@opencode-ai/plugin` tool execution system
+- **KiloCode**: Hook integrates with `@kilocode/plugin` tool execution system
 
 ### Dependencies
 - **Utils**: `src/utils/logger.ts` for structured logging

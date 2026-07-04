@@ -16,7 +16,7 @@ The hook is implemented as an `experimental.chat.messages.transform` hook that r
 
 ### Permission Resolution Flow:
 
-1. **Agent Detection**: Extracts current agent name from message history (defaults to 'orchestrator')
+1. **Agent Detection**: Extracts current agent name from message history (defaults to 'chief')
 2. **Permission Lookup**: Retrieves skill rules for the agent from configuration
 3. **Block Extraction**: Uses regex to parse `<skill>` blocks from `<available_skills>` XML
 4. **Filtering**: Applies permission rules to each skill entry
@@ -79,10 +79,10 @@ Message Preparation → Hook Execution → Message Transformation → API Send
 
 
 ### Dependencies:
-- **@opencode-ai/plugin**: Plugin input/output types
+- **@kilocode/plugin**: Plugin input/output types
 - **src/config/**: Plugin configuration and agent overrides
 - **src/cli/skills.ts**: Default skill permission rules
-- **OpenCode Core**: Injects `<available_skills>` block globally in messages
+- **KiloCode Core**: Injects `<available_skills>` block globally in messages
 
 ### Integration Points:
 - **Message Pipeline**: Hooks into `experimental.chat.messages.transform` lifecycle

@@ -2,12 +2,12 @@
 
 ## Responsibility
 
-CLI entry point and command-line interface for the oh-my-opencode-slim plugin. Provides installation, configuration, and diagnostic commands for setting up and managing the OpenCode plugin.
+CLI entry point and command-line interface for the oh-my-kilocode-slim plugin. Provides installation, configuration, and diagnostic commands for setting up and managing the KiloCode plugin.
 
 ## Design
 
 The CLI follows a command pattern with two primary commands:
-- `install`: Sets up the plugin with OpenCode (adds plugin to config, configures background subagents, installs companion, writes configuration)
+- `install`: Sets up the plugin with KiloCode (adds plugin to config, configures background subagents, installs companion, writes configuration)
 - `doctor`: Diagnoses plugin configuration issues and validates setup
 
 ### Architecture Pattern: Command Router
@@ -25,14 +25,14 @@ The CLI follows a command pattern with two primary commands:
 - **skills.ts**: Agent permission management for skills (allow/ask/deny rules)
 
 ### Integration Management
-- **background-subagents.ts**: Shell integration for OpenCode background subagents (persistent agent processes)
+- **background-subagents.ts**: Shell integration for KiloCode background subagents (persistent agent processes)
 - **companion.ts**: Desktop companion binary installation and management
 
 ## Flow
 
 ### Command Flow: CLI Entry Point
 ```
-1. CLI invoked (bunx oh-my-opencode-slim install/doctor)
+1. CLI invoked (bunx oh-my-kilocode-slim install/doctor)
 2. index.ts parses arguments and routes to command handler
 3. Command handler executes workflow
    - install: Runs multi-step installation process
@@ -42,27 +42,27 @@ The CLI follows a command pattern with two primary commands:
 ### Installation Workflow (install.ts)
 ```
 1. Parse install arguments (preset, companion mode, background subagents, etc.)
-2. Check OpenCode installation
-3. Add plugin to OpenCode configuration (opencode.json/opencode.jsonc)
+2. Check KiloCode installation
+3. Add plugin to KiloCode configuration (kilo.json/kilo.jsonc)
 4. Add TUI version badge (tui.json/tui.jsonc)
-5. Warm OpenCode plugin cache (for package manager installations)
-6. Disable OpenCode default agents (explore, general)
+5. Warm KiloCode plugin cache (for package manager installations)
+6. Disable KiloCode default agents (explore, general)
 7. Enable LSP integration by default
 8. Configure background subagents (shell integration)
 9. Install desktop companion (optional)
-10. Write oh-my-opencode-slim configuration (oh-my-opencode-slim.json)
+10. Write oh-my-kilocode-slim configuration (oh-my-kilocode-slim.json)
 11. Install custom skills (if requested)
 ```
 
 ### Configuration Resolution Flow (paths.ts)
 ```
 1. Determine config directory:
-   - OPENCODE_CONFIG_DIR environment variable (highest priority)
-   - XDG_CONFIG_HOME/opencode
-   - ~/.config/opencode (default)
+   - KILOCODE_CONFIG_DIR environment variable (highest priority)
+   - XDG_CONFIG_HOME/kilo
+   - ~/.config/kilo (default)
 2. Resolve file paths:
-   - opencode.json → opencode.jsonc → fallback to opencode.json
-   - oh-my-opencode-slim.json → oh-my-opencode-slim.jsonc → fallback
+   - kilo.json → kilo.jsonc → fallback to kilo.json
+   - oh-my-kilocode-slim.json → oh-my-kilocode-slim.jsonc → fallback
    - tui.json → tui.jsonc → fallback
 ```
 
@@ -70,12 +70,12 @@ The CLI follows a command pattern with two primary commands:
 ```
 1. Generate configuration presets for supported providers:
    - openai (default)
-   - opencode-go
+   - kilo-go
    - kimi
    - copilot
    - zai-plan
 2. Map agents to models with variants:
-   - orchestrator → high-capacity model
+   - chief → high-capacity model
    - oracle → high variant
    - librarian/explorer → low variant
    - designer → medium variant
@@ -89,9 +89,9 @@ The CLI follows a command pattern with two primary commands:
 1. Detect shell type (bash/zsh/fish)
 2. Determine target file:
    - bash/zsh: ~/.bashrc or ~/.zshrc
-   - fish: ~/.config/fish/conf.d/opencode-background-subagents.fish
+   - fish: ~/.config/fish/conf.d/kilo-background-subagents.fish
 3. Write environment variable export:
-   - export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
+   - export KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
 4. Persist across shell sessions
 ```
 
@@ -99,7 +99,7 @@ The CLI follows a command pattern with two primary commands:
 
 ### Consumed By
 - **Main plugin**: src/index.ts loads CLI entry point via plugin initialization
-- **OpenCode**: CLI commands are invoked by OpenCode's plugin system
+- **KiloCode**: CLI commands are invoked by KiloCode's plugin system
 
 ### Dependencies
 - **Config system**: src/config/ - Configuration loading and validation
@@ -108,13 +108,13 @@ The CLI follows a command pattern with two primary commands:
 - **Utils**: src/utils/ - Cross-platform compatibility utilities
 
 ### Integration Points
-- **OpenCode plugin system**: CLI commands integrate via OpenCode's command execution
+- **KiloCode plugin system**: CLI commands integrate via KiloCode's command execution
 - **Shell environment**: Background subagents modify shell startup files
-- **Configuration files**: Atomic writes to user config directory (~/.config/opencode/)
+- **Configuration files**: Atomic writes to user config directory (~/.config/kilo/)
 - **Desktop companion**: Optional binary installation and configuration
 
 ### Permission Model
-- **Orchestrator agent**: Granted all skills by default
+- **Chief agent**: Granted all skills by default
 - **Other agents**: Restricted permissions, explicit allow rules from custom skills registry
 - **External skills**: Permission-only entries for skills not installed by CLI
 
@@ -122,18 +122,18 @@ The CLI follows a command pattern with two primary commands:
 ### Configuration Files
 | File | Purpose | Written By |
 |------|---------|------------|
-| opencode.json/opencode.jsonc | OpenCode main config | config-io.ts |
-| tui.json/tui.jsonc | OpenCode TUI config | config-io.ts |
-| oh-my-opencode-slim.json | Plugin-specific config | providers.ts |
+| kilo.json/kilo.jsonc | KiloCode main config | config-io.ts |
+| tui.json/tui.jsonc | KiloCode TUI config | config-io.ts |
+| oh-my-kilocode-slim.json | Plugin-specific config | providers.ts |
 
 ## Commands
 
 ### `install` Command
-Sets up oh-my-opencode-slim plugin with OpenCode.
+Sets up oh-my-kilocode-slim plugin with KiloCode.
 
 **Usage:**
 ```bash
-bunx oh-my-opencode-slim install [OPTIONS]
+bunx oh-my-kilocode-slim install [OPTIONS]
 ```
 
 **Options:**
@@ -147,14 +147,14 @@ bunx oh-my-opencode-slim install [OPTIONS]
 - `--reset`: Force overwrite existing configuration
 - `-h, --help`: Show help
 
-**Available presets:** openai, opencode-go, kimi, copilot, zai-plan
+**Available presets:** openai, kilo-go, kimi, copilot, zai-plan
 
 ### `doctor` Command
 Diagnoses plugin configuration and environment.
 
 **Usage:**
 ```bash
-bunx oh-my-opencode-slim doctor [OPTIONS]
+bunx oh-my-kilocode-slim doctor [OPTIONS]
 ```
 
 **Options:**

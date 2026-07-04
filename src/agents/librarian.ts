@@ -1,5 +1,5 @@
 import { READONLY_FILE_OPERATIONS_RULES } from '../config';
-import type { AgentDefinition } from './orchestrator';
+import type { AgentDefinition } from './chief';
 
 const LIBRARIAN_PROMPT = `You are Librarian - a research specialist for codebases and documentation.
 

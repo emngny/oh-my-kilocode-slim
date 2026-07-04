@@ -187,7 +187,7 @@ export function createInterviewServer(deps: {
         );
         sendJson(response, 200, {
           ok: true,
-          message: 'Answers submitted to the OpenCode session.',
+          message: 'Answers submitted to the KiloCode session.',
         });
       } catch (error) {
         const message =

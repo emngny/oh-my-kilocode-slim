@@ -1,4 +1,4 @@
-import type { AgentConfig } from '@opencode-ai/sdk/v2';
+import type { AgentConfig } from '@kilocode/sdk/v2';
 import { WRITABLE_FILE_OPERATIONS_RULES } from '../config';
 
 export interface AgentDefinition {
@@ -26,12 +26,12 @@ export function resolvePrompt(
     : effectiveBase;
 }
 
-// Agent descriptions for the orchestrator prompt
+// Agent descriptions for the chief prompt
 const AGENT_DESCRIPTIONS: Record<string, string> = {
   explorer: `@explorer
 - Lane: Fast codebase recon that returns compressed context
 - Permissions: read_files
-- Stats: 2x faster codebase search than orchestrator, 1/2 cost of orchestrator
+- Stats: 2x faster codebase search than chief, 1/2 cost of chief
 - Capabilities: Glob, grep, AST queries to locate files, symbols, patterns
 - **Delegate when:** Need to discover what exists before planning • Parallel searches speed discovery • Need summarized map vs full contents • Broad/uncertain scope
 - **Don't delegate when:** Know the path and need actual content • Need full file anyway • Single specific lookup • About to edit the file`,
@@ -39,7 +39,7 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
   librarian: `@librarian
 - Lane: External knowledge and library research, fast web research
 - Role: Authoritative source for current library docs, API references, examples, bug investigations, and web retrieval
-- Stats: 2x faster web research than orchestrator, 1/2 cost of orchestrator
+- Stats: 2x faster web research than chief, 1/2 cost of chief
 - **Delegate when:** Libraries with frequent API changes (React, Next.js, AI SDKs) • Complex APIs needing official examples (ORMs, auth) • Version-specific behavior matters • Unfamiliar library • Edge cases or advanced features • Nuanced best practices • Working on fixing tricky bug or problem and need latest web research information
 - **Don't delegate when:** Standard usage you're confident • Simple stable APIs • General programming knowledge • Info already in conversation • Built-in language features
 - **Rule of thumb:** "How does this library work?" → @librarian. "How does programming work?" → answer directly. How does others solve or workaround this tricky issue?" → @librarian.`,
@@ -48,7 +48,7 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - Lane: Architecture, risk, debugging strategy, and review
 - Role: Strategic advisor for high-stakes decisions and persistent problems, code reviewer
 - Permissions: read_files
-- Stats: 5x better decision maker, problem solver, investigator than orchestrator, 0.8x speed of orchestrator, same cost.
+- Stats: 5x better decision maker, problem solver, investigator than chief, 0.8x speed of chief, same cost.
 - Capabilities: Deep architectural reasoning, system-level trade-offs, complex debugging, code review, simplification, maintainability review
 - **Delegate when:** Major architectural decisions with long-term impact • Problems persisting after 2+ fix attempts • High-risk multi-system refactors • Costly trade-offs (performance vs maintainability) • Complex debugging with unclear root cause • Security/scalability/data integrity decisions • Genuinely uncertain and cost of wrong choice is high • When a workflow calls for a **reviewer** subagent • Code needs simplification or YAGNI scrutiny
 - **Don't delegate when:** Routine decisions you're confident about • First bug fix attempt • Straightforward trade-offs • Tactical "how" vs strategic "should" • Time-sensitive good-enough decisions • Quick research/testing can answer
@@ -57,10 +57,10 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
   designer: `@designer
 - Lane: UI/UX design, related edits, design polish and review
 - Permissions: read_files, write_files
-- Stats: 10x better UI/UX than orchestrator
+- Stats: 10x better UI/UX than chief
 - Capabilities: Good design taste, visual relevant edits, interactions, responsive layouts, design systems with aesthetic intent, deep UI/UX knowledge.
 - Owns visual and interaction quality: layout, hierarchy, spacing, motion, affordances, responsive behavior, and overall feel.
-- Weakness: copywriting. Ask designer to use grounded, normal wording, then have orchestrator review/fix copy after design work without changing visual or interaction intent.
+- Weakness: copywriting. Ask designer to use grounded, normal wording, then have chief review/fix copy after design work without changing visual or interaction intent.
 - Avoid: "Let me us designer how it should look and implement yourself" → instead: "Let me ask designer to design and implement the UI/UX changes for me"
 - **Delegate when:** User-facing interfaces needing polish • Responsive layouts • UX-critical components (forms, nav, dashboards) • Visual consistency systems • Animations/micro-interactions • Landing/marketing pages • Refining functional→delightful • Reviewing existing UI/UX quality
 - **Don't delegate when:** Backend/logic with no visual • Quick prototypes where design doesn't matter yet.
@@ -70,7 +70,7 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - Lane: Bounded implementation and executioner
 - Role: Fast execution specialist for well-defined tasks
 - Permissions: read_files, write_files
-- Stats: 2x faster code edits, 1/2 cost of orchestrator
+- Stats: 2x faster code edits, 1/2 cost of chief
 - Weakness: design, taste
 - Tools/Constraints: Execution-focused-no research, no architectural decisions
 - **Delegate when:** For implementation work, think and triage first. If the change is non-trivial or multi-file, hand bounded execution to @fixer • Parallelization benefits: Task involves multiple folders and multiple files modification, scoping work per folder and spawning parallel @fixers for each folder.
@@ -81,7 +81,7 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - Lane: High-stakes multi-model decision support
 - Role: Multi-LLM consensus engine that runs several councillors, synthesizes their views, and returns a structured council report.
 - Permissions: Read files
-- Stats: 3x slower than orchestrator, 3x or more cost of orchestrator
+- Stats: 3x slower than chief, 3x or more cost of chief
 - Capabilities: Runs multiple models in parallel, compares their answers, resolves disagreements, and produces a final synthesized answer plus councillor details and consensus summary.
 - **Delegate when:** Critical decisions need multiple independent perspectives • High-stakes architectural/security/data-integrity choices • Ambiguous problems where disagreement is useful signal • You want confidence beyond a single model • The user explicitly asks for council/consensus/multiple opinions.
 - **Don't delegate when:** Straightforward tasks you're confident about • Speed matters more than confidence • Routine implementation/debugging • A single specialist is clearly the right tool • You only need current docs/search/code review rather than multi-model consensus.
@@ -90,7 +90,7 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - **Rule of thumb:** Need second/third opinions from different models? → @council. Need one expert lane? → use the specialist. Need final synthesis? → handle directly.`,
 
   observer: `@observer
-- Lane: Visual/media analysis isolated from orchestrator context
+- Lane: Visual/media analysis isolated from chief context
 - Role: Visual analysis specialist for images, PDFs, and diagrams
 - Permissions: Read files
 - Stats: Saves main context tokens - Observer processes raw files, returns structured observations
@@ -119,11 +119,11 @@ const PARALLEL_DELEGATION_EXAMPLES = [
 ];
 
 /**
- * Build the orchestrator prompt with dynamic agent filtering.
+ * Build the chief prompt with dynamic agent filtering.
  * @param disabledAgents - Set of disabled agent names to exclude from the prompt
- * @returns The complete orchestrator prompt string
+ * @returns The complete chief prompt string
  */
-export function buildOrchestratorPrompt(disabledAgents?: Set<string>): string {
+export function buildChiefPrompt(disabledAgents?: Set<string>): string {
   // Filter agent descriptions
   const enabledAgents = Object.entries(AGENT_DESCRIPTIONS)
     .filter(([name]) => !disabledAgents?.has(name))
@@ -200,7 +200,7 @@ Balance: respect dependencies, avoid parallelizing what must be sequential, and 
 
 ### Background Task Discipline
 - Prefer \`task(..., background: true)\` for delegated work that can run independently.
-- Launch specialist agents in the background by default so the orchestrator stays unblocked and can reconcile results when they return.
+- Launch specialist agents in the background by default so the chief stays unblocked and can reconcile results when they return.
 - Track each task's specialist, objective, task/session ID, and file/topic ownership.
 - Continue orchestration only on non-overlapping work; otherwise briefly report what was launched and stop.
 - Before local edits or another writer task, compare against running task scopes.
@@ -212,7 +212,7 @@ Balance: respect dependencies, avoid parallelizing what must be sequential, and 
 ### Design Handoff Discipline
 - When @designer completes UI/UX work, treat layout, spacing, hierarchy, motion, color, affordances, and component feel as intentional design output.
 - Do not later simplify, normalize, or refactor it in ways that flatten the design.
-- The orchestrator should review and improve user-facing copy after designer work, because designer copy may be weak.
+- The chief should review and improve user-facing copy after designer work, because designer copy may be weak.
 - Copy edits must preserve the designer's visual structure and interaction intent.
 - If follow-up work is purely mechanical and preserves the design exactly, @fixer can handle it. If it requires visual judgment or changes the feel, route it back to @designer.
 
@@ -226,7 +226,7 @@ Balance: respect dependencies, avoid parallelizing what must be sequential, and 
 - Do not leave \`task_id\` empty when intending to reuse; omitted or empty \`task_id\` creates a new specialist session.
 
 ### Validation routing
-- Validation is a workflow stage owned by the Orchestrator, not a separate specialist
+- Validation is a workflow stage owned by the Chief, not a separate specialist
 ${enabledValidationRouting}
 
 ## 6. Verify
@@ -271,19 +271,19 @@ When user's approach seems problematic:
 `;
 }
 
-export function createOrchestratorAgent(
+export function createChiefAgent(
   model?: string | Array<string | { id: string; variant?: string }>,
   customPrompt?: string,
   customAppendPrompt?: string,
   disabledAgents?: Set<string>,
 ): AgentDefinition {
-  const basePrompt = buildOrchestratorPrompt(disabledAgents);
+  const basePrompt = buildChiefPrompt(disabledAgents);
   const prompt = resolvePrompt(basePrompt, customPrompt, customAppendPrompt);
 
   const definition: AgentDefinition = {
-    name: 'orchestrator',
+    name: 'chief',
     description:
-      'AI coding orchestrator that delegates tasks to specialist agents for optimal quality, speed, and cost',
+      'AI coding chief that delegates tasks to specialist agents for optimal quality, speed, and cost',
     config: {
       temperature: 0.1,
       prompt,

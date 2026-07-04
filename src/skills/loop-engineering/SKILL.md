@@ -5,7 +5,7 @@ description: Loop engineering runtime Grill + Monitor
 
 # Loop Engineering Skill
 
-## Grill (orchestrator interview)
+## Grill (chief interview)
 
 1. Goal: "What are you trying to accomplish?"
 2. Success criteria: "Describe how we know the loop succeeded."
@@ -23,7 +23,7 @@ description: Loop engineering runtime Grill + Monitor
   - `onManualReview(loopID, reason)` → prompt human to approve/fail and call `resolveManualReview(loopID, passed, reason)`
 - Show current state and attempt count on each callback
 - For manual verification, present the failure reason before asking for pass/fail
-- If human forces cancellation, call `cancel(loopID)` through the orchestrator
+- If human forces cancellation, call `cancel(loopID)` through the chief
 
 ## Notes
 - Manual verification is the minimal on-ramp (autoresearch pattern). It pauses the loop until `resolveManualReview` is called. Do not auto-resolve.

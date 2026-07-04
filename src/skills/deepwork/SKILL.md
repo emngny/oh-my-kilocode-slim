@@ -1,22 +1,22 @@
 ---
 name: deepwork
-description: Orchestrator-only workflow for heavy coding sessions, multi-phase implementation, and risky refactors. Use for complex work that needs planning, review gates, and persistent progress tracking.
+description: Chief-only workflow for heavy coding sessions, multi-phase implementation, and risky refactors. Use for complex work that needs planning, review gates, and persistent progress tracking.
 ---
 
 # Deepwork
 
-Deepwork is an orchestrator workflow for heavy coding sessions. Use it when the
+Deepwork is an chief workflow for heavy coding sessions. Use it when the
 work is broad, risky, multi-file, or likely to span several implementation
 phases. Do not use it for trivial edits, quick docs changes, or simple bug fixes.
 
 ## Core Contract
 
-When deepwork is active, the orchestrator must manage the work as a scheduler,
+When deepwork is active, the chief must manage the work as a scheduler,
 not as the default implementation worker.
 
 Required behavior:
 
-- keep OpenCode todos aligned with the active deepwork phase;
+- keep KiloCode todos aligned with the active deepwork phase;
 - create and maintain a local markdown progress file under `.slim/deepwork/`;
 - write valuable research findings into that file as confirmed research context
   when they are received and reconciled;
@@ -65,7 +65,7 @@ Create a task-specific file such as:
 .slim/deepwork/<short-task-slug>.md
 ```
 
-Keep `.slim/deepwork/` out of git, but make it readable to OpenCode. Ensure the
+Keep `.slim/deepwork/` out of git, but make it readable to KiloCode. Ensure the
 project ignore files include:
 
 ```gitignore
@@ -102,10 +102,10 @@ Don't put actual contents of local files, reference them by path only.
 
 Use the scheduler model throughout:
 
-- follow Orchestrator delegations rules
+- follow Chief delegations rules
 - record task/session IDs and ownership boundaries;
 - wait for hook-driven background completion before consuming background results;
-- avoid blocking Orchestrator lane while background jobs run; if no independent
+- avoid blocking Chief lane while background jobs run; if no independent
   work remains, stop briefly and let the completion event resume the workflow;
 - do not advance to the next phase while relevant jobs are running or terminal
   results are unreconciled.

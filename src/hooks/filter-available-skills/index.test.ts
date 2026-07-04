@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { PluginInput } from '@opencode-ai/plugin';
+import type { PluginInput } from '@kilocode/plugin';
 import type { PluginConfig } from '../../config';
 import {
   createFilterAvailableSkillsHook,
@@ -47,7 +47,7 @@ describe('filterAvailableSkillsText', () => {
 });
 
 describe('createFilterAvailableSkillsHook', () => {
-  test('ignores messages without OpenCode info or parts', async () => {
+  test('ignores messages without KiloCode info or parts', async () => {
     const hook = createFilterAvailableSkillsHook(mockCtx, {});
     const output = {
       messages: [
@@ -131,7 +131,7 @@ describe('createFilterAvailableSkillsHook', () => {
     expect(resultText).not.toContain('<name>skill1</name>');
   });
 
-  test('preserves orchestrator default wildcard allow', async () => {
+  test('preserves chief default wildcard allow', async () => {
     const hook = createFilterAvailableSkillsHook(mockCtx, {});
     const output = {
       messages: [
@@ -142,7 +142,7 @@ describe('createFilterAvailableSkillsHook', () => {
           ],
         },
         {
-          info: { role: 'user', agent: 'orchestrator' },
+          info: { role: 'user', agent: 'chief' },
           parts: [{ type: 'text', text: 'check skills' }],
         },
       ],
@@ -187,7 +187,7 @@ describe('createFilterAvailableSkillsHook', () => {
     expect(resultText).not.toContain('<name>skill2</name>');
   });
 
-  test('defaults to orchestrator when no agent is present', async () => {
+  test('defaults to chief when no agent is present', async () => {
     const hook = createFilterAvailableSkillsHook(mockCtx, {});
     const output = {
       messages: [

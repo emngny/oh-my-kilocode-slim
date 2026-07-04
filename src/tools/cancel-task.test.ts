@@ -48,7 +48,7 @@ function createTool(overrides?: {
   };
 }
 
-const context = { sessionID: 'parent-1', agent: 'orchestrator' } as any;
+const context = { sessionID: 'parent-1', agent: 'chief' } as any;
 
 describe('cancel_task tool', () => {
   test('cancels a tracked running task by task ID', async () => {
@@ -456,7 +456,7 @@ describe('cancel_task tool', () => {
     expect(String(output)).not.toContain('state: running');
   });
 
-  test('denies non-orchestrator agents', async () => {
+  test('denies non-chief agents', async () => {
     const { cancelTask } = createTool();
 
     await expect(
@@ -464,7 +464,7 @@ describe('cancel_task tool', () => {
         sessionID: 'parent-1',
         agent: 'fixer',
       } as any),
-    ).rejects.toThrow('orchestrator');
+    ).rejects.toThrow('chief');
   });
 
   test('denies unmanaged sessions', async () => {
@@ -472,6 +472,6 @@ describe('cancel_task tool', () => {
 
     await expect(
       cancelTask.execute({ task_id: 'ses_1' }, context),
-    ).rejects.toThrow('orchestrator sessions');
+    ).rejects.toThrow('chief sessions');
   });
 });

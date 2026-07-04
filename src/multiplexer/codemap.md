@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Provides a unified abstraction layer for terminal multiplexers (tmux and zellij) to spawn, manage, and close panes for child OpenCode agent sessions. This enables a "multiplexer-assisted" workflow where each child session runs in its own terminal pane, providing better isolation and resource management compared to traditional background processes.
+Provides a unified abstraction layer for terminal multiplexers (tmux and zellij) to spawn, manage, and close panes for child KiloCode agent sessions. This enables a "multiplexer-assisted" workflow where each child session runs in its own terminal pane, providing better isolation and resource management compared to traditional background processes.
 
 ## Design
 
@@ -39,7 +39,7 @@ The session manager uses a **shared global state** pattern to coordinate across 
 
 ### Event-Driven Architecture
 
-The session manager reacts to OpenCode session events:
+The session manager reacts to KiloCode session events:
 - `session.created`: Spawns a new pane for the child session
 - `session.status`: Handles idle/busy state transitions
 - `session.deleted`: Cleans up pane when session is deleted
@@ -49,7 +49,7 @@ The session manager reacts to OpenCode session events:
 ### Session Creation Flow
 
 ```
-1. OpenCode creates child session → emits 'session.created' event
+1. KiloCode creates child session → emits 'session.created' event
 2. MultiplexerSessionManager.onSessionCreated()
    ├─ Checks if multiplexer is enabled
    ├─ Validates event properties (sessionId, parentId)
@@ -58,7 +58,7 @@ The session manager reacts to OpenCode session events:
    ├─ Spawns pane via multiplexer.spawnPane()
    │  ├─ Validates server is running
    │  ├─ Creates new pane with:
-   │  │  ├─ Command: opencode attach --session-id <sessionId>
+   │  │  ├─ Command: kilo attach --session-id <sessionId>
    │  │  ├─ Working directory: project directory
    │  │  └─ Title: session description
    │  └─ Returns paneId
@@ -95,7 +95,7 @@ The session manager reacts to OpenCode session events:
 ### Polling Loop
 
 - Runs every `POLL_INTERVAL_BACKGROUND_MS` (default: 5000ms)
-- Fetches session statuses from OpenCode server
+- Fetches session statuses from KiloCode server
 - Closes any idle sessions that aren't tracked by this instance
 - Stops when no sessions remain
 
@@ -111,7 +111,7 @@ The session manager reacts to OpenCode session events:
 
 - **Config Schema** (`src/config/schema.ts`): Provides `MultiplexerConfig` with type, layout, and size settings
 - **Logger** (`src/utils/logger.ts`): Logs multiplexer operations for debugging
-- **OpenCode Server**: Provides session lifecycle events and status API
+- **KiloCode Server**: Provides session lifecycle events and status API
 
 ### Configuration
 
@@ -141,7 +141,7 @@ interface MultiplexerConfig {
 ### Zellij Implementation
 
 - Uses zellij plugin API via `zellij` CLI
-- Creates panes with plugin-based OpenCode integration
+- Creates panes with plugin-based KiloCode integration
 - Layout management via zellij's built-in layout system
 - Session attachment via zellij's pane-specific attach mechanism
 

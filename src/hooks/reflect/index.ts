@@ -19,7 +19,7 @@ function activationPrompt(
         '',
         'Session Reflection Mode:',
         `- Analyze the last ${lastN} sessions (use --last N to adjust)`,
-        '- Extract session IDs from OpenCode logs',
+        '- Extract session IDs from KiloCode logs',
         '- Load session content from SQLite database',
         '- Analyze each session for patterns and friction',
         '- Aggregate findings across all sessions',
@@ -54,16 +54,16 @@ export function createReflectCommandHook(): {
   let shouldHandleCommand = false;
 
   return {
-    registerCommand: (opencodeConfig) => {
-      const commandConfig = opencodeConfig.command as
+    registerCommand: (kiloConfig) => {
+      const commandConfig = kiloConfig.command as
         | Record<string, unknown>
         | undefined;
       if (commandConfig?.[COMMAND_NAME]) {
         shouldHandleCommand = false;
         return;
       }
-      if (!opencodeConfig.command) opencodeConfig.command = {};
-      (opencodeConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
+      if (!kiloConfig.command) kiloConfig.command = {};
+      (kiloConfig.command as Record<string, unknown>)[COMMAND_NAME] = {
         template: 'Review repeated work and suggest workflow improvements',
         description:
           'Use reflect to learn from repeated workflows and suggest reusable improvements',

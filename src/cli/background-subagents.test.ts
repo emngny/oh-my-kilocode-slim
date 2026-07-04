@@ -36,29 +36,29 @@ describe('background subagents helpers', () => {
 
   test('detects shell startup targets including fish XDG config', () => {
     expect(
-      detectBackgroundSubagentsTarget({ SHELL: '/bin/zsh' })?.endsWith(
-        '/.zshrc',
-      ),
+      detectBackgroundSubagentsTarget({ SHELL: '/bin/zsh' })
+        ?.replace(/\\/g, '/')
+        .endsWith('/.zshrc'),
     ).toBe(true);
     expect(
-      detectBackgroundSubagentsTarget({ SHELL: '/bin/bash' })?.endsWith(
-        '/.bashrc',
-      ),
+      detectBackgroundSubagentsTarget({ SHELL: '/bin/bash' })
+        ?.replace(/\\/g, '/')
+        .endsWith('/.bashrc'),
     ).toBe(true);
     expect(
       detectBackgroundSubagentsTarget({
         SHELL: '/usr/bin/fish',
         XDG_CONFIG_HOME: '/tmp/xdg',
-      }),
-    ).toBe('/tmp/xdg/fish/conf.d/opencode-background-subagents.fish');
+      })?.replace(/\\/g, '/'),
+    ).toBe('/tmp/xdg/fish/conf.d/kilo-background-subagents.fish');
   });
 
   test('builds shell-specific managed blocks with true', () => {
     expect(getBackgroundSubagentsBlock('/tmp/.bashrc')).toContain(
-      'export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true',
+      'export KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true',
     );
     expect(getBackgroundSubagentsBlock('/tmp/config.fish')).toContain(
-      'set -gx OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS true',
+      'set -gx KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS true',
     );
   });
 
@@ -68,10 +68,10 @@ describe('background subagents helpers', () => {
     });
 
     expect(instructions).toContain(
-      'set -gx OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS true',
+      'set -gx KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS true',
     );
     expect(instructions).toContain(
-      'env OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true opencode',
+      'env KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true kilo',
     );
   });
 
@@ -94,7 +94,7 @@ describe('background subagents helpers', () => {
 
     expect(third).toBe(second);
     expect(
-      third.match(/OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS/g),
+      third.match(/KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS/g),
     ).toHaveLength(1);
   });
 });
@@ -118,7 +118,7 @@ describe('background subagents writing', () => {
     const content = readFileSync(target, 'utf8');
     expect(content).toContain('existing=true');
     expect(
-      content.match(/OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS/g),
+      content.match(/KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS/g),
     ).toHaveLength(1);
   });
 });
@@ -157,22 +157,22 @@ describe('parseArgs companion', () => {
 describe('configureBackgroundSubagents', () => {
   let tempDir: string | undefined;
   const originalBackgroundEnv =
-    process.env.OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
+    process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
 
   afterEach(() => {
     if (tempDir) rmSync(tempDir, { recursive: true, force: true });
     tempDir = undefined;
     if (originalBackgroundEnv === undefined) {
-      delete process.env.OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
+      delete process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
     } else {
-      process.env.OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS =
+      process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS =
         originalBackgroundEnv;
     }
   });
 
   test('writes shell config without prompting', async () => {
     tempDir = mkdtempSync(join(tmpdir(), 'omoo-bg-'));
-    delete process.env.OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
+    delete process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
     const log = spyOn(console, 'log').mockImplementation(() => undefined);
     const originalShell = process.env.SHELL;
     const originalHome = process.env.HOME;
@@ -188,9 +188,11 @@ describe('configureBackgroundSubagents', () => {
         backgroundSubagents: 'yes',
       });
 
-      expect(result.configuredTarget?.endsWith('/.zshrc')).toBe(true);
+      expect(
+        result.configuredTarget?.replace(/\\/g, '/').endsWith('/.zshrc'),
+      ).toBe(true);
       expect(readFileSync(join(tempDir, '.zshrc'), 'utf8')).toContain(
-        'OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS',
+        'KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS',
       );
       expect(log.mock.calls.join('\n')).toContain(
         'Background subagents enabled',
@@ -204,7 +206,7 @@ describe('configureBackgroundSubagents', () => {
 
   test('returns no configured target when writing shell config fails', async () => {
     tempDir = mkdtempSync(join(tmpdir(), 'omoo-bg-'));
-    delete process.env.OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
+    delete process.env.KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS;
     rmSync(tempDir, { recursive: true, force: true });
     writeFileSync(tempDir, 'not a directory');
     const log = spyOn(console, 'log').mockImplementation(() => undefined);

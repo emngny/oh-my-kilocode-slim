@@ -23,7 +23,7 @@ function appendReminder(output: ToolExecuteAfterOutput): void {
 
 ### Integration Points
 - **Config Dependency**: Imports `PHASE_REMINDER` constant from `../../config/constants`
-- **Hook Registration**: Hooks into OpenCode's `tool.execute.after` lifecycle phase
+- **Hook Registration**: Hooks into KiloCode's `tool.execute.after` lifecycle phase
 - **Session Context**: Receives `sessionID` to support session-specific filtering
 
 ## Flow
@@ -41,7 +41,7 @@ function appendReminder(output: ToolExecuteAfterOutput): void {
 
 ## Integration
 
-- **Consumed by**: OpenCode plugin lifecycle hooks (src/index.ts)
+- **Consumed by**: KiloCode plugin lifecycle hooks (src/index.ts)
 - **Depends on**: 
   - Config system (PHASE_REMINDER constant)
   - Tool execution framework (tool.execute.after phase)
@@ -63,6 +63,6 @@ hooks.register('tool.execute.after', hook['tool.execute.after']);
 This hook addresses the common failure mode where agents:
 - Read file contents to understand implementation
 - Attempt to implement changes themselves instead of delegating to specialized tools
-- Violate the delegation principle of the OpenCode architecture
+- Violate the delegation principle of the KiloCode architecture
 
 The reminder reinforces the expected workflow: inspect → delegate → implement via specialized agents.

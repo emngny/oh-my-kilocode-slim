@@ -39,17 +39,17 @@ function getOutputText(output: ReturnType<typeof createOutput>): string {
 
 let previousXdgDataHome: string | undefined;
 let previousXdgConfigHome: string | undefined;
-let previousOpenCodeConfigDir: string | undefined;
+let previousKiloCodeConfigDir: string | undefined;
 let tempDir: string;
 
 beforeEach(() => {
   previousXdgDataHome = process.env.XDG_DATA_HOME;
   previousXdgConfigHome = process.env.XDG_CONFIG_HOME;
-  previousOpenCodeConfigDir = process.env.OPENCODE_CONFIG_DIR;
+  previousKiloCodeConfigDir = process.env.KILOCODE_CONFIG_DIR;
   tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'omos-preset-manager-'));
   process.env.XDG_DATA_HOME = tempDir;
   process.env.XDG_CONFIG_HOME = path.join(tempDir, 'xdg-config');
-  delete process.env.OPENCODE_CONFIG_DIR;
+  delete process.env.KILOCODE_CONFIG_DIR;
   setActiveRuntimePreset(null);
 });
 
@@ -66,10 +66,10 @@ afterEach(() => {
     process.env.XDG_CONFIG_HOME = previousXdgConfigHome;
   }
 
-  if (previousOpenCodeConfigDir === undefined) {
-    delete process.env.OPENCODE_CONFIG_DIR;
+  if (previousKiloCodeConfigDir === undefined) {
+    delete process.env.KILOCODE_CONFIG_DIR;
   } else {
-    process.env.OPENCODE_CONFIG_DIR = previousOpenCodeConfigDir;
+    process.env.KILOCODE_CONFIG_DIR = previousKiloCodeConfigDir;
   }
 
   fs.rmSync(tempDir, { recursive: true, force: true });
@@ -98,10 +98,10 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           cheap: {
-            orchestrator: { model: 'anthropic/claude-3.5-haiku' },
+            chief: { model: 'anthropic/claude-3.5-haiku' },
           },
           powerful: {
-            orchestrator: { model: 'openai/gpt-5.5' },
+            chief: { model: 'openai/gpt-5.5' },
           },
         },
       };
@@ -124,8 +124,8 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         preset: 'cheap',
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
-          powerful: { orchestrator: { model: 'openai/gpt-5.5' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
+          powerful: { chief: { model: 'openai/gpt-5.5' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -160,7 +160,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           cheap: {
-            orchestrator: { model: 'anthropic/claude-3.5-haiku' },
+            chief: { model: 'anthropic/claude-3.5-haiku' },
             explorer: { model: 'openai/gpt-5.4-mini' },
           },
         },
@@ -175,10 +175,10 @@ describe('createPresetManager', () => {
 
       const text = getOutputText(output);
       expect(text).toContain('Saved preset "cheap"');
-      expect(text).toContain('orchestrator');
+      expect(text).toContain('chief');
       expect(text).toContain('anthropic/claude-3.5-haiku');
       expect(text).toContain('explorer');
-      expect(text).toContain('Restart or reload OpenCode');
+      expect(text).toContain('Restart or reload KiloCode');
       expect(getActiveRuntimePreset()).toBe('cheap');
       expect(ctx.client.config.update).not.toHaveBeenCalled();
       expect(ctx.client.instance.dispose).not.toHaveBeenCalled();
@@ -196,7 +196,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           cheap: {
-            orchestrator: { model: 'anthropic/claude-3.5-haiku' },
+            chief: { model: 'anthropic/claude-3.5-haiku' },
             explorer: { model: 'openai/gpt-5.5' },
           },
         },
@@ -212,23 +212,23 @@ describe('createPresetManager', () => {
       expect(readTuiSnapshot().agentModels).toEqual({
         explorer: 'openai/gpt-5.5',
         fixer: 'openai/gpt-5.4-mini',
-        orchestrator: 'anthropic/claude-3.5-haiku',
+        chief: 'anthropic/claude-3.5-haiku',
       });
     });
 
     test('persists preset changes from JSONC user config', async () => {
-      const configDir = path.join(tempDir, 'opencode-config');
+      const configDir = path.join(tempDir, 'kilo-config');
       fs.mkdirSync(configDir, { recursive: true });
-      process.env.OPENCODE_CONFIG_DIR = configDir;
+      process.env.KILOCODE_CONFIG_DIR = configDir;
 
-      const configPath = path.join(configDir, 'oh-my-opencode-slim.jsonc');
+      const configPath = path.join(configDir, 'oh-my-kilocode-slim.jsonc');
       fs.writeFileSync(
         configPath,
         `{
           // User-selected preset should be updated even in JSONC files.
           "preset": "old",
           "agents": {
-            "orchestrator": { "model": "old-model" },
+            "chief": { "model": "old-model" },
           },
         }`,
       );
@@ -237,7 +237,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           cheap: {
-            orchestrator: { model: 'anthropic/claude-3.5-haiku' },
+            chief: { model: 'anthropic/claude-3.5-haiku' },
           },
         },
       };
@@ -255,7 +255,7 @@ describe('createPresetManager', () => {
       };
       expect(persisted.preset).toBe('cheap');
       expect(persisted.agents).toEqual({
-        orchestrator: { model: 'old-model' },
+        chief: { model: 'old-model' },
       });
       expect(ctx.client.config.update).not.toHaveBeenCalled();
       expect(ctx.client.instance.dispose).not.toHaveBeenCalled();
@@ -266,7 +266,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           precise: {
-            orchestrator: { model: 'openai/o3', temperature: 0.1 },
+            chief: { model: 'openai/o3', temperature: 0.1 },
           },
         },
       };
@@ -279,7 +279,7 @@ describe('createPresetManager', () => {
       );
 
       const text = getOutputText(output);
-      expect(text).toContain('orchestrator');
+      expect(text).toContain('chief');
       expect(text).toContain('model: openai/o3');
       expect(text).toContain('temp: 0.1');
       expect(ctx.client.config.update).not.toHaveBeenCalled();
@@ -318,7 +318,7 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -363,7 +363,7 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -386,7 +386,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           empty: {
-            orchestrator: {},
+            chief: {},
           },
         },
       };
@@ -436,7 +436,7 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -457,7 +457,7 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -478,7 +478,7 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -499,7 +499,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           mixed: {
-            orchestrator: { model: 'anthropic/claude-3.5-haiku' },
+            chief: { model: 'anthropic/claude-3.5-haiku' },
             explorer: {},
             oracle: { temperature: 0.3 },
           },
@@ -515,7 +515,7 @@ describe('createPresetManager', () => {
 
       const text = getOutputText(output);
       expect(text).toContain('Saved preset "mixed"');
-      expect(text).toContain('orchestrator');
+      expect(text).toContain('chief');
       expect(text).toContain('oracle');
       expect(ctx.client.config.update).not.toHaveBeenCalled();
       expect(ctx.client.instance.dispose).not.toHaveBeenCalled();
@@ -526,7 +526,7 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {
         presets: {
           fallback: {
-            orchestrator: {
+            chief: {
               model: ['anthropic/claude-3.5-haiku', 'openai/gpt-5.5'],
             },
           },
@@ -542,7 +542,7 @@ describe('createPresetManager', () => {
 
       const text = getOutputText(output);
       expect(text).toContain('Saved preset "fallback"');
-      expect(text).toContain('orchestrator');
+      expect(text).toContain('chief');
       expect(text).toContain('anthropic/claude-3.5-haiku');
       expect(ctx.client.config.update).not.toHaveBeenCalled();
       expect(ctx.client.instance.dispose).not.toHaveBeenCalled();
@@ -608,8 +608,8 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {
         presets: {
-          cheap: { orchestrator: { model: 'anthropic/claude-3.5-haiku' } },
-          powerful: { orchestrator: { model: 'openai/gpt-5.5' } },
+          cheap: { chief: { model: 'anthropic/claude-3.5-haiku' } },
+          powerful: { chief: { model: 'openai/gpt-5.5' } },
         },
       };
       const manager = createPresetManager(ctx, config);
@@ -656,11 +656,11 @@ describe('createPresetManager', () => {
       const ctx = createMockContext();
       const config: PluginConfig = {};
       const manager = createPresetManager(ctx, config);
-      const opencodeConfig: Record<string, unknown> = {};
+      const kiloConfig: Record<string, unknown> = {};
 
-      manager.registerCommand(opencodeConfig);
+      manager.registerCommand(kiloConfig);
 
-      const command = (opencodeConfig.command as Record<string, unknown>)
+      const command = (kiloConfig.command as Record<string, unknown>)
         .preset as { template: string; description: string };
       expect(command).toBeDefined();
       expect(command.template).toContain('presets');
@@ -672,13 +672,13 @@ describe('createPresetManager', () => {
       const config: PluginConfig = {};
       const manager = createPresetManager(ctx, config);
       const existing = { template: 'custom', description: 'custom' };
-      const opencodeConfig: Record<string, unknown> = {
+      const kiloConfig: Record<string, unknown> = {
         command: { preset: existing },
       };
 
-      manager.registerCommand(opencodeConfig);
+      manager.registerCommand(kiloConfig);
 
-      expect((opencodeConfig.command as Record<string, unknown>).preset).toBe(
+      expect((kiloConfig.command as Record<string, unknown>).preset).toBe(
         existing,
       );
     });
@@ -693,7 +693,7 @@ describe('createPresetManager', () => {
             oracle: { model: 'cheap-model', temperature: 0.3 },
           },
           powerful: {
-            orchestrator: { model: 'powerful-model' },
+            chief: { model: 'powerful-model' },
           },
         },
         agents: {

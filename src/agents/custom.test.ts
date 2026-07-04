@@ -27,14 +27,13 @@ describe('custom-agent creation', () => {
     );
   });
 
-  test('supports prompt and orchestratorPrompt for custom agents', () => {
+  test('supports prompt and chiefPrompt for custom agents', () => {
     const config: PluginConfig = {
       agents: {
         'test-auditor': {
           model: 'openai/gpt-5.4-mini',
           prompt: 'You are a custom subagent for auditing.',
-          orchestratorPrompt:
-            '@test-auditor\n- Role: Compliance audit specialist',
+          chiefPrompt: '@test-auditor\n- Role: Compliance audit specialist',
         },
       },
     };
@@ -47,8 +46,8 @@ describe('custom-agent creation', () => {
       'You are a custom subagent for auditing.',
     );
 
-    const orchestrator = agents.find((agent) => agent.name === 'orchestrator');
-    expect(orchestrator?.config.prompt).toContain(
+    const chief = agents.find((agent) => agent.name === 'chief');
+    expect(chief?.config.prompt).toContain(
       '@test-auditor\n- Role: Compliance audit specialist',
     );
   });
@@ -61,7 +60,7 @@ describe('custom-agent creation', () => {
         agents: {
           janitor: {
             prompt: 'You are Janitor.',
-            orchestratorPrompt: '@janitor\n- Role: Cleanup specialist',
+            chiefPrompt: '@janitor\n- Role: Cleanup specialist',
           },
         },
       };
@@ -71,7 +70,7 @@ describe('custom-agent creation', () => {
         agentDefs.find((agent) => agent.name === 'janitor'),
       ).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(
-        "[oh-my-opencode] Custom agent 'janitor' skipped: 'model' is required",
+        "[oh-my-kilocode] Custom agent 'janitor' skipped: 'model' is required",
       );
     } finally {
       warnSpy.mockRestore();
@@ -109,19 +108,19 @@ describe('custom-agent creation', () => {
     expect(() => createAgents(config)).toThrow();
   });
 
-  test('accepts arbitrary orchestratorPrompt text for custom agents', () => {
+  test('accepts arbitrary chiefPrompt text for custom agents', () => {
     const config: PluginConfig = {
       agents: {
         janitor: {
           model: 'openai/gpt-5.4-mini',
-          orchestratorPrompt: '@cleanup\n- Role: Cleanup specialist',
+          chiefPrompt: '@cleanup\n- Role: Cleanup specialist',
         },
       },
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((agent) => agent.name === 'orchestrator');
-    expect(orchestrator?.config.prompt).toContain(
+    const chief = agents.find((agent) => agent.name === 'chief');
+    expect(chief?.config.prompt).toContain(
       '@cleanup\n- Role: Cleanup specialist',
     );
   });
@@ -143,25 +142,25 @@ describe('custom-agent creation', () => {
 
     const agents = createAgents(config);
     const wrapper = agents.find((agent) => agent.name === 'claude-research');
-    const orchestrator = agents.find((agent) => agent.name === 'orchestrator');
+    const chief = agents.find((agent) => agent.name === 'chief');
 
     expect(wrapper).toBeDefined();
     expect(wrapper?.description).toBe('Claude Code research via ACP');
     expect(wrapper?.config.model).toBe('openai/gpt-5.4-mini');
     expect(wrapper?.config.prompt).toContain('acp_run');
-    expect(orchestrator?.config.prompt).toContain('@claude-research');
+    expect(chief?.config.prompt).toContain('@claude-research');
   });
 
   test('falls back to active preset primary model for ACP wrappers', () => {
     const config: PluginConfig = {
-      preset: 'opencode-go',
+      preset: 'kilo-go',
       presets: {
-        'opencode-go': {
-          orchestrator: { model: 'opencode-go/glm-5.2' },
+        'kilo-go': {
+          chief: { model: 'kilo-go/glm-5.2' },
         },
       },
       agents: {
-        orchestrator: { model: 'opencode-go/glm-5.2' },
+        chief: { model: 'kilo-go/glm-5.2' },
       },
       acpAgents: {
         bridge: {
@@ -177,18 +176,18 @@ describe('custom-agent creation', () => {
     const agents = createAgents(config);
     const wrapper = agents.find((agent) => agent.name === 'bridge');
 
-    expect(wrapper?.config.model).toBe('opencode-go/glm-5.2');
+    expect(wrapper?.config.model).toBe('kilo-go/glm-5.2');
   });
 
   test('falls back to oracle model for ACP wrappers', () => {
     const defaults = {
       fixer: DEFAULT_MODELS.fixer,
       librarian: DEFAULT_MODELS.librarian,
-      orchestrator: DEFAULT_MODELS.orchestrator,
+      chief: DEFAULT_MODELS.chief,
     };
     DEFAULT_MODELS.fixer = undefined;
     DEFAULT_MODELS.librarian = undefined;
-    DEFAULT_MODELS.orchestrator = undefined;
+    DEFAULT_MODELS.chief = undefined;
 
     try {
       const config: PluginConfig = {
@@ -210,7 +209,7 @@ describe('custom-agent creation', () => {
     } finally {
       DEFAULT_MODELS.fixer = defaults.fixer;
       DEFAULT_MODELS.librarian = defaults.librarian;
-      DEFAULT_MODELS.orchestrator = defaults.orchestrator;
+      DEFAULT_MODELS.chief = defaults.chief;
     }
   });
 
@@ -262,7 +261,7 @@ describe('custom-agent creation', () => {
         },
         janitor: {
           model: 'openai/gpt-5.5',
-          orchestratorPrompt:
+          chiefPrompt:
             'Please use @janitor to clean up after @explorer has completed.',
         },
       },
@@ -273,15 +272,15 @@ describe('custom-agent creation', () => {
           env: {},
           timeoutMs: 0,
           permissionMode: 'ask',
-          orchestratorPrompt:
+          chiefPrompt:
             'Please delegate research tasks to @claude-research or @explorer.',
         },
       },
     };
 
     const agents = createAgents(config);
-    const orchestrator = agents.find((agent) => agent.name === 'orchestrator');
-    const prompt = orchestrator?.config.prompt ?? '';
+    const chief = agents.find((agent) => agent.name === 'chief');
+    const prompt = chief?.config.prompt ?? '';
 
     // Verify Project-specific routing guidance exists and has the custom agent override prompt rewritten
     expect(prompt).toContain('# Project-specific routing guidance');
@@ -325,17 +324,15 @@ describe('custom-agent creation', () => {
           env: {},
           timeoutMs: 0,
           permissionMode: 'ask',
-          orchestratorPrompt:
+          chiefPrompt:
             'Please delegate research tasks to @claude-research or @explorer.',
         },
       },
     };
 
     const agentsOnlyAcp = createAgents(configOnlyAcp);
-    const orchestratorOnlyAcp = agentsOnlyAcp.find(
-      (agent) => agent.name === 'orchestrator',
-    );
-    const promptOnlyAcp = orchestratorOnlyAcp?.config.prompt ?? '';
+    const chiefOnlyAcp = agentsOnlyAcp.find((agent) => agent.name === 'chief');
+    const promptOnlyAcp = chiefOnlyAcp?.config.prompt ?? '';
 
     expect(promptOnlyAcp).not.toContain('# Project-specific routing guidance');
     expect(promptOnlyAcp).toContain(

@@ -11,7 +11,7 @@ Orchestrates automatic retry guidance for failed task delegation attempts by det
 - **Available Agents Extractor**: Parses tool output to discover currently permitted agents for targeted retries
 
 ### Architecture Pattern
-Uses the **Observer** pattern via OpenCode's plugin hook system:
+Uses the **Observer** pattern via KiloCode's plugin hook system:
 - Subscribes to `tool.execute.after` lifecycle hook
 - Intercepts output from the `task` tool (delegate-task)
 - Mutates output in-place to append retry guidance without breaking existing workflows
@@ -48,13 +48,13 @@ Leverages a predefined set of error patterns (`DELEGATE_TASK_ERROR_PATTERNS`) th
 ## Integration
 
 ### Dependencies
-- **OpenCode Plugin System**: Consumes `tool.execute.after` lifecycle hook
+- **KiloCode Plugin System**: Consumes `tool.execute.after` lifecycle hook
 - **Error Patterns Module**: Imports `DELEGATE_TASK_ERROR_PATTERNS` and `detectDelegateTaskError` from `./patterns.ts`
 - **Task Tool**: Specifically targets the `task` tool used for delegate-task operations
 
 ### Consumers
-- **OpenCode Core**: Receives enhanced tool output with retry guidance
-- **User Workflow**: Displays actionable error context and retry examples in OpenCode UI
+- **KiloCode Core**: Receives enhanced tool output with retry guidance
+- **User Workflow**: Displays actionable error context and retry examples in KiloCode UI
 
 ### Configuration
 - **No user configuration required**: Pattern matching and guidance generation are hardcoded for reliability
@@ -64,6 +64,6 @@ Leverages a predefined set of error patterns (`DELEGATE_TASK_ERROR_PATTERNS`) th
 ```typescript
 'tool.execute.after': async (input, output) => { ... }
 ```
-- Triggered after every tool execution in OpenCode
+- Triggered after every tool execution in KiloCode
 - Runs asynchronously but synchronously with respect to tool output processing
-- Mutates output object in-place (standard OpenCode plugin hook contract)
+- Mutates output object in-place (standard KiloCode plugin hook contract)

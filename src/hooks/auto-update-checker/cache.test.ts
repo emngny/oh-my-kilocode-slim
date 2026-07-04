@@ -8,9 +8,9 @@ mock.module('../../utils/logger', () => ({
 
 mock.module('../../cli/config-manager', () => ({
   stripJsonComments: (s: string) => s,
-  getOpenCodeConfigPaths: () => [
-    '/mock/config/opencode.json',
-    '/mock/config/opencode.jsonc',
+  getKiloCodeConfigPaths: () => [
+    '/mock/config/kilo.json',
+    '/mock/config/kilo.jsonc',
   ],
 }));
 
@@ -19,25 +19,32 @@ let importCounter = 0;
 
 describe('auto-update-checker/cache', () => {
   describe('resolveInstallContext', () => {
-    test('detects OpenCode packages install root from runtime package path', async () => {
+    test('detects KiloCode packages install root from runtime package path', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
         (p: string) =>
-          p ===
-          '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/package.json',
+          p.replace(/\\/g, '/') ===
+          '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json',
       );
       const { resolveInstallContext } = await import(
         `./cache?test=${importCounter++}`
       );
 
       const context = resolveInstallContext(
-        '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/node_modules/oh-my-opencode-slim/package.json',
+        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim/package.json',
       );
 
-      expect(context).toEqual({
+      expect(
+        context
+          ? {
+              installDir: context.installDir.replace(/\\/g, '/'),
+              packageJsonPath: context.packageJsonPath.replace(/\\/g, '/'),
+            }
+          : null,
+      ).toEqual({
         installDir:
-          '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest',
+          '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest',
         packageJsonPath:
-          '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/package.json',
+          '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json',
       });
 
       existsSpy.mockRestore();
@@ -50,7 +57,7 @@ describe('auto-update-checker/cache', () => {
       );
 
       const context = resolveInstallContext(
-        '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/node_modules/oh-my-opencode-slim/package.json',
+        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim/package.json',
       );
 
       expect(context).toBeNull();
@@ -75,20 +82,20 @@ describe('auto-update-checker/cache', () => {
     test('updates packages wrapper dependency and removes installed package', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
         (p: string) =>
-          p ===
-            '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/package.json' ||
-          p ===
-            '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/node_modules/oh-my-opencode-slim',
+          p.replace(/\\/g, '/') ===
+            '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json' ||
+          p.replace(/\\/g, '/') ===
+            '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim',
       );
       const readSpy = spyOn(fs, 'readFileSync').mockImplementation(
         (p: string) => {
           if (
-            p ===
-            '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/package.json'
+            p.replace(/\\/g, '/') ===
+            '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/package.json'
           ) {
             return JSON.stringify({
               dependencies: {
-                'oh-my-opencode-slim': '0.9.1',
+                'oh-my-kilocode-slim': '0.9.1',
               },
             });
           }
@@ -108,21 +115,20 @@ describe('auto-update-checker/cache', () => {
 
       const result = preparePackageUpdate(
         '0.9.11',
-        'oh-my-opencode-slim',
-        '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/node_modules/oh-my-opencode-slim/package.json',
+        'oh-my-kilocode-slim',
+        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim/package.json',
       );
 
-      expect(result).toBe(
-        '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest',
+      expect(result?.replace(/\\/g, '/')).toBe(
+        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest',
       );
-      expect(rmSyncSpy).toHaveBeenCalledWith(
-        '/home/user/.cache/opencode/packages/oh-my-opencode-slim@latest/node_modules/oh-my-opencode-slim',
-        { recursive: true, force: true },
+      expect(rmSyncSpy.mock.calls[0][0].replace(/\\/g, '/')).toBe(
+        '/home/user/.cache/kilo/packages/oh-my-kilocode-slim@latest/node_modules/oh-my-kilocode-slim',
       );
       expect(writtenData.length).toBeGreaterThan(0);
       expect(JSON.parse(writtenData[0])).toEqual({
         dependencies: {
-          'oh-my-opencode-slim': '0.9.11',
+          'oh-my-kilocode-slim': '0.9.11',
         },
       });
 
@@ -134,14 +140,18 @@ describe('auto-update-checker/cache', () => {
 
     test('keeps working when dependency is already on target version', async () => {
       const existsSpy = spyOn(fs, 'existsSync').mockImplementation(
-        (p: string) =>
-          p.endsWith('/.cache/opencode/package.json') ||
-          p.endsWith('/.cache/opencode/node_modules/oh-my-opencode-slim'),
+        (p: string) => {
+          const normalized = p.replace(/\\/g, '/');
+          return (
+            normalized.endsWith('kilo/package.json') ||
+            normalized.endsWith('kilo/node_modules/oh-my-kilocode-slim')
+          );
+        },
       );
       const readSpy = spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({
           dependencies: {
-            'oh-my-opencode-slim': '1.0.1',
+            'oh-my-kilocode-slim': '1.0.1',
           },
         }),
       );
@@ -151,9 +161,9 @@ describe('auto-update-checker/cache', () => {
         `./cache?test=${importCounter++}`
       );
 
-      const result = preparePackageUpdate('1.0.1', 'oh-my-opencode-slim', null);
+      const result = preparePackageUpdate('1.0.1', 'oh-my-kilocode-slim', null);
 
-      expect(result?.endsWith('/.cache/opencode')).toBe(true);
+      expect(result?.replace(/\\/g, '/').endsWith('kilo')).toBe(true);
       expect(writeSpy).not.toHaveBeenCalled();
       expect(rmSyncSpy).toHaveBeenCalled();
 

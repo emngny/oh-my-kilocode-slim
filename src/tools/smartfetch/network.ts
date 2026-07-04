@@ -253,7 +253,7 @@ export async function fetchWithRedirects(
       signal,
       method,
       headers: {
-        'User-Agent': 'opencode-smartfetch/1.0',
+        'User-Agent': 'kilo-smartfetch/1.0',
         Accept: acceptHeader(format),
         'Accept-Language': DEFAULT_ACCEPT_LANGUAGE,
         ...extraHeaders,

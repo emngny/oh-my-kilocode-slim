@@ -59,7 +59,7 @@ describe('loop command hook', () => {
     );
     expect(text).toContain('goal, successCriteria, maxAttempts');
     expect(text).toContain('missing or unclear');
-    expect(text).toContain('.opencode/loop-history/');
+    expect(text).toContain('.kilo/loop-history/');
     expect(text).toContain('history-{NNN}.md');
     expect(text).not.toContain('attempt-{N}.md');
     expect(text).toContain('Dispatch @fixer');
