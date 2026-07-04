@@ -133,7 +133,7 @@ function isSafeDisplayName(displayName: string): boolean {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 // Agent Configuration Helpers
@@ -228,7 +228,7 @@ function injectDisplayNames(
 
   for (const [internalName, displayName] of nameMap) {
     prompt = prompt.replace(
-      new RegExp(`@${escapeRegExp(internalName)}\\b`, 'g'),
+      new RegExp(String.raw`@${escapeRegExp(internalName)}\b`, 'g'),
       `@${normalizeDisplayName(displayName)}`,
     );
   }
@@ -361,8 +361,7 @@ export function createAgents(
       const inlinePrompt = override?.prompt;
       const defaultPrompt = agent.config.prompt ?? '';
 
-      const basePrompt =
-        inlinePrompt !== undefined ? inlinePrompt : defaultPrompt;
+      const basePrompt = inlinePrompt ?? defaultPrompt;
       agent.config.prompt = resolvePrompt(
         basePrompt,
         customPrompts.prompt,
@@ -497,8 +496,7 @@ export function createAgents(
   const inlineChiefPrompt = chiefOverride?.prompt;
   const defaultChiefPrompt = chief.config.prompt ?? '';
 
-  const baseChiefPrompt =
-    inlineChiefPrompt !== undefined ? inlineChiefPrompt : defaultChiefPrompt;
+  const baseChiefPrompt = inlineChiefPrompt ?? defaultChiefPrompt;
   chief.config.prompt = resolvePrompt(
     baseChiefPrompt,
     chiefPrompts.prompt,
@@ -536,10 +534,11 @@ export function createAgents(
   const acpChiefPrompts = acpSubAgents.map((agent) => {
     const acp = config?.acpAgents?.[agent.name];
     if (acp?.chiefPrompt) return acp.chiefPrompt;
+    const fallbackRole = `External ACP agent ${agent.name}`;
     return [
       `@${agent.name}`,
       `- Lane: External ACP-connected agent (${acp?.command ?? 'unknown command'})`,
-      `- Role: ${agent.description ?? `External ACP agent ${agent.name}`}`,
+      `- Role: ${agent.description ?? fallbackRole}`,
       '- **Delegate when:** The user explicitly asks for this ACP-backed agent, or the task matches its role and benefits from software/subscription-specific capabilities outside KiloCode.',
       '- **Do not delegate when:** The built-in specialists can handle the task more directly or local file ownership would conflict with another writer lane.',
       '- **Result handling:** Treat returned output as external-agent work. Reconcile any reported file changes before continuing.',
@@ -581,7 +580,7 @@ export function createAgents(
     let text = promptText;
     for (const [internalName, displayName] of displayNameMap) {
       text = text.replace(
-        new RegExp(`@${escapeRegExp(internalName)}\\b`, 'g'),
+        new RegExp(String.raw`@${escapeRegExp(internalName)}\b`, 'g'),
         `@${normalizeDisplayName(displayName)}`,
       );
     }
@@ -673,8 +672,10 @@ export function getAgentConfigs(
       : undefined;
 
     if (normalizedDisplayName && !isInternalOnly(a.name)) {
-      entries.push([normalizedDisplayName, sdkConfig]);
-      entries.push([a.name, { ...sdkConfig, hidden: true }]);
+      entries.push(
+        [normalizedDisplayName, sdkConfig],
+        [a.name, { ...sdkConfig, hidden: true }],
+      );
       continue;
     }
 
@@ -689,8 +690,7 @@ export function getAgentConfigs(
  */
 export function getDisabledAgents(config?: PluginConfig): Set<string> {
   const userDisabled = config?.disabled_agents;
-  const disabledSource =
-    userDisabled !== undefined ? userDisabled : DEFAULT_DISABLED_AGENTS;
+  const disabledSource = userDisabled ?? DEFAULT_DISABLED_AGENTS;
   const disabled = new Set<string>();
   for (const name of disabledSource) {
     if (!PROTECTED_AGENTS.has(name)) {
