@@ -25,7 +25,7 @@ import {
   writeLiteConfig,
 } from './config-manager';
 import { CUSTOM_SKILLS } from './custom-skills';
-import { getExistingLiteConfigPath } from './paths';
+import { getExistingLiteConfigPath, getKiloCodeConfigPaths } from './paths';
 import type { ConfigMergeResult, InstallArgs, InstallConfig } from './types';
 
 // Colors
@@ -123,26 +123,46 @@ async function checkKiloCodeInstalled(): Promise<{
   ok: boolean;
   version?: string;
   path?: string;
+  source?: 'cli' | 'config';
 }> {
   const installed = await isKiloCodeInstalled();
-  if (!installed) {
-    printError('KiloCode is not installed on this system.');
-    printInfo('Install it with:');
-    console.log(
-      `     ${BLUE}curl -fsSL https://kilo.ai/install | bash${RESET}`,
-    );
-    console.log();
-    printInfo('Or if already installed, add it to your PATH:');
-    console.log(`     ${BLUE}export PATH="$HOME/.local/bin:$PATH"${RESET}`);
-    console.log(`     ${BLUE}export PATH="$HOME/.kilo/bin:$PATH"${RESET}`);
-    return { ok: false };
+  if (installed) {
+    const version = await getKiloCodeVersion();
+    const path = getKiloCodePath();
+    const detectedVersion = version ?? '';
+    const pathInfo = path ? ` (${DIM}${path}${RESET})` : '';
+    printSuccess(`KiloCode ${detectedVersion} detected${pathInfo}`);
+    return {
+      ok: true,
+      version: version ?? undefined,
+      path: path ?? undefined,
+      source: 'cli',
+    };
   }
-  const version = await getKiloCodeVersion();
-  const path = getKiloCodePath();
-  const detectedVersion = version ?? '';
-  const pathInfo = path ? ` (${DIM}${path}${RESET})` : '';
-  printSuccess(`KiloCode ${detectedVersion} detected${pathInfo}`);
-  return { ok: true, version: version ?? undefined, path: path ?? undefined };
+
+  // Fallback: VSCode extension creates kilo.json/kilo.jsonc on first run.
+  // If the config file already exists, the extension is in use and we can
+  // safely modify it (the CLI is not strictly required).
+  const existingConfig = getKiloCodeConfigPaths().find((p) => existsSync(p));
+  if (existingConfig) {
+    printSuccess(
+      `KiloCode config detected (${DIM}${existingConfig}${RESET}) — extension-only install`,
+    );
+    return { ok: true, path: existingConfig, source: 'config' };
+  }
+
+  printError('KiloCode is not installed on this system.');
+  printInfo('Install it with:');
+  console.log(`     ${BLUE}curl -fsSL https://kilo.ai/install | bash${RESET}`);
+  console.log();
+  printInfo('Or if already installed, add it to your PATH:');
+  console.log(`     ${BLUE}export PATH="$HOME/.local/bin:$PATH"${RESET}`);
+  console.log(`     ${BLUE}export PATH="$HOME/.kilo/bin:$PATH"${RESET}`);
+  console.log();
+  printInfo(
+    'Or install the VSCode extension and open it once to create the config file.',
+  );
+  return { ok: false };
 }
 
 export async function configureBackgroundSubagents(
