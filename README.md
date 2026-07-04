@@ -23,20 +23,6 @@ The main idea is simple: instead of forcing one model to do everything, the plug
 
 To explore the agents themselves, see **[Meet the Pantheon](#meet-the-pantheon)**. For the full feature set, see **[Features & Workflows](#features-and-workflows)** below.
 
-### Manage Agent Skills with LazySkills
-
-<p align="center">
-  <a href="https://github.com/alvinunreal/lazyskills">
-    <img src="img/lazyskills-wide.svg" alt="LazySkills" width="720">
-  </a>
-</p>
-
-**[LazySkills](https://github.com/alvinunreal/lazyskills)** is a terminal UI for managing agent skills. It gives you one place to see what is installed, which agents can use each skill, why visibility may be broken, and what actions are safe to run next.
-
-<p align="center">
-  <a href="https://github.com/alvinunreal/lazyskills"><b>Explore LazySkills →</b></a>
-</p>
-
 ### What Users Say
 
 > “Task management went from 5/10 to 8-9/10 easily. The Chief sends
