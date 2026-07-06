@@ -60,7 +60,7 @@
     "contributors:generate": "all-contributors generate",
     "generate-schema": "bun run scripts/generate-schema.ts",
     "verify:release": "bun run scripts/verify-release-artifact.ts",
-    "verify:host-smoke": "bun run scripts/verify-kilo-host-smoke.ts",
+    "verify:host-smoke": "bun run scripts/verify-kilocode-host-smoke.ts",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "lint": "biome lint .",

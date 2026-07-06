@@ -23,7 +23,7 @@ function fail(message: string): never {
 function run(
   command: string,
   args: string[],
-  options: { cwd?: string; env?: Record<string, string> } = {},
+  options: { cwd?: string; env?: Record<string, string>; shell?: boolean } = {},
 ) {
   const result = spawnSync(command, args, {
     cwd: options.cwd ?? repoRoot,
@@ -33,6 +33,7 @@ function run(
     },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    shell: options.shell ?? false,
   });
 
   if (result.status !== 0) {
@@ -59,7 +60,10 @@ function parsePackJson(output: string) {
 }
 
 function packArtifact() {
-  const output = run('npm', ['pack', '--json', '--ignore-scripts']);
+  // On Windows, npm is npm.cmd — Bun's spawnSync needs shell to resolve it
+  const output = run('npm', ['pack', '--json', '--ignore-scripts'], {
+    shell: process.platform === 'win32',
+  });
   const parsed = parsePackJson(output);
   const tarball = parsed[0]?.filename;
   if (!tarball) fail(`npm pack did not return a tarball filename:\n${output}`);

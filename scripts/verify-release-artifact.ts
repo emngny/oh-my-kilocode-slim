@@ -45,11 +45,16 @@ function fail(message: string): never {
   throw new Error(message);
 }
 
-function run(command: string, args: string[], options: { cwd?: string } = {}) {
+function run(
+  command: string,
+  args: string[],
+  options: { cwd?: string; shell?: boolean } = {},
+) {
   const result = spawnSync(command, args, {
     cwd: options.cwd ?? repoRoot,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    shell: options.shell ?? false,
   });
 
   if (result.status !== 0) {
@@ -117,6 +122,7 @@ function packArtifact() {
   console.log('Packing npm artifact...');
   const output = run('npm', ['pack', '--json', '--ignore-scripts'], {
     cwd: repoRoot,
+    shell: process.platform === 'win32',
   });
   const parsed = parsePackJson(output);
   const tarball = parsed[0]?.filename;
