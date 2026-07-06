@@ -162,6 +162,7 @@ function verifyFreshInstall(tarballPath: string) {
     const installedEntry = path.join(
       installDir,
       'node_modules',
+      '@emngny',
       'oh-my-kilocode-slim',
       'dist',
       'index.js',
@@ -177,7 +178,7 @@ function verifyFreshInstall(tarballPath: string) {
     }
 
     const smokeScript = [
-      "import pkg from 'oh-my-kilocode-slim';",
+      "import pkg from '@emngny/oh-my-kilocode-slim/server';",
       "if (typeof pkg !== 'function') throw new Error('default export is not a function');",
       "console.log('package loads');",
       'process.exit(0);',
