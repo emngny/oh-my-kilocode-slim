@@ -3,10 +3,10 @@
   "tag": "companion-v0.1.3",
   "repo": "emngny/oh-my-kilocode-slim",
   "checksums": {
-    "oh-my-kilocode-slim-companion-v0.1.3-aarch64-apple-darwin.tar.gz": "b4885f9b1900c02376e5f8f5ae6f3b8a89d26f7514b03f836d7e3d618164a0ed",
-    "oh-my-kilocode-slim-companion-v0.1.3-aarch64-unknown-linux-gnu.tar.gz": "ed7cffc583e1eaa78c9bea702e6b6aa3bbc5bb4d881713fb2050237ba6b7aca5",
-    "oh-my-kilocode-slim-companion-v0.1.3-x86_64-apple-darwin.tar.gz": "98d8ea7c7bc4415b18e0d4c524adb4eb9a84c872919840fdc021f0f50c61f808",
-    "oh-my-kilocode-slim-companion-v0.1.3-x86_64-pc-windows-msvc.zip": "9316a49bf01f3b4fb1ce2d62edfc46094e73bb153d6ce023fb7df085afcf77bd",
-    "oh-my-kilocode-slim-companion-v0.1.3-x86_64-unknown-linux-gnu.tar.gz": "33f5fd4b6c80155a019391e5efb13904ca9531ba8dd8c6cba30a161f1b07b764"
+    "oh-my-kilocode-slim-companion-v0.1.3-aarch64-apple-darwin.tar.gz": "264eaac81d056e904bcea4822b8f188ca75d6abdc43be3b0d171c05de5c30020",
+    "oh-my-kilocode-slim-companion-v0.1.3-aarch64-unknown-linux-gnu.tar.gz": "48ce94f8dc104bf365a99024d3e7edaf113531f146b1c574fee57b6ce20657ed",
+    "oh-my-kilocode-slim-companion-v0.1.3-x86_64-apple-darwin.tar.gz": "e6508e9a0b40b6c23e19be72f008fc723f623e68a86b173c5c96b35d04aca12a",
+    "oh-my-kilocode-slim-companion-v0.1.3-x86_64-pc-windows-msvc.zip": "d9bc2400406e1406dd7393fb804ba562eaeaf205c8abf4af2928100955b7f379",
+    "oh-my-kilocode-slim-companion-v0.1.3-x86_64-unknown-linux-gnu.tar.gz": "dd13209acfa17fc108af1ca793a917399913f3bc68a332f6d91586f756f1698c"
   }
 }
