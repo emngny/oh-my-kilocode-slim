@@ -201,8 +201,8 @@ async function verifyHostSmoke(tarballPath: string) {
       ),
     );
 
-    console.log('Installing kilo-ai into isolated test root...');
-    run('bun', ['add', 'kilo-ai@latest'], { cwd: hostDir });
+    console.log('Installing @kilocode/cli into isolated test root...');
+    run('bun', ['add', '@kilocode/cli@latest'], { cwd: hostDir });
 
     const kiloBin = path.join(hostDir, 'node_modules', '.bin', 'kilo');
     if (!existsSync(kiloBin)) {
