@@ -37,19 +37,19 @@ describe('background subagents helpers', () => {
   test('detects shell startup targets including fish XDG config', () => {
     expect(
       detectBackgroundSubagentsTarget({ SHELL: '/bin/zsh' })
-        ?.replace(/\\/g, '/')
+        ?.replaceAll('\\', '/')
         .endsWith('/.zshrc'),
     ).toBe(true);
     expect(
       detectBackgroundSubagentsTarget({ SHELL: '/bin/bash' })
-        ?.replace(/\\/g, '/')
+        ?.replaceAll('\\', '/')
         .endsWith('/.bashrc'),
     ).toBe(true);
     expect(
       detectBackgroundSubagentsTarget({
         SHELL: '/usr/bin/fish',
         XDG_CONFIG_HOME: '/tmp/xdg',
-      })?.replace(/\\/g, '/'),
+      })?.replaceAll('\\', '/'),
     ).toBe('/tmp/xdg/fish/conf.d/kilo-background-subagents.fish');
   });
 
@@ -189,7 +189,7 @@ describe('configureBackgroundSubagents', () => {
       });
 
       expect(
-        result.configuredTarget?.replace(/\\/g, '/').endsWith('/.zshrc'),
+        result.configuredTarget?.replaceAll('\\', '/').endsWith('/.zshrc'),
       ).toBe(true);
       expect(readFileSync(join(tempDir, '.zshrc'), 'utf8')).toContain(
         'KILOCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS',

@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, test } from 'bun:test';
 import {
   createServer,
@@ -310,7 +311,7 @@ describe('readJsonBody', () => {
       // Give the server a tick to finish processing
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(caughtError).not.toBeNull();
-      expect(caughtError?.message).toContain('too large');
+      expect((caughtError as any).message).toContain('too large');
     } finally {
       server.close();
     }

@@ -6,6 +6,8 @@ import {
   createChatHeadersHook,
 } from './chat-headers';
 
+type TestOutput = { headers: Record<string, string> };
+
 function createMockContext(parts: unknown[] = []) {
   return {
     client: {
@@ -105,7 +107,7 @@ describe('createChatHeadersHook', () => {
       createInternalAgentTextPart('internal notification'),
     ]);
     const hook = createChatHeadersHook(ctx);
-    const output = { headers: {} };
+    const output: TestOutput = { headers: {} };
 
     await hook['chat.headers'](createInput(), output);
 
@@ -117,7 +119,7 @@ describe('createChatHeadersHook', () => {
       createInternalAgentTextPart('internal notification'),
     ]);
     const hook = createChatHeadersHook(ctx);
-    const output = { headers: {} };
+    const output: TestOutput = { headers: {} };
 
     await hook['chat.headers'](
       createInput({ providerID: 'anthropic' }),
@@ -132,7 +134,7 @@ describe('createChatHeadersHook', () => {
       createInternalAgentTextPart('internal notification'),
     ]);
     const hook = createChatHeadersHook(ctx);
-    const output = { headers: {} };
+    const output: TestOutput = { headers: {} };
 
     await hook['chat.headers'](
       createInput({ npm: '@ai-sdk/github-copilot' }),
@@ -145,7 +147,7 @@ describe('createChatHeadersHook', () => {
   test('skips normal user messages', async () => {
     const ctx = createMockContext([{ type: 'text', text: 'normal prompt' }]);
     const hook = createChatHeadersHook(ctx);
-    const output = { headers: {} };
+    const output: TestOutput = { headers: {} };
 
     await hook['chat.headers'](
       createInput({ messageID: 'message-normal' }),
@@ -160,8 +162,8 @@ describe('createChatHeadersHook', () => {
       createInternalAgentTextPart('internal notification'),
     ]);
     const hook = createChatHeadersHook(ctx);
-    const firstOutput = { headers: {} };
-    const secondOutput = { headers: {} };
+    const firstOutput: TestOutput = { headers: {} };
+    const secondOutput: TestOutput = { headers: {} };
 
     await hook['chat.headers'](
       createInput({ messageID: 'message-internal' }),
@@ -199,8 +201,8 @@ describe('createChatHeadersHook', () => {
       },
     } as unknown as PluginInput;
     const hook = createChatHeadersHook(ctx);
-    const firstOutput = { headers: {} };
-    const secondOutput = { headers: {} };
+    const firstOutput: TestOutput = { headers: {} };
+    const secondOutput: TestOutput = { headers: {} };
 
     await hook['chat.headers'](
       createInput({ messageID: 'message-retry' }),

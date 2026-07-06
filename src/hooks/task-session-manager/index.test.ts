@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, mock, test } from 'bun:test';
 import { BackgroundJobBoard } from '../../utils';
 import { createTaskSessionManagerHook } from './index';
@@ -73,10 +74,10 @@ describe('task-session-manager hook', () => {
     await hook['experimental.chat.messages.transform']({}, messages as never);
 
     expect(messages.messages).toHaveLength(5);
-    expect(messages.messages[4].parts[0].text).toContain(
+    expect(messages.messages[4]?.parts?.[0]?.text).toContain(
       '### Background Job Board',
     );
-    expect(messages.messages[4].parts[0].text).toContain(
+    expect(messages.messages[4]?.parts?.[0]?.text).toContain(
       'exp-1 / child-1 / explorer / running',
     );
   });
@@ -1663,9 +1664,11 @@ describe('task-session-manager hook', () => {
     const next = createMessages('parent-1', 'reuse');
     await hook['experimental.chat.messages.transform']({}, next);
     const prompt = next.messages[0].parts[0].text;
-    expect(prompt.replace(/\\/g, '/')).not.toContain('small.ts');
-    expect(prompt.replace(/\\/g, '/')).toContain('src/large.ts (12 lines)');
-    expect(prompt.replace(/\\/g, '/')).not.toContain('src/large.ts (18 lines)');
+    expect(prompt.replaceAll('\\', '/')).not.toContain('small.ts');
+    expect(prompt.replaceAll('\\', '/')).toContain('src/large.ts (12 lines)');
+    expect(prompt.replaceAll('\\', '/')).not.toContain(
+      'src/large.ts (18 lines)',
+    );
     expect(prompt).toContain('(+1 more)');
   });
 

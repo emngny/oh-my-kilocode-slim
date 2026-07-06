@@ -42,7 +42,7 @@ function isImagePart(p: ImagePart): boolean {
 }
 
 function decodeDataUrl(url: string): { mime: string; data: Buffer } | null {
-  const match = url.match(/^data:([^;]+);base64,(.+)$/);
+  const match = /^data:([^;]+);base64,(.+)$/.exec(url);
   if (!match) return null;
   return { mime: match[1], data: Buffer.from(match[2], 'base64') };
 }

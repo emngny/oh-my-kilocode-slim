@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, mock, test } from 'bun:test';
 import * as fs from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -62,9 +63,10 @@ function extractInterviewIdFromLastPrompt(promptMock: {
   if (calls.length === 0) return null;
 
   // Get the last call
-  const lastCall = calls[calls.length - 1];
+  const lastCall = calls.at(-1);
+  if (!lastCall) return null;
   const text = lastCall[0].body?.parts?.[0]?.text ?? '';
-  const match = text.match(/interview\/([^\s]+)/);
+  const match = /interview\/([^\s]+)/.exec(text);
   return match ? match[1] : null;
 }
 
@@ -481,7 +483,7 @@ describe('interview service', () => {
       }
 
       // Second submission should be rejected immediately (busy lock held)
-      await expect(
+      expect(
         service.submitAnswers(requiredInterviewId, [
           { questionId: 'q-1', answer: 'Mobile' },
         ]),
@@ -539,14 +541,14 @@ describe('interview service', () => {
       });
 
       // First submission with invalid answer (wrong question ID)
-      await expect(
+      expect(
         service.submitAnswers(requiredInterviewId, [
           { questionId: 'invalid-id', answer: 'Web' },
         ]),
       ).rejects.toThrow('Answers do not match the current interview questions');
 
       // Second submission with correct answer should succeed (lock was released)
-      await expect(
+      expect(
         service.submitAnswers(requiredInterviewId, [
           { questionId: 'q-1', answer: 'Web' },
         ]),
@@ -600,7 +602,7 @@ describe('interview service', () => {
       const requiredInterviewId = requireInterviewId(interviewId);
 
       // Submission with no active questions should fail and release lock
-      await expect(
+      expect(
         service.submitAnswers(requiredInterviewId, [
           { questionId: 'q-1', answer: 'Web' },
         ]),
@@ -1704,7 +1706,7 @@ describe('renderInterviewPage', () => {
     // JSON.stringify escapes quotes as \"
     expect(html).toContain('const interviewId = ');
     // The actual output has escaped quotes for JavaScript string
-    expect(html).toContain('"test\\"onclick\\"evil"');
+    expect(html).toContain(String.raw`"test\"onclick\"evil"`);
   });
 
   test('does not inject raw interviewId into HTML title', () => {
@@ -1776,6 +1778,10 @@ describe('interview server port configuration', () => {
     listInterviewFiles: mock(async () => []),
     listInterviews: mock(() => []),
     submitAnswers: mock(async (_id: string, _answers: InterviewAnswer[]) => {}),
+    submitBlockComment: mock(
+      async (_id: string, _section: string, _comment: string) => {},
+    ),
+    submitChat: mock(async (_id: string, _message: string) => {}),
     handleNudgeAction: mock(
       async (_id: string, _action: 'more-questions' | 'confirm-complete') => {},
     ),
@@ -1852,7 +1858,7 @@ describe('interview server port configuration', () => {
       port: occupiedPort,
     });
     try {
-      await expect(server.ensureStarted()).rejects.toThrow(
+      expect(server.ensureStarted()).rejects.toThrow(
         `Interview server port ${occupiedPort} is already in use`,
       );
     } finally {
@@ -1896,27 +1902,27 @@ describe('InterviewConfigSchema port validation', () => {
   });
 });
 
+async function createInterviewOnSession(
+  service: ReturnType<typeof createInterviewService>,
+  ctx: ReturnType<typeof createMockContext>,
+  index: number,
+): Promise<string> {
+  const output = { parts: [] as Array<{ type: string; text?: string }> };
+  await service.handleCommandExecuteBefore(
+    {
+      command: 'interview',
+      sessionID: `session-${index}`,
+      arguments: `Idea ${index}`,
+    },
+    output,
+  );
+  return requireInterviewId(
+    extractInterviewIdFromLastPrompt(ctx.client.session.prompt),
+  );
+}
+
 describe('interview service abandoned-record retention', () => {
   const RETENTION_CAP = MAX_RETAINED_ABANDONED;
-
-  async function createInterviewOnSession(
-    service: ReturnType<typeof createInterviewService>,
-    ctx: ReturnType<typeof createMockContext>,
-    index: number,
-  ): Promise<string> {
-    const output = { parts: [] as Array<{ type: string; text?: string }> };
-    await service.handleCommandExecuteBefore(
-      {
-        command: 'interview',
-        sessionID: `session-${index}`,
-        arguments: `Idea ${index}`,
-      },
-      output,
-    );
-    return requireInterviewId(
-      extractInterviewIdFromLastPrompt(ctx.client.session.prompt),
-    );
-  }
 
   test('evicts oldest abandoned records once the retention cap is exceeded', async () => {
     const tempDir = await fs.mkdtemp('/tmp/interview-test-');
@@ -1938,15 +1944,16 @@ describe('interview service abandoned-record retention', () => {
       }
 
       // The two oldest abandoned records are evicted from the registry.
-      await expect(service.getInterviewState(ids[0])).rejects.toThrow(
+      expect(service.getInterviewState(ids[0])).rejects.toThrow(
         'Interview not found',
       );
-      await expect(service.getInterviewState(ids[1])).rejects.toThrow(
+      expect(service.getInterviewState(ids[1])).rejects.toThrow(
         'Interview not found',
       );
 
       // The most recent abandoned record is retained and still renders.
-      const retained = await service.getInterviewState(ids[ids.length - 1]);
+      const lastId = ids.at(-1) ?? '';
+      const retained = await service.getInterviewState(lastId);
       expect(retained.mode).toBe('abandoned');
     } finally {
       await fs.rm(tempDir, { recursive: true, force: true });
@@ -1984,16 +1991,16 @@ describe('interview service abandoned-record retention', () => {
         },
       });
 
-      await expect(service.getInterviewState(abandonedIds[0])).rejects.toThrow(
+      expect(service.getInterviewState(abandonedIds[0])).rejects.toThrow(
         'Interview not found',
       );
 
       const oldActiveState = await service.getInterviewState(oldActiveId);
       expect(oldActiveState.mode).toBe('abandoned');
 
-      const latestPreviouslyAbandoned = await service.getInterviewState(
-        abandonedIds[abandonedIds.length - 1],
-      );
+      const lastAbandonedId = abandonedIds.at(-1) ?? '';
+      const latestPreviouslyAbandoned =
+        await service.getInterviewState(lastAbandonedId);
       expect(latestPreviouslyAbandoned.mode).toBe('abandoned');
     } finally {
       await fs.rm(tempDir, { recursive: true, force: true });

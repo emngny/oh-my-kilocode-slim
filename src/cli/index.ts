@@ -128,8 +128,10 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
-  main().catch((err) => {
+  try {
+    await main();
+  } catch (err) {
     console.error('Fatal error:', err);
     process.exit(1);
-  });
+  }
 }

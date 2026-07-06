@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, mock, test } from 'bun:test';
 import * as fs from 'node:fs/promises';
 import { createServer as createHttpServer } from 'node:http';

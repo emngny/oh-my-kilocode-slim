@@ -77,7 +77,7 @@ export function extractReadFiles(
       : relative;
 
   const matchedLines = new Set<number>();
-  for (const match of output.output.matchAll(/^([0-9]+):/gm)) {
+  for (const match of output.output.matchAll(/^(\d+):/gm)) {
     matchedLines.add(Number(match[1]));
   }
   const lineNumbers = [...matchedLines];

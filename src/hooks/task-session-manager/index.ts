@@ -31,15 +31,13 @@ interface TaskArgs {
 }
 
 const BACKGROUND_JOB_BOARD_SENTINEL = 'SENTINEL: background-job-board-v2';
-const BACKGROUND_COMPLETION_COMPLETED = /^Background task completed: /;
-const BACKGROUND_COMPLETION_FAILED = /^Background task failed: /;
 const MAX_PROCESSED_INJECTED_COMPLETIONS = 500;
 const RAW_SESSION_ID_PATTERN = /^ses_[A-Za-z0-9_-]+$/;
 
 function djb2Hash(str: string): string {
   let hash = 5381;
   for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) + hash + str.charCodeAt(i);
+    hash = (hash << 5) + hash + (str.codePointAt(i) ?? 0);
   }
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
@@ -74,6 +72,15 @@ function createOccurrenceId(
 function extractTaskSummary(output: string): string | undefined {
   const summary = /<summary>\s*([\s\S]*?)\s*<\/summary>/i.exec(output)?.[1];
   return summary?.trim() || undefined;
+}
+
+function isMissingRememberedSessionError(output: string): boolean {
+  const firstLine = output.split(/\r?\n/, 1)[0]?.trim().toLowerCase() ?? '';
+  return (
+    firstLine.startsWith('[error]') &&
+    firstLine.includes('session') &&
+    (firstLine.includes('not found') || firstLine.includes('no session'))
+  );
 }
 
 export function createTaskSessionManagerHook(
@@ -184,10 +191,10 @@ export function createTaskSessionManagerHook(
 
     const summary = extractTaskSummary(part.text);
     const isCompleted = summary
-      ? BACKGROUND_COMPLETION_COMPLETED.test(summary)
+      ? summary.startsWith('Background task completed: ')
       : status.state === 'completed';
     const isFailed = summary
-      ? BACKGROUND_COMPLETION_FAILED.test(summary)
+      ? summary.startsWith('Background task failed: ')
       : status.state === 'error';
     if (summary && !isCompleted && !isFailed) return undefined;
 
@@ -243,15 +250,6 @@ export function createTaskSessionManagerHook(
       if (!evicted) break;
       processedInjectedCompletions.delete(evicted);
     }
-  }
-
-  function isMissingRememberedSessionError(output: string): boolean {
-    const firstLine = output.split(/\r?\n/, 1)[0]?.trim().toLowerCase() ?? '';
-    return (
-      firstLine.startsWith('[error]') &&
-      firstLine.includes('session') &&
-      (firstLine.includes('not found') || firstLine.includes('no session'))
-    );
   }
 
   function rememberInjectedTerminalJobs(parentSessionID: string): void {

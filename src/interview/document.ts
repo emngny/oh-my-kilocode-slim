@@ -105,8 +105,8 @@ export function slugify(value: string): string {
 
 function extractHistorySection(document: string): string {
   const marker = /## Q&A history/i;
-  const match = document.match(marker);
-  if (!match || match.index === undefined) return '';
+  const match = new RegExp(marker).exec(document);
+  if (match?.index === undefined) return '';
   return document.slice(match.index + match[0].length).trim();
 }
 
@@ -118,16 +118,16 @@ export function extractSummarySection(document: string): string {
   }
   const summaryStart = start + marker.length;
   const historyMarker = /\n\n## Q&A history/i;
-  const historyMatch = document.slice(summaryStart).match(historyMarker);
+  const historyMatch = historyMarker.exec(document.slice(summaryStart));
   const summaryEnd =
-    historyMatch?.index !== undefined
-      ? summaryStart + historyMatch.index
-      : undefined;
+    historyMatch?.index === undefined
+      ? undefined
+      : summaryStart + historyMatch.index;
   return document.slice(summaryStart, summaryEnd).trim();
 }
 
 export function extractTitle(document: string): string {
-  const match = document.match(/^#\s+(.+)$/m);
+  const match = /^#\s+(.+)$/m.exec(document);
   return match?.[1]?.trim() ?? '';
 }
 
@@ -185,7 +185,7 @@ export function buildInterviewDocument(
 export function parseFrontmatter(
   content: string,
 ): Record<string, string> | null {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n/);
+  const match = new RegExp(/^---\n([\s\S]*?)\n---\n/).exec(content);
   if (!match) return null;
   const result: Record<string, string> = {};
   for (const line of match[1].split('\n')) {
@@ -297,7 +297,7 @@ export function parseSpecBlocks(markdown: string): SpecBlock[] {
       break;
     }
 
-    const headerMatch = line.match(/^##\s+(\d+)\.\s+(.+)$/);
+    const headerMatch = /^##\s+(\d+)\.\s+(.+)$/.exec(line);
     if (headerMatch) {
       flush();
       const num = headerMatch[1];

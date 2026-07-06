@@ -50,8 +50,7 @@ function repairJsonNewlines(json: string): string {
   let result = '';
   let inString = false;
   let escaped = false;
-  for (let i = 0; i < json.length; i++) {
-    const char = json[i];
+  for (const char of json) {
     if (inString) {
       if (escaped) {
         result += char;
@@ -63,9 +62,9 @@ function repairJsonNewlines(json: string): string {
         result += char;
         inString = false;
       } else if (char === '\n') {
-        result += '\\n';
+        result += String.raw`\n`;
       } else if (char === '\r') {
-        result += '\\r';
+        result += String.raw`\r`;
       } else {
         result += char;
       }
@@ -109,7 +108,7 @@ export function parseAssistantState(
   state: InterviewAssistantState | null;
   error?: string;
 } {
-  const match = text.match(INTERVIEW_BLOCK_REGEX);
+  const match = INTERVIEW_BLOCK_REGEX.exec(text);
   if (!match) {
     return { state: null };
   }

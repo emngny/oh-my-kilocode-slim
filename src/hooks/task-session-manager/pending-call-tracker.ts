@@ -27,7 +27,7 @@ export function createPendingCallTracker() {
       if (!callId && parentSessionId) {
         for (const id of pendingCalls.keys()) {
           const call = pendingCalls.get(id);
-          if (call && call.parentSessionId === parentSessionId) {
+          if (call?.parentSessionId === parentSessionId) {
             callId = id;
             break;
           }

@@ -47,20 +47,20 @@ function parseAnswersPayload(value: unknown): { answers: InterviewAnswer[] } {
   }
   const answersRaw = (value as { answers?: unknown }).answers;
   if (!Array.isArray(answersRaw)) {
-    throw new Error('Invalid answers payload.');
+    throw new TypeError('Invalid answers payload.');
   }
 
   return {
     answers: answersRaw.map((answer) => {
       if (!answer || typeof answer !== 'object') {
-        throw new Error('Invalid answers payload.');
+        throw new TypeError('Invalid answers payload.');
       }
       const record = answer as { questionId?: unknown; answer?: unknown };
       if (
         typeof record.questionId !== 'string' ||
         typeof record.answer !== 'string'
       ) {
-        throw new Error('Invalid answers payload.');
+        throw new TypeError('Invalid answers payload.');
       }
       return {
         questionId: record.questionId.trim(),
@@ -156,7 +156,7 @@ export function createInterviewServer(deps: {
       return;
     }
 
-    const stateMatch = pathname.match(/^\/api\/interviews\/([^/]+)\/state$/);
+    const stateMatch = /^\/api\/interviews\/([^/]+)\/state$/.exec(pathname);
     if (request.method === 'GET' && stateMatch) {
       try {
         const state = await deps.getState(decodeURIComponent(stateMatch[1]));
@@ -175,9 +175,7 @@ export function createInterviewServer(deps: {
     // Content-Type: application/json (it triggers a preflight, which
     // 404s here). Do NOT add Access-Control-Allow-Origin without also
     // adding an Origin check or CSRF token.
-    const answersMatch = pathname.match(
-      /^\/api\/interviews\/([^/]+)\/answers$/,
-    );
+    const answersMatch = /^\/api\/interviews\/([^/]+)\/answers$/.exec(pathname);
     if (request.method === 'POST' && answersMatch) {
       try {
         const body = parseAnswersPayload(await readJsonBody(request));
@@ -201,9 +199,8 @@ export function createInterviewServer(deps: {
       return;
     }
 
-    const blockCommentMatch = pathname.match(
-      /^\/api\/interviews\/([^/]+)\/block-comment$/,
-    );
+    const blockCommentMatch =
+      /^\/api\/interviews\/([^/]+)\/block-comment$/.exec(pathname);
     if (request.method === 'POST' && blockCommentMatch) {
       try {
         const body = (await readJsonBody(request)) as {
@@ -240,7 +237,7 @@ export function createInterviewServer(deps: {
     }
 
     // ── Chat: freeform message to agent ─────────────────────────────
-    const chatMatch = pathname.match(/^\/api\/interviews\/([^/]+)\/chat$/);
+    const chatMatch = /^\/api\/interviews\/([^/]+)\/chat$/.exec(pathname);
     if (request.method === 'POST' && chatMatch) {
       try {
         const body = (await readJsonBody(request)) as {
@@ -272,7 +269,7 @@ export function createInterviewServer(deps: {
     }
 
     // Nudge: ask more questions or confirm complete
-    const nudgeMatch = pathname.match(/^\/api\/interviews\/([^/]+)\/nudge$/);
+    const nudgeMatch = /^\/api\/interviews\/([^/]+)\/nudge$/.exec(pathname);
     if (request.method === 'POST' && nudgeMatch) {
       try {
         const body = (await readJsonBody(request)) as {
@@ -304,6 +301,17 @@ export function createInterviewServer(deps: {
     sendJson(response, 404, { error: 'Not found' });
   }
 
+  function serverListener(
+    request: IncomingMessage,
+    response: ServerResponse,
+  ): void {
+    handle(request, response).catch((error) => {
+      sendJson(response, 500, {
+        error: error instanceof Error ? error.message : 'Internal server error',
+      });
+    });
+  }
+
   async function ensureStarted(): Promise<string> {
     if (baseUrl) {
       return baseUrl;
@@ -314,14 +322,7 @@ export function createInterviewServer(deps: {
     }
 
     startPromise = new Promise((resolve, reject) => {
-      const server = createServer((request, response) => {
-        handle(request, response).catch((error) => {
-          sendJson(response, 500, {
-            error:
-              error instanceof Error ? error.message : 'Internal server error',
-          });
-        });
-      });
+      const server = createServer(serverListener);
       server.requestTimeout = 30_000;
       server.headersTimeout = 10_000;
 

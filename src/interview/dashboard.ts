@@ -133,6 +133,12 @@ function hasLiveForSlug(
   );
 }
 
+function handleServerError(response: ServerResponse, error: unknown): void {
+  sendJson(response, 500, {
+    error: error instanceof Error ? error.message : 'Internal server error',
+  });
+}
+
 // ─── Types ────────────────────────────────────────────────────────────
 
 interface RegisteredSession {
@@ -287,7 +293,7 @@ export function createDashboardServer(config: DashboardConfig): {
   function isAuthenticated(request: IncomingMessage): boolean {
     // 1. Check HttpOnly cookie (browser requests)
     const cookieHeader = request.headers.cookie ?? '';
-    const cookieMatch = cookieHeader.match(/(?:^|;\s*)dashboard_token=([^;]+)/);
+    const cookieMatch = /(?:^|;\s*)dashboard_token=([^;]+)/.exec(cookieHeader);
     if (cookieMatch?.[1] === authToken) return true;
     // 2. Check query param (inter-process: session → dashboard)
     const url = new URL(request.url ?? '/', `http://${request.headers.host}`);
@@ -403,7 +409,7 @@ export function createDashboardServer(config: DashboardConfig): {
       }
     }
 
-    const sorted = items.sort((a, b) => a.title.localeCompare(b.title));
+    const sorted = items.toSorted((a, b) => a.title.localeCompare(b.title));
     fileCache = { items: sorted, at: Date.now() };
     return sorted;
   }
@@ -514,7 +520,7 @@ export function createDashboardServer(config: DashboardConfig): {
       // Stable signature: changes only when stateCache or session count changes
       const sig = [...stateCache.values()]
         .map((e) => `${e.interviewId}:${e.mode}:${e.lastUpdatedAt}`)
-        .sort()
+        .sort((a, b) => a.localeCompare(b))
         .join('|');
       sendJson(response, 200, {
         status: 'ok',
@@ -796,7 +802,7 @@ export function createDashboardServer(config: DashboardConfig): {
       request.on('close', () => {
         clearInterval(heartbeat);
         clients?.delete(response);
-        if (clients && clients.size === 0) sseClients.delete(interviewId);
+        if (clients?.size === 0) sseClients.delete(interviewId);
       });
       return;
     }
@@ -1290,22 +1296,22 @@ export function createDashboardServer(config: DashboardConfig): {
 
   // ─── Server Lifecycle ────────────────────────────────────────────
 
+  function serverListener(
+    request: IncomingMessage,
+    response: ServerResponse,
+  ): void {
+    handleRequest(request, response).catch((error) =>
+      handleServerError(response, error),
+    );
+  }
+
   function start(): Promise<string> {
     if (baseUrl) return Promise.resolve(baseUrl);
 
-    if (!cleanupTimer) {
-      cleanupTimer = createCleanupTimer();
-    }
+    cleanupTimer ??= createCleanupTimer();
 
     return new Promise((resolve, reject) => {
-      const server = createServer((request, response) => {
-        handleRequest(request, response).catch((error: unknown) => {
-          sendJson(response, 500, {
-            error:
-              error instanceof Error ? error.message : 'Internal server error',
-          });
-        });
-      });
+      const server = createServer(serverListener);
 
       server.requestTimeout = 30_000;
       server.headersTimeout = 10_000;

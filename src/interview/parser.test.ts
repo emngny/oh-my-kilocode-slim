@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, test } from 'bun:test';
 import {
   buildFallbackState,
@@ -175,7 +176,7 @@ describe('parseAssistantState', () => {
       '<interview_state>',
       '{',
       '  "summary": "This is a summary',
-      'with a newline and escaped \\"quotes\\" and \\\\ backslash.",',
+      String.raw`with a newline and escaped \"quotes\" and \\ backslash.",`,
       '  "questions": []',
       '}',
       '</interview_state>',

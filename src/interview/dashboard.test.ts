@@ -146,6 +146,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const { firstChunk, closed } = await openSseConnection(
@@ -559,6 +561,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -622,6 +626,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: mdPath,
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -652,6 +658,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -689,6 +697,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         // Submit answers
@@ -729,6 +739,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         await fetch(
@@ -765,6 +777,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -801,6 +815,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         // First call - returns answers
@@ -835,6 +851,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         // First call
@@ -884,6 +902,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -918,6 +938,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         await fetch(
@@ -952,6 +974,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -985,6 +1009,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: 'more-questions',
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(
@@ -1017,6 +1043,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: 'confirm-complete',
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         // First call
@@ -1054,6 +1082,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(`${baseUrl}/interview/page-test`);
@@ -1081,6 +1111,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const response = await fetch(`${baseUrl}/interview/cookie-test`);
@@ -1235,6 +1267,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const state = dashboard.getState('direct-push');
@@ -1259,6 +1293,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         dashboard.storeAnswers('store-answers', [
@@ -1289,6 +1325,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: null,
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const answers = dashboard.consumePendingAnswers('consume-direct');
@@ -1316,6 +1354,8 @@ describe('dashboard server', () => {
           lastUpdatedAt: Date.now(),
           filePath: '',
           nudgeAction: 'more-questions',
+          pendingBlockComment: null,
+          pendingChatMessage: null,
         });
 
         const action = dashboard.consumeNudgeAction('nudge-direct');
