@@ -23,19 +23,19 @@ export function parseList(items: string[], allAvailable: string[]): string[] {
   }
 
   const allow = items.filter((i) => !i.startsWith('!'));
-  const deny = items.filter((i) => i.startsWith('!')).map((i) => i.slice(1));
+  const deny = new Set(
+    items.filter((i) => i.startsWith('!')).map((i) => i.slice(1)),
+  );
 
-  if (deny.includes('*')) {
+  if (deny.has('*')) {
     return [];
   }
 
   if (allow.includes('*')) {
-    return allAvailable.filter((item) => !deny.includes(item));
+    return allAvailable.filter((item) => !deny.has(item));
   }
 
-  return allow.filter(
-    (item) => !deny.includes(item) && allAvailable.includes(item),
-  );
+  return allow.filter((item) => !deny.has(item) && allAvailable.includes(item));
 }
 
 /**

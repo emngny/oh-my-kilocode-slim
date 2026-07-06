@@ -99,7 +99,7 @@ Implements a Zellij-based multiplexer adapter that creates and manages terminal 
 - Tab IDs are numeric strings (e.g., "1", "2")
 
 ### Shell Command Safety
-- `buildOpencodeAttachCommand()` constructs safe shell commands with quoted arguments
+- `buildKiloAttachCommand()` constructs safe shell commands with quoted arguments
 - `buildShellLaunchCommand()` wraps commands in `sh -lc` for proper execution
 - Prevents shell injection via `quoteShellArg()` with proper escaping
 

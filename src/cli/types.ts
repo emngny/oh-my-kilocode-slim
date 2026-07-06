@@ -47,6 +47,6 @@ export interface DetectedConfig {
   hasZaiPlan?: boolean;
   hasAntigravity: boolean;
   hasChutes?: boolean;
-  hasOpencodeZen: boolean;
+  hasKilo: boolean;
   hasTmux: boolean;
 }

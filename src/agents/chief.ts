@@ -20,10 +20,11 @@ export function resolvePrompt(
   customPrompt?: string,
   customAppendPrompt?: string,
 ): string {
-  const effectiveBase = customPrompt !== undefined ? customPrompt : base;
-  return customAppendPrompt !== undefined
-    ? `${effectiveBase}\n\n${customAppendPrompt}`
-    : effectiveBase;
+  const effectiveBase = customPrompt ?? base;
+  if (customAppendPrompt === undefined) {
+    return effectiveBase;
+  }
+  return `${effectiveBase}\n\n${customAppendPrompt}`;
 }
 
 // Agent descriptions for the chief prompt

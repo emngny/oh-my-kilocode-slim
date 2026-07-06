@@ -28,7 +28,7 @@ export const INSTALLED_PACKAGE_JSON = path.join(
 const configPaths = getKiloCodeConfigPaths();
 
 /** Primary KiloCode configuration file path (standard JSON). */
-export const USER_OPENCODE_CONFIG = configPaths[0];
+export const USER_KILOCODE_CONFIG = configPaths[0];
 
 /** Alternative KiloCode configuration file path (JSON with Comments). */
-export const USER_OPENCODE_CONFIG_JSONC = configPaths[1];
+export const USER_KILOCODE_CONFIG_JSONC = configPaths[1];

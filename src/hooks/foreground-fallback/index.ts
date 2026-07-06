@@ -23,7 +23,7 @@ import {
 } from '../../utils/session';
 import { isUserMessageWithParts } from '../types';
 
-type OpencodeClient = PluginInput['client'];
+type KilocodeClient = PluginInput['client'];
 
 // ---------------------------------------------------------------------------
 // Rate-limit detection
@@ -101,7 +101,7 @@ export class ForegroundFallbackManager {
   private readonly lastTriggerModel = new Map<string, string>();
 
   constructor(
-    private readonly client: OpencodeClient,
+    private readonly client: KilocodeClient,
     /**
      * Ordered fallback chains per agent.
      * e.g. { chief: ['anthropic/claude-opus-4-5', 'openai/gpt-4o'] }

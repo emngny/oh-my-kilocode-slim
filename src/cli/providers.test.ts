@@ -6,7 +6,7 @@ import { generateLiteConfig, MODEL_MAPPINGS } from './providers';
 describe('providers', () => {
   test('MODEL_MAPPINGS includes supported providers', () => {
     const keys = Object.keys(MODEL_MAPPINGS);
-    expect(keys.sort()).toEqual(['custom']);
+    expect(keys.toSorted((a, b) => a.localeCompare(b))).toEqual(['custom']);
   });
 
   test('generateLiteConfig defaults to custom and includes generated presets', () => {

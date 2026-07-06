@@ -35,8 +35,8 @@ function addDerivedAliases(seed: string, aliases: Set<string>): void {
   }
 
   if (slashAlias.includes('/')) {
-    aliases.add(cleanupAlias(slashAlias.replace(/\//g, ' '), false));
-    aliases.add(cleanupAlias(slashAlias.replace(/\//g, '-'), false));
+    aliases.add(cleanupAlias(slashAlias.replaceAll('/', ' '), false));
+    aliases.add(cleanupAlias(slashAlias.replaceAll('/', '-'), false));
     const lastPart = slashAlias.split('/').at(-1);
     if (lastPart) {
       addDerivedAliases(lastPart, aliases);

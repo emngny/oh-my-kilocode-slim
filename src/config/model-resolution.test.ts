@@ -15,23 +15,23 @@ import type { ModelEntry } from '../config/schema';
  *   ForegroundFallbackManager.
  */
 
+/**
+ * Simulates the resolution logic from src/index.ts.
+ * Always returns the first model in the array.
+ */
+function resolveModelFromArray(
+  modelArray: Array<{ id: string; variant?: string }>,
+): { model: string; variant?: string } | null {
+  if (!modelArray || modelArray.length === 0) return null;
+
+  const chosen = modelArray[0];
+  return {
+    model: chosen.id,
+    variant: chosen.variant,
+  };
+}
+
 describe('model array resolution', () => {
-  /**
-   * Simulates the resolution logic from src/index.ts.
-   * Always returns the first model in the array.
-   */
-  function resolveModelFromArray(
-    modelArray: Array<{ id: string; variant?: string }>,
-  ): { model: string; variant?: string } | null {
-    if (!modelArray || modelArray.length === 0) return null;
-
-    const chosen = modelArray[0];
-    return {
-      model: chosen.id,
-      variant: chosen.variant,
-    };
-  }
-
   test('uses first model when no provider config exists', () => {
     const modelArray: ModelEntry[] = [
       { id: 'kilo/big-pickle', variant: 'high' },

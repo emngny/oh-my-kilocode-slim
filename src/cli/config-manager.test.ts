@@ -79,7 +79,7 @@ describe('config-manager (barrel)', () => {
     });
 
     test('handles escaped quotes in strings', () => {
-      const json = '{"message": "He said \\"hello\\""}';
+      const json = String.raw`{"message": "He said \"hello\""}`;
       expect(JSON.parse(stripJsonComments(json))).toEqual({
         message: 'He said "hello"',
       });

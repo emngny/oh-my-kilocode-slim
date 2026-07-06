@@ -17,8 +17,8 @@ import {
 
 const n = (p: string | string[]) =>
   Array.isArray(p)
-    ? p.map((x) => x.replace(/\\/g, '/'))
-    : p.replace(/\\/g, '/');
+    ? p.map((x) => x.replaceAll('\\', '/'))
+    : p.replaceAll('\\', '/');
 
 describe('paths', () => {
   const originalEnv = { ...process.env };

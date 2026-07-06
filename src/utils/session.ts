@@ -4,7 +4,7 @@
 
 import type { PluginInput } from '@kilocode/plugin';
 
-type OpencodeClient = PluginInput['client'];
+type KilocodeClient = PluginInput['client'];
 
 export const SESSION_ABORT_TIMEOUT_MS = 1_000;
 
@@ -38,7 +38,7 @@ export async function withTimeout<T>(
 }
 
 export async function abortSessionWithTimeout(
-  client: OpencodeClient,
+  client: KilocodeClient,
   sessionId: string,
   timeoutMs = SESSION_ABORT_TIMEOUT_MS,
 ): Promise<void> {
@@ -95,8 +95,8 @@ export function parseModelReference(
  * @throws Error if timeout is exceeded
  */
 export async function promptWithTimeout(
-  client: OpencodeClient,
-  args: Parameters<OpencodeClient['session']['prompt']>[0],
+  client: KilocodeClient,
+  args: Parameters<KilocodeClient['session']['prompt']>[0],
   timeoutMs: number,
   signal?: AbortSignal,
 ): Promise<void> {
@@ -176,7 +176,7 @@ export interface SessionExtractionResult {
  * @returns Object with extracted text and an `empty` flag for zero-content detection
  */
 export async function extractSessionResult(
-  client: OpencodeClient,
+  client: KilocodeClient,
   sessionId: string,
   options?: { directory?: string; includeReasoning?: boolean },
 ): Promise<SessionExtractionResult> {

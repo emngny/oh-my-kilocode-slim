@@ -36,5 +36,5 @@ jobs:
       - name: Verify packaged release artifact
         run: bun run verify:release
 
-      - name: Verify OpenCode host smoke test
+      - name: Verify KiloCode host smoke test
         run: bun run verify:host-smoke

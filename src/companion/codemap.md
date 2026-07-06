@@ -136,8 +136,8 @@ interface CompanionConfig {
 
 ### Environment Variables
 
-- `OH_MY_OPENCODE_SLIM_COMPANION_SESSION_ID`: Set when spawning companion binary
-- `OH_MY_OPENCODE_SLIM_COMPANION_DEBUG`: Enables debug mode when config.debug is true
+- `OH_MY_KILOCODE_SLIM_COMPANION_SESSION_ID`: Set when spawning companion binary
+- `OH_MY_KILOCODE_SLIM_COMPANION_DEBUG`: Enables debug mode when config.debug is true
 
 ### Storage Locations
 

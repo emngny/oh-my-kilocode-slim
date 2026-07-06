@@ -295,7 +295,7 @@ pub struct CompanionApp {
 impl CompanionApp {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         let state_path = crate::state::state_file_path();
-        let owner_session_id = std::env::var("OH_MY_OPENCODE_SLIM_COMPANION_SESSION_ID")
+        let owner_session_id = std::env::var("OH_MY_KILOCODE_SLIM_COMPANION_SESSION_ID")
             .ok()
             .filter(|session_id| !session_id.trim().is_empty());
         let state = read_state(&state_path);

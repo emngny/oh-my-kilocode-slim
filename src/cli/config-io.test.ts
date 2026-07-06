@@ -25,6 +25,14 @@ import {
 } from './config-io';
 import * as paths from './paths';
 
+function writePackageJson(dir: string): void {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    join(dir, 'package.json'),
+    JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
+  );
+}
+
 describe('config-io', () => {
   let tmpDir: string;
   const originalEnv = { ...process.env };
@@ -45,14 +53,6 @@ describe('config-io', () => {
     }
     mock.restore();
   });
-
-  function writePackageJson(dir: string): void {
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(
-      join(dir, 'package.json'),
-      JSON.stringify({ name: '@emngny/oh-my-kilocode-slim' }),
-    );
-  }
 
   test('stripJsonComments strips comments and trailing commas', () => {
     const jsonc = `{
@@ -444,6 +444,7 @@ describe('config-io', () => {
       hasTmux: true,
       installCustomSkills: false,
       reset: false,
+      backgroundSubagents: 'no',
     });
     expect(result.success).toBe(true);
 
@@ -465,6 +466,7 @@ describe('config-io', () => {
       installCustomSkills: false,
       preset: 'custom',
       reset: false,
+      backgroundSubagents: 'no',
     });
     expect(result.success).toBe(true);
 

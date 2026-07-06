@@ -117,11 +117,7 @@ export class HerdrMultiplexer implements Multiplexer {
       ).exited;
 
       // 3. Run kilo attach in the new pane
-      const kiloCmd = buildOpencodeAttachCommand(
-        sessionId,
-        serverUrl,
-        directory,
-      );
+      const kiloCmd = buildKiloAttachCommand(sessionId, serverUrl, directory);
 
       log('[herdr] spawnPane: running attach command', {
         paneId,
@@ -285,7 +281,7 @@ function getPaneDirection(layout: MultiplexerLayout): HerdrPaneDirection {
   }
 }
 
-function buildOpencodeAttachCommand(
+function buildKiloAttachCommand(
   sessionId: string,
   serverUrl: string,
   directory: string,

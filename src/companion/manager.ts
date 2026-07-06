@@ -185,7 +185,7 @@ export class CompanionManager {
    * detached child does not survive until process exit.
    */
   private registerActiveManager(): void {
-    for (const manager of [...activeManagers]) {
+    for (const manager of Array.from(activeManagers)) {
       if (manager !== this && manager.id === this.id) {
         manager.onExit();
       }
@@ -199,7 +199,7 @@ export class CompanionManager {
   }
 
   private static disposeActiveManagers(sessionId?: string): void {
-    for (const manager of [...activeManagers]) {
+    for (const manager of Array.from(activeManagers)) {
       if (sessionId && manager.id !== sessionId) continue;
       manager.onExit();
     }

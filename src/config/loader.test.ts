@@ -403,10 +403,10 @@ describe('deepMerge behavior', () => {
 
   test('merges nested agent configs from user and project', () => {
     // Create user config
-    const userOpencodeDir = path.join(userConfigDir, 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(userConfigDir, 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: 'user/oracle-model', temperature: 0.5 },
@@ -443,10 +443,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('merges nested tmux configs', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(userConfigDir, 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         tmux: {
           enabled: true,
@@ -477,10 +477,10 @@ describe('deepMerge behavior', () => {
   });
 
   test("preserves user tmux.enabled when project doesn't specify", () => {
-    const userOpencodeDir = path.join(userConfigDir, 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(userConfigDir, 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         tmux: {
           enabled: true,
@@ -506,10 +506,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('project config overrides top-level arrays', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(userConfigDir, 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         disabled_mcps: ['websearch'],
       }),
@@ -550,10 +550,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('handles missing project config gracefully', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(userConfigDir, 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: {
           oracle: { model: 'user/model' },
@@ -570,10 +570,10 @@ describe('deepMerge behavior', () => {
   });
 
   test('merges fallback timeout from user and project', () => {
-    const userOpencodeDir = path.join(userConfigDir, 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(userConfigDir, 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         fallback: {
           enabled: true,
@@ -1106,10 +1106,10 @@ describe('JSONC config support', () => {
   });
 
   test('loads user config from .jsonc', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(tempDir, 'user-config', 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.jsonc'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // User config with comments
         "agents": { "librarian": { "model": "user-librarian" } }
@@ -1124,10 +1124,10 @@ describe('JSONC config support', () => {
   });
 
   test('merges user .jsonc with project .jsonc', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(tempDir, 'user-config', 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.jsonc'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.jsonc'),
       `{
         // User config
         "agents": {

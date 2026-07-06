@@ -55,6 +55,7 @@ export function generateLiteConfig(
   const config: Record<string, unknown> = {
     $schema: SCHEMA_URL,
     preset,
+    delegationMode: 'conservative',
     presets: {},
   };
 

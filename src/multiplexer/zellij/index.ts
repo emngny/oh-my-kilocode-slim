@@ -132,7 +132,7 @@ export class ZellijMultiplexer implements Multiplexer {
     directory: string,
     description: string,
   ): Promise<PaneResult> {
-    const kiloCmd = buildOpencodeAttachCommand(sessionId, serverUrl, directory);
+    const kiloCmd = buildKiloAttachCommand(sessionId, serverUrl, directory);
     const paneName = description.slice(0, 30).replace(/"/g, '\\"');
     const targetTabId = await this.getParentTabId(zellij);
 
@@ -172,7 +172,7 @@ export class ZellijMultiplexer implements Multiplexer {
     directory: string,
     description: string,
   ): Promise<PaneResult> {
-    const kiloCmd = buildOpencodeAttachCommand(sessionId, serverUrl, directory);
+    const kiloCmd = buildKiloAttachCommand(sessionId, serverUrl, directory);
     const paneName = description.slice(0, 30).replace(/"/g, '\\"');
 
     const currentTabId = await this.getCurrentTabId(zellij);
@@ -272,11 +272,7 @@ export class ZellijMultiplexer implements Multiplexer {
     description: string,
   ): Promise<boolean> {
     try {
-      const kiloCmd = buildOpencodeAttachCommand(
-        sessionId,
-        serverUrl,
-        directory,
-      );
+      const kiloCmd = buildKiloAttachCommand(sessionId, serverUrl, directory);
 
       await crossSpawn([zellij, 'action', 'focus-pane', '--pane-id', paneId], {
         stdout: 'ignore',
@@ -612,7 +608,7 @@ function getPaneDirection(
   }
 }
 
-function buildOpencodeAttachCommand(
+function buildKiloAttachCommand(
   sessionId: string,
   serverUrl: string,
   directory: string,

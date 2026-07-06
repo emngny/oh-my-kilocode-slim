@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
   CouncilConfigSchema,
-  type CouncillorConfig,
   CouncillorConfigSchema,
   CouncilPresetSchema,
 } from './council-schema';
@@ -144,7 +143,10 @@ test('mixed legacy "councillors" and flat keys in same preset', () => {
 
   if (result.success) {
     const preset = result.data.presets.mixed;
-    expect(Object.keys(preset).sort()).toEqual(['alpha', 'beta']);
+    expect(Object.keys(preset).toSorted((a, b) => a.localeCompare(b))).toEqual([
+      'alpha',
+      'beta',
+    ]);
   }
 });
 
@@ -216,7 +218,7 @@ test('rejects empty model string', () => {
 });
 
 test('accepts optional prompt field', () => {
-  const config: CouncillorConfig = {
+  const config = {
     model: 'openai/gpt-5.4-mini',
     prompt: 'Focus on security implications and edge cases.',
   };
@@ -231,7 +233,7 @@ test('accepts optional prompt field', () => {
 });
 
 test('prompt is optional and defaults to undefined', () => {
-  const config: CouncillorConfig = {
+  const config = {
     model: 'openai/gpt-5.4-mini',
   };
 

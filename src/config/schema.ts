@@ -33,7 +33,7 @@ export const ManualAgentPlanSchema = z
     ]);
     if (unique.size !== 4) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'primary and fallbacks must be unique per agent',
       });
     }
@@ -111,7 +111,7 @@ export type ZellijPaneMode = z.infer<typeof ZellijPaneModeSchema>;
 
 // Legacy Tmux layout options (for backward compatibility)
 export const TmuxLayoutSchema = MultiplexerLayoutSchema;
-export type TmuxLayout = MultiplexerLayout;
+export type TmuxLayout = z.infer<typeof TmuxLayoutSchema>;
 
 // Multiplexer integration configuration (new unified config)
 export const MultiplexerConfigSchema = z.object({
@@ -270,7 +270,7 @@ function rejectChiefPromptOnChief(
   for (const [name, override] of Object.entries(overrides)) {
     if (name === 'chief' && override.chiefPrompt !== undefined) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: [...pathPrefix, name, 'chiefPrompt'],
         message: 'chiefPrompt is not supported for the chief agent',
       });

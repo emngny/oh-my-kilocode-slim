@@ -27,14 +27,14 @@ import {
 } from '../utils/session';
 import type { SubagentDepthTracker } from '../utils/subagent-depth';
 
-type OpencodeClient = PluginInput['client'];
+type KilocodeClient = PluginInput['client'];
 
 // ---------------------------------------------------------------------------
 // CouncilManager
 // ---------------------------------------------------------------------------
 
 export class CouncilManager {
-  private client: OpencodeClient;
+  private client: KilocodeClient;
   private directory: string;
   private config?: PluginConfig;
   private depthTracker?: SubagentDepthTracker;

@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { z } from 'zod';
 import { stripJsonComments } from '../cli/config-io';
 import { getConfigSearchDirs } from '../cli/paths';
 import { type PluginConfig, PluginConfigSchema } from './schema';
@@ -89,11 +90,11 @@ function loadConfigFromPath(
         path: configPath,
         kind: 'invalid-schema',
         message: 'Config does not match schema',
-        formatted: result.error.format(),
+        formatted: z.treeifyError(result.error),
       });
       if (!options?.silent) {
         console.warn(`[oh-my-kilocode-slim] Invalid config at ${configPath}:`);
-        console.warn(result.error.format());
+        console.warn(z.treeifyError(result.error));
       }
       return null;
     }

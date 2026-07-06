@@ -17,7 +17,7 @@ export interface CompatibleVersionResult {
   unsafeReason?: 'unparseable-current-version';
 }
 
-export interface OpencodeConfig {
+export interface KilocodeConfig {
   plugin?: unknown[];
   [key: string]: unknown;
 }

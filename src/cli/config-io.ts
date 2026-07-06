@@ -15,6 +15,8 @@ import {
   ensureConfigDir,
   ensureKiloCodeConfigDir,
   ensureTuiConfigDir,
+  getConfigJson,
+  getConfigJsonc,
   getExistingConfigPath,
   getExistingTuiConfigPath,
   getLiteConfig,
@@ -28,7 +30,7 @@ import type {
 } from './types';
 
 const PACKAGE_NAME = '@emngny/oh-my-kilocode-slim';
-const DEFAULT_OPENCODE_AGENTS_TO_DISABLE = ['explore', 'general'] as const;
+const DEFAULT_KILOCODE_AGENTS_TO_DISABLE = ['explore', 'general'] as const;
 
 function isString(value: unknown): value is string {
   return typeof value === 'string';
@@ -434,19 +436,9 @@ export function writeConfig(configPath: string, config: KiloCodeConfig): void {
   renameSync(tmpPath, configPath);
 }
 
-export async function addPluginToKiloCodeConfig(): Promise<ConfigMergeResult> {
-  const configPath = getExistingConfigPath();
-
-  try {
-    ensureKiloCodeConfigDir();
-  } catch (err) {
-    return {
-      success: false,
-      configPath,
-      error: `Failed to create config directory: ${err}`,
-    };
-  }
-
+async function addPluginToConfigFile(
+  configPath: string,
+): Promise<ConfigMergeResult> {
   try {
     const { config: parsedConfig, error } = parseConfig(configPath);
     if (error) {
@@ -479,6 +471,47 @@ export async function addPluginToKiloCodeConfig(): Promise<ConfigMergeResult> {
       error: `Failed to update kilo config: ${err}`,
     };
   }
+}
+
+export async function addPluginToKiloCodeConfig(): Promise<ConfigMergeResult> {
+  const jsonPath = getConfigJson();
+  const jsoncPath = getConfigJsonc();
+  const existingPaths = [jsonPath, jsoncPath].filter((p) => existsSync(p));
+
+  // No existing config — fall back to default behavior (creates .json)
+  if (existingPaths.length === 0) {
+    existingPaths.push(jsonPath);
+  }
+
+  try {
+    ensureKiloCodeConfigDir();
+  } catch (err) {
+    return {
+      success: false,
+      configPath: existingPaths[0],
+      error: `Failed to create config directory: ${err}`,
+    };
+  }
+
+  // Add to every existing file; aggregate errors
+  const results: ConfigMergeResult[] = [];
+  for (const path of existingPaths) {
+    results.push(await addPluginToConfigFile(path));
+  }
+
+  const failures = results.filter((r) => !r.success);
+  if (failures.length > 0) {
+    return {
+      success: false,
+      configPath: existingPaths.join(', '),
+      error: failures.map((f) => `${f.configPath}: ${f.error}`).join('; '),
+    };
+  }
+
+  return {
+    success: true,
+    configPath: existingPaths.join(', '),
+  };
 }
 
 export async function addPluginToKiloCodeTuiConfig(): Promise<ConfigMergeResult> {
@@ -576,7 +609,7 @@ export function disableDefaultAgents(): ConfigMergeResult {
     const config = parsedConfig ?? {};
 
     const agent = (config.agent ?? {}) as Record<string, unknown>;
-    for (const agentName of DEFAULT_OPENCODE_AGENTS_TO_DISABLE) {
+    for (const agentName of DEFAULT_KILOCODE_AGENTS_TO_DISABLE) {
       const existing = agent[agentName];
       agent[agentName] = {
         ...(existing && typeof existing === 'object' && !Array.isArray(existing)
@@ -652,7 +685,7 @@ export function detectCurrentConfig(): DetectedConfig {
     hasZaiPlan: false,
     hasAntigravity: false,
     hasChutes: false,
-    hasOpencodeZen: false,
+    hasKilo: false,
     hasTmux: false,
   };
 
@@ -694,7 +727,7 @@ export function detectCurrentConfig(): DetectedConfig {
       result.hasZaiPlan ||= models.some((m) =>
         m.startsWith('zai-coding-plan/'),
       );
-      result.hasOpencodeZen ||= models.some((m) => m.startsWith('kilo/'));
+      result.hasKilo ||= models.some((m) => m.startsWith('kilo/'));
       if (models.some((m) => m.startsWith('google/'))) {
         result.hasAntigravity = true;
       }

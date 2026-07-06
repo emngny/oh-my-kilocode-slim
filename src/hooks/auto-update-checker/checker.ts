@@ -9,14 +9,14 @@ import {
   NPM_PACKAGE_URL,
   NPM_REGISTRY_URL,
   PACKAGE_NAME,
-  USER_OPENCODE_CONFIG,
-  USER_OPENCODE_CONFIG_JSONC,
+  USER_KILOCODE_CONFIG,
+  USER_KILOCODE_CONFIG_JSONC,
 } from './constants';
 import type {
   CompatibleVersionResult,
+  KilocodeConfig,
   NpmDistTags,
   NpmPackageMetadata,
-  OpencodeConfig,
   PackageJson,
   PluginEntryInfo,
 } from './types';
@@ -32,7 +32,7 @@ function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-function getPluginEntries(config: OpencodeConfig): string[] {
+function getPluginEntries(config: KilocodeConfig): string[] {
   return Array.isArray(config.plugin) ? config.plugin.filter(isString) : [];
 }
 
@@ -155,8 +155,8 @@ function getConfigPaths(directory: string): string[] {
   return [
     path.join(directory, '.kilo', 'kilo.json'),
     path.join(directory, '.kilo', 'kilo.jsonc'),
-    USER_OPENCODE_CONFIG,
-    USER_OPENCODE_CONFIG_JSONC,
+    USER_KILOCODE_CONFIG,
+    USER_KILOCODE_CONFIG_JSONC,
   ];
 }
 
@@ -168,7 +168,7 @@ function getLocalDevPath(directory: string): string | null {
     try {
       if (!fs.existsSync(configPath)) continue;
       const content = fs.readFileSync(configPath, 'utf-8');
-      const config = JSON.parse(stripJsonComments(content)) as OpencodeConfig;
+      const config = JSON.parse(stripJsonComments(content)) as KilocodeConfig;
       const plugins = getPluginEntries(config);
 
       for (const entry of plugins) {
@@ -255,7 +255,7 @@ export function findPluginEntry(directory: string): PluginEntryInfo | null {
     try {
       if (!fs.existsSync(configPath)) continue;
       const content = fs.readFileSync(configPath, 'utf-8');
-      const config = JSON.parse(stripJsonComments(content)) as OpencodeConfig;
+      const config = JSON.parse(stripJsonComments(content)) as KilocodeConfig;
       const plugins = getPluginEntries(config);
 
       for (const entry of plugins) {

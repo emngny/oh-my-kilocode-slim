@@ -44,15 +44,15 @@ describe('parseDoctorArgs', () => {
   });
 });
 
+function setupTempDir(): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'doctor-test-'));
+  return dir;
+}
+
 describe('runDoctorCheck', () => {
   let tempDir: string;
   let originalCwd: string;
   let originalEnv: typeof process.env;
-
-  function setupTempDir(): string {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'doctor-test-'));
-    return dir;
-  }
 
   beforeEach(() => {
     tempDir = setupTempDir();
@@ -165,7 +165,7 @@ describe('runDoctorCheck', () => {
     expect(result.configs[1].ok).toBe(false);
     expect(result.configs[1].error?.kind).toBe('invalid-schema');
     expect(result.configs[1].error?.issues).toBeDefined();
-    expect(result.configs[1].error?.issues[0].path).toContain('temperature');
+    expect(result.configs[1].error?.issues?.[0]?.path).toContain('temperature');
   });
 
   test('multiple schema errors includes relevant paths', () => {
@@ -205,10 +205,10 @@ describe('runDoctorCheck', () => {
   });
 
   test('invalid user config skips preset check', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(tempDir, 'user-config', 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       '{ invalid }',
     );
 
@@ -292,10 +292,10 @@ describe('runDoctorCheck', () => {
   });
 
   test('project config overrides user config with merge', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(tempDir, 'user-config', 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         agents: { oracle: { temperature: 0.5 } },
         presets: {
@@ -348,10 +348,10 @@ describe('runDoctorCheck', () => {
   });
 
   test('project preset overrides user preset', () => {
-    const userOpencodeDir = path.join(tempDir, 'user-config', 'kilo');
-    fs.mkdirSync(userOpencodeDir, { recursive: true });
+    const userKiloDir = path.join(tempDir, 'user-config', 'kilo');
+    fs.mkdirSync(userKiloDir, { recursive: true });
     fs.writeFileSync(
-      path.join(userOpencodeDir, 'oh-my-kilocode-slim.json'),
+      path.join(userKiloDir, 'oh-my-kilocode-slim.json'),
       JSON.stringify({
         preset: 'user-preset',
         presets: {

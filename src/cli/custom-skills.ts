@@ -1,10 +1,10 @@
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CUSTOM_SKILLS, type CustomSkill } from './custom-skills-registry';
+import type { CustomSkill } from './custom-skills-registry';
 import { getConfigDir } from './paths';
 
-export { CUSTOM_SKILLS, type CustomSkill };
+export { CUSTOM_SKILLS, type CustomSkill } from './custom-skills-registry';
 
 /**
  * Get the target directory for custom skills installation.

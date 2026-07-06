@@ -156,7 +156,7 @@ function assertNoPluginLoadErrors(logs: string) {
   );
 }
 
-function omitOpencodeEnv(env: NodeJS.ProcessEnv) {
+function omitKilocodeEnv(env: NodeJS.ProcessEnv) {
   return Object.fromEntries(
     Object.entries(env).filter(([key]) => !key.startsWith('OPENCODE_')),
   );
@@ -263,7 +263,7 @@ async function verifyHostSmoke(tarballPath: string) {
       {
         cwd: workspaceDir,
         env: {
-          ...omitOpencodeEnv(process.env),
+          ...omitKilocodeEnv(process.env),
           ...env,
         },
         stdio: ['ignore', 'pipe', 'pipe'],

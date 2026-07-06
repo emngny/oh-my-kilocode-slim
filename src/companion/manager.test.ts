@@ -33,9 +33,14 @@ afterEach(() => {
 function make(
   id = 'test-session',
   cwd = '/home/user/myproject',
-  config: any = { enabled: true, position: 'bottom-right', size: 'medium' },
+  config: any = undefined,
 ) {
-  const manager = new CompanionManager(id, cwd, config);
+  const resolvedConfig = config ?? {
+    enabled: true,
+    position: 'bottom-right',
+    size: 'medium',
+  };
+  const manager = new CompanionManager(id, cwd, resolvedConfig);
   managers.push(manager);
   return manager;
 }

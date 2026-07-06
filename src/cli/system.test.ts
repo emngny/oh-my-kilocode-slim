@@ -88,10 +88,10 @@ describe('system', () => {
 
   test('getKiloCodeVersion returns string or null', async () => {
     const version = await getKiloCodeVersion();
-    if (version !== null) {
-      expect(typeof version).toBe('string');
-    } else {
+    if (version === null) {
       expect(version).toBeNull();
+    } else {
+      expect(typeof version).toBe('string');
     }
   });
 });

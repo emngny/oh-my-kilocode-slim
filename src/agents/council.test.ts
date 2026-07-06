@@ -152,6 +152,8 @@ describe('formatCouncillorResults', () => {
 
 describe('formatCouncillorPrompt', () => {
   const userPrompt = 'How do I implement async/await in TypeScript?';
+  const escapeRegex = (str: string) =>
+    str.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
   test('returns user prompt unchanged when no councillor prompt is provided', () => {
     const formatted = formatCouncillorPrompt(userPrompt);
@@ -168,10 +170,7 @@ describe('formatCouncillorPrompt', () => {
     expect(formatted).toContain('---');
     expect(formatted).toMatch(
       new RegExp(
-        `^${councillorPrompt.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&',
-        )}\\n\\n---\\n\\n${userPrompt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+        String.raw`^${escapeRegex(councillorPrompt)}\n\n---\n\n${escapeRegex(userPrompt)}$`,
       ),
     );
   });
@@ -186,10 +185,7 @@ describe('formatCouncillorPrompt', () => {
     expect(formatted).toContain('---');
     expect(formatted).toMatch(
       new RegExp(
-        `^${councillorPrompt.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&',
-        )}\\n\\n---\\n\\n${userPrompt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+        String.raw`^${escapeRegex(councillorPrompt)}\n\n---\n\n${escapeRegex(userPrompt)}$`,
       ),
     );
   });
@@ -212,13 +208,7 @@ describe('formatCouncillorPrompt', () => {
     expect(formatted).toContain('---');
     expect(formatted).toMatch(
       new RegExp(
-        `^${councillorPrompt.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&',
-        )}\\n\\n---\\n\\n${multilineUserPrompt.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&',
-        )}$`,
+        String.raw`^${escapeRegex(councillorPrompt)}\n\n---\n\n${escapeRegex(multilineUserPrompt)}$`,
       ),
     );
   });
