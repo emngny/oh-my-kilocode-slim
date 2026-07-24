@@ -82,6 +82,5 @@ export const COUNCILLOR_STAGGER_MS = 250;
 // Polling stability
 export const STABLE_POLLS_THRESHOLD = 3;
 
-/** Agents that are disabled by default. Users must explicitly enable them
- *  by removing from disabled_agents and configuring an appropriate model. */
-export const DEFAULT_DISABLED_AGENTS: string[] = ['observer'];
+/** Agents that are disabled by default. Users can disable agents by adding them to disabled_agents. */
+export const DEFAULT_DISABLED_AGENTS: string[] = [];

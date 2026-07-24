@@ -599,7 +599,7 @@ rules.
 ### Observer: The Silent Witness
 
 > [!NOTE]
-> **Why a separate agent?** If your Chief model is not multimodal, enable Observer to handle images, screenshots, PDFs, and other visual files. Observer is disabled by default and gives the Chief a dedicated multimodal reader without forcing you to change your main reasoning model. Set `disabled_agents: []` and an `observer` model in your configuration. The bundled `kilo-go` install preset does this automatically because its GLM Chief is not multimodal.
+> **Why a separate agent?** If your Chief model is not multimodal, enable Observer to handle images, screenshots, PDFs, and other visual files. Observer gives the Chief a dedicated multimodal reader without forcing you to change your main reasoning model. Configure a vision-capable model for `observer` in your agent overrides. To disable it, add `'observer'` to `disabled_agents`. The bundled `kilo-go` install preset configures it automatically because its GLM Chief is not multimodal.
 
 <table>
   <tr>
@@ -613,7 +613,7 @@ rules.
 
 - Images, screenshots, diagrams → `read` tool (native image support)
 - PDFs and binary documents → `read` tool (text + structure extraction)
-- **Disabled by default** - enable with `"disabled_agents": []` and configure a vision-capable model; installing with `--preset=kilo-go` enables it with `kilo-go/kimi-k2.6`
+- **Enabled by default** — configure a vision-capable model for best results; installing with `--preset=kilo-go` automatically configures `kilo-go/kimi-k2.6`
 
     </td>
   </tr>
@@ -624,7 +624,7 @@ rules.
   </tr>
   <tr>
     <td colspan="2">
-      <b>Default Model:</b> <code>openai/gpt-5.4-mini</code> - <i>configure a vision-capable model to enable</i>
+      <b>Default Model:</b> <code>openai/gpt-5.4-mini</code> — <i>configure a vision-capable model for best results</i>
     </td>
   </tr>
   <tr>

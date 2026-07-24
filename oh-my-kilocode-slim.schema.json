@@ -197,7 +197,7 @@
       }
     },
     "disabled_agents": {
-      "description": "Agent names to disable completely. Disabled agents are not instantiated and cannot be delegated to. Chief and council internal agents (councillor) cannot be disabled. By default, 'observer' is disabled. Remove it from this list and configure a vision-capable model to enable.",
+      "description": "Agent names to disable completely. Disabled agents are not instantiated and cannot be delegated to. Chief and council internal agents (councillor) cannot be disabled.",
       "type": "array",
       "items": {
         "type": "string"

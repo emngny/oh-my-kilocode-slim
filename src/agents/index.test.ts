@@ -467,9 +467,9 @@ describe('createAgents', () => {
     expect(names).toContain('fixer');
   });
 
-  test('creates exactly 7 agents by default (observer disabled, council unconfigured)', () => {
+  test('creates exactly 8 agents by default (council unconfigured)', () => {
     const agents = createAgents();
-    expect(agents.length).toBe(7);
+    expect(agents.length).toBe(8);
   });
 
   test('does not create council when council is not configured', () => {
@@ -951,7 +951,7 @@ describe('disabled_agents', () => {
 
   test('agent count decreases when agents are disabled', () => {
     const agents = createAgents();
-    expect(agents.length).toBe(7); // observer disabled, council unconfigured
+    expect(agents.length).toBe(8); // observer enabled, council unconfigured
 
     const disabledConfig: PluginConfig = {
       disabled_agents: ['observer', 'designer'],
@@ -1008,10 +1008,10 @@ describe('disabled_agents', () => {
 });
 
 describe('observer agent', () => {
-  test('observer is disabled by default', () => {
+  test('observer is enabled by default', () => {
     const agents = createAgents();
     const names = agents.map((a) => a.name);
-    expect(names).not.toContain('observer');
+    expect(names).toContain('observer');
   });
 
   test('observer is enabled when removed from disabled_agents', () => {
@@ -1042,7 +1042,7 @@ describe('observer agent', () => {
     expect(names).not.toContain('designer');
   });
 
-  test('DEFAULT_DISABLED_AGENTS contains observer', () => {
-    expect(DEFAULT_DISABLED_AGENTS).toContain('observer');
+  test('DEFAULT_DISABLED_AGENTS is empty by default', () => {
+    expect(DEFAULT_DISABLED_AGENTS).toEqual([]);
   });
 });
