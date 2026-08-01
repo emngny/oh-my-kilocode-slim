@@ -369,7 +369,7 @@ describe('tool permissions', () => {
     expect((fixer?.config.permission as any).cancel_task).toBe('deny');
   });
 
-  test('council agent is read-only except council_session', () => {
+  test('council agent allows documentation file operations and council_session', () => {
     const agents = createAgents({
       council: councilConfig(),
     });
@@ -381,10 +381,10 @@ describe('tool permissions', () => {
     expect(permission.grep).toBe('allow');
     expect(permission.ast_grep_search).toBe('allow');
     expect(permission.council_session).toBe('allow');
+    expect(permission.write).toBe('allow');
+    expect(permission.edit).toBe('allow');
+    expect(permission.apply_patch).toBe('allow');
     expect(permission.bash).toBe('deny');
-    expect(permission.edit).toBe('deny');
-    expect(permission.write).toBe('deny');
-    expect(permission.apply_patch).toBe('deny');
     expect(permission.ast_grep_replace).toBe('deny');
     expect(permission.task).toBe('deny');
   });

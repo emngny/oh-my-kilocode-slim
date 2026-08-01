@@ -19,7 +19,7 @@ Each agent is a **prompt-driven specialist** with a factory function that create
 | **designer** | `createDesignerAgent()` | UI/UX design, review, and implementation | Read/write (read, glob, grep, write, edit) | DEFAULT_MODELS.designer |
 | **fixer** | `createFixerAgent()` | Fast implementation specialist for bounded tasks | Read/write (read, glob, grep, write, edit) | DEFAULT_MODELS.fixer |
 | **observer** | `createObserverAgent()` | Visual analysis specialist (images, PDFs, diagrams) | Read-only (read, glob, grep, ast_grep_search) | DEFAULT_MODELS.observer |
-| **council** | `createCouncilAgent()` | Multi-LLM consensus engine for high-stakes decisions | Read-only + council_session tool | DEFAULT_MODELS.council |
+| **council** | `createCouncilAgent()` | Multi-LLM consensus engine for high-stakes decisions | Read/write (write, edit, apply_patch) + council_session tool | DEFAULT_MODELS.council |
 | **councillor** | `createCouncillorAgent()` | Read-only council advisor (internal use only) | Read-only (read, glob, grep, ast_grep_search) | Inherited from council |
 
 ### Configuration System

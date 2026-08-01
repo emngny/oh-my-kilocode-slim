@@ -1,4 +1,4 @@
-import { READONLY_FILE_OPERATIONS_RULES } from '../config';
+import { WRITABLE_FILE_OPERATIONS_RULES } from '../config';
 import { shortModelLabel } from '../utils/session';
 import { type AgentDefinition, resolvePrompt } from './chief';
 import { createReadOnlyAgentPermission } from './permissions';
@@ -10,7 +10,7 @@ import { createReadOnlyAgentPermission } from './permissions';
 const COUNCIL_AGENT_PROMPT = `You are the Council agent - a multi-LLM \
 orchestration system that runs consensus across multiple models.
 
-**Tool**: You have access to the \`council_session\` tool. You also have read-only codebase inspection tools. You do not have write, edit, shell, or subagent-delegation tools.
+**Tool**: You have access to the \`council_session\` tool. You also have codebase inspection and document/file writing tools (write, edit, apply_patch) so you can document council decisions and results when requested. You do not have shell or subagent-delegation tools.
 
 **When to use**:
 - When invoked by a user with a request
@@ -22,7 +22,7 @@ orchestration system that runs consensus across multiple models.
 2. Optionally specify a preset (default: "default")
 3. Receive the councillor responses formatted for synthesis
 4. Follow the Synthesis Process below
-5. Present the result to the user
+5. Present the result to the user (and write/document to file if requested by user)
 
 **Synthesis Process** (MANDATORY - follow in order):
 1. Read the original user prompt
@@ -42,8 +42,9 @@ key insight and unique contribution by name
 - Do not collapse the output into only a final summary
 - Be transparent about trade-offs when different approaches have valid pros/cons
 - Don't just average responses - choose the best approach and improve upon it
+- When the user asks to save, document, or record the council decision/results to a file, use write/edit/apply_patch to create or update the documentation file.
 
-${READONLY_FILE_OPERATIONS_RULES}
+${WRITABLE_FILE_OPERATIONS_RULES}
 
 **Required Output Format**:
 Always include these sections in your final response:
@@ -90,6 +91,9 @@ export function createCouncilAgent(
       prompt,
       permission: {
         ...createReadOnlyAgentPermission(),
+        write: 'allow',
+        edit: 'allow',
+        apply_patch: 'allow',
         council_session: 'allow',
       },
     },
