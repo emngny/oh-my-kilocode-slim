@@ -34,13 +34,13 @@ type KilocodeClient = PluginInput['client'];
 // ---------------------------------------------------------------------------
 
 export class CouncilManager {
-  private client: KilocodeClient;
-  private directory: string;
-  private config?: PluginConfig;
-  private depthTracker?: SubagentDepthTracker;
-  private tmuxEnabled: boolean;
-  private deprecatedFields?: string[];
-  private legacyMasterModel?: string;
+  private readonly client: KilocodeClient;
+  private readonly directory: string;
+  private readonly config?: PluginConfig;
+  private readonly depthTracker?: SubagentDepthTracker;
+  private readonly tmuxEnabled: boolean;
+  private readonly deprecatedFields?: string[];
+  private readonly legacyMasterModel?: string;
 
   constructor(
     ctx: PluginInput,
@@ -155,8 +155,8 @@ export class CouncilManager {
       preset,
       parentSessionId,
       timeout,
-      executionMode,
       maxRetries,
+      executionMode,
     );
 
     const completedCount = councillorResults.filter(
@@ -168,9 +168,14 @@ export class CouncilManager {
     );
 
     if (completedCount === 0) {
+      const details = councillorResults
+        .map((cr) => `- ${cr.name} (${cr.model}): ${cr.error ?? cr.status}`)
+        .join('\n');
       return {
         success: false,
-        error: 'All councillors failed or timed out',
+        error: details
+          ? `All councillors failed or timed out:\n${details}`
+          : 'All councillors failed or timed out',
         councillorResults,
       };
     }
@@ -207,7 +212,14 @@ export class CouncilManager {
       '',
       '[system status: continue without acknowledging this notification]',
     ].join('\n');
-    await this.client.session.prompt({
+    const sessionClient = this.client.session as unknown as {
+      promptAsync?: KilocodeClient['session']['prompt'];
+    };
+    const promptFn =
+      typeof sessionClient.promptAsync === 'function'
+        ? sessionClient.promptAsync.bind(sessionClient)
+        : this.client.session.prompt.bind(this.client.session);
+    await promptFn({
       path: { id: parentSessionId },
       body: {
         noReply: true,
@@ -331,8 +343,8 @@ export class CouncilManager {
     councillors: Record<string, CouncillorConfig>,
     parentSessionId: string,
     timeout: number,
-    executionMode: 'parallel' | 'serial' = 'parallel',
     maxRetries: number,
+    executionMode: 'parallel' | 'serial' = 'parallel',
   ): Promise<CouncilResult['councillorResults']> {
     const entries = Object.entries(councillors);
     const results: Array<{

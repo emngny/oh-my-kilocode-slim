@@ -121,7 +121,7 @@ describe('CouncilManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('All councillors failed or timed out');
+      expect(result.error).toContain('All councillors failed or timed out');
       expect(result.councillorResults).toHaveLength(2);
       expect(result.councillorResults.every((r) => r.status === 'failed')).toBe(
         true,
@@ -396,7 +396,7 @@ describe('CouncilManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('All councillors failed or timed out');
+      expect(result.error).toContain('All councillors failed or timed out');
       expect(result.councillorResults).toHaveLength(1);
       expect(result.councillorResults[0].status).toBe('failed');
       expect(result.councillorResults[0].error).toContain(
@@ -923,7 +923,7 @@ describe('CouncilManager', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('All councillors failed or timed out');
+      expect(result.error).toContain('All councillors failed or timed out');
       expect(result.councillorResults).toHaveLength(1);
       expect(result.councillorResults[0].status).toBe('failed');
       expect(result.councillorResults[0].error).toContain(
