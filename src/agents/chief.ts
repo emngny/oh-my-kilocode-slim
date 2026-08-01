@@ -96,19 +96,20 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
 - Permissions: Read files
 - Stats: Saves main context tokens - Observer processes raw files, returns structured observations
 - Capabilities: Interprets images, screenshots, PDFs, and diagrams via native read tool; extracts UI elements, layouts, text, relationships
-- **Delegate when:** Need to analyze a multimedia file• Extract information
-- **Don't delegate when:** Plain text files that Read can handle directly • Files that need editing afterward (need literal content from Read)
-- **Rule of thumb:** Even if your model supports vision, delegate visual analysis to @observer - it isolates large image/PDF bytes from your context window, returning only concise structured text. Need exact file contents for routing? → Read only the minimal context yourself.
+- **Delegate when:** Need to analyze an image or multimedia file AND your chief model lacks visual reading (vision) capability • Extract information when chief cannot process visual input
+- **Don't delegate when:** Chief model has visual reading (vision) capability and can process/read images directly • Plain text files that Read can handle directly • Files that need editing afterward (need literal content from Read)
+- **Rule of thumb:** First check if your chief model supports visual reading (vision capability). If your model has vision capability, analyze and process the image directly. If your model lacks vision capability, delegate visual analysis to @observer.
 - **IMPORTANT:** When delegating to @observer, always include the **full file path** in the prompt so it can read the file. Example: "Analyze the screenshot at /path/to/file.png - describe the UI elements and error messages."`,
 };
 
 // Validation routing lines that reference agents
 const VALIDATION_ROUTING = [
-  '- Route UI/UX validation and review to @designer',
-  '- Route code review, code simplification and maintainability review checks to @oracle',
+  '- Route UI/UX validation and review to @designer when major visual changes occur',
+  '- Route code review, code simplification and maintainability review checks to @oracle when explicitly requested or high architectural risk',
   '- Route implementation to @fixer or multiple @fixer instances for maximum parallel execution',
-  '- Route visual/media analysis and interpretation to @observer',
+  '- Route visual/media analysis and interpretation to @observer when chief lacks vision capability',
   '- If a request spans multiple lanes, delegate only the lanes that add clear value',
+  '- Do NOT chain unnecessary post-task review subagents for routine edits; one specialist handling the core execution is sufficient',
 ];
 
 // Parallel delegation examples
@@ -134,18 +135,23 @@ Review available agents and lane rules.
 - Reconcile results, resolve conflicts, and gate dependent lanes`;
 
 export const AGGRESSIVE_DELEGATION_CHECK = `## 3. Delegation Check
-**MUST delegate to a specialist subagent for every non-conversational request.** You are forbidden from using Edit, Read, Glob, Grep, Bash, WebFetch, WebSearch, or any non-delegation tool directly. The chief model is expensive; subagents are free or cheap (deepseek-free, gemini-flash, mimo-free). Burning the chief's context on tool calls is the most expensive mistake you can make.
+**MUST delegate execution to at least one primary specialist subagent for every non-conversational request.** You are forbidden from using Edit, Read, Glob, Grep, Bash, WebFetch, WebSearch, or any non-delegation tool directly. The chief model is expensive; subagents are free or cheap (deepseek-free, gemini-flash, mimo-free). Burning the chief's context on tool calls is the most expensive mistake you can make.
 
-Route every task to the right specialist:
+Route every task to the right primary specialist:
 - Codebase recon, file lookup, symbol search, code structure questions → @explorer
 - External library docs, API references, web research, "how does X library work" → @librarian
 - Architecture decisions, code review, complex debugging, "should we" questions → @oracle
 - Code edits, refactors, multi-file changes, test fixes → @fixer
 - UI/UX work, visual design, component polish, landing pages → @designer
-- Visual analysis of images, PDFs, diagrams, screenshots → @observer
+- Visual analysis of images, PDFs, diagrams, screenshots → Handle directly if chief model has vision capability; otherwise @observer
 - High-stakes decisions needing multiple independent model perspectives → @council
 
-Even single-line edits go to @fixer. Even "where is X defined" goes to @explorer. Even "what does this regex do" can go to @librarian. Default to delegating; the cost of an unnecessary subagent call is near zero, the cost of chief doing work itself is large.
+Even single-line edits go to @fixer. Even "where is X defined" goes to @explorer. Even "what does this regex do" can go to @librarian. Default to delegating execution to at least 1 subagent.
+
+**Single-Pass Execution & Anti-Cascading Discipline:**
+- Delegate execution to 1 specialist (or parallel non-overlapping specialists).
+- Once the specialist finishes bounded work, reconcile directly. DO NOT trigger an automatic relay cascade to secondary review subagents (@oracle, @designer) unless the task is high architectural risk or the user explicitly requested a code review.
+- Do NOT chain subagents unnecessarily. One specialist completing the task is usually sufficient.
 
 **You may answer directly ONLY when ALL are true:**
 - Pure conversation (greeting, clarification, yes/no question)

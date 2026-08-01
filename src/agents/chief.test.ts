@@ -1,3 +1,4 @@
+/// <reference types="bun-types" />
 import { describe, expect, test } from 'bun:test';
 import {
   AGGRESSIVE_DELEGATION_CHECK,
@@ -12,18 +13,24 @@ describe('buildChiefPrompt', () => {
     // Conservative-only phrase: "Review available agents and lane rules"
     expect(prompt).toContain('Review available agents and lane rules');
     // Aggressive-only phrase should NOT appear
-    expect(prompt).not.toContain('MUST delegate to a specialist subagent');
+    expect(prompt).not.toContain(
+      'MUST delegate execution to at least one primary specialist',
+    );
   });
 
   test('conservative mode explicit produces conservative delegation text', () => {
     const prompt = buildChiefPrompt(undefined, 'conservative');
     expect(prompt).toContain('Review available agents and lane rules');
-    expect(prompt).not.toContain('MUST delegate to a specialist subagent');
+    expect(prompt).not.toContain(
+      'MUST delegate execution to at least one primary specialist',
+    );
   });
 
   test('aggressive mode produces aggressive delegation text', () => {
     const prompt = buildChiefPrompt(undefined, 'aggressive');
-    expect(prompt).toContain('MUST delegate to a specialist subagent');
+    expect(prompt).toContain(
+      'MUST delegate execution to at least one primary specialist',
+    );
     expect(prompt).toContain(
       'forbidden from using Edit, Read, Glob, Grep, Bash',
     );
@@ -78,6 +85,19 @@ describe('buildChiefPrompt', () => {
     expect(withoutExplorer).not.toContain('Fast codebase recon');
   });
 
+  test('observer description instructs chief to check vision capability before delegating', () => {
+    const prompt = buildChiefPrompt();
+    expect(prompt).toContain(
+      'First check if your chief model supports visual reading (vision capability)',
+    );
+    expect(prompt).toContain(
+      'If your model has vision capability, analyze and process the image directly',
+    );
+    expect(prompt).toContain(
+      'If your model lacks vision capability, delegate visual analysis to @observer',
+    );
+  });
+
   test('constants contain expected marker phrases', () => {
     expect(CONSERVATIVE_DELEGATION_CHECK).toContain('## 3. Delegation Check');
     expect(AGGRESSIVE_DELEGATION_CHECK).toContain('## 3. Delegation Check');
@@ -101,9 +121,12 @@ describe('createChiefAgent', () => {
       'aggressive',
     );
     const prompt = agent.config.prompt ?? '';
-    expect(prompt).toContain('MUST delegate to a specialist subagent');
+    expect(prompt).toContain(
+      'MUST delegate execution to at least one primary specialist',
+    );
     expect(prompt).toContain(
       'forbidden from using Edit, Read, Glob, Grep, Bash',
     );
+    expect(prompt).toContain('Anti-Cascading Discipline');
   });
 });
